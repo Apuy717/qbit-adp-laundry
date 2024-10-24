@@ -5,7 +5,7 @@ import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import { useFormik } from "formik";
+import { Formik, FormikHelpers, FormikValues, useFormik } from "formik";
 import * as Yup from "yup";
 
 // export const metadata: Metadata = {
@@ -16,8 +16,8 @@ import * as Yup from "yup";
 const SignIn: React.FC = () => {
   const formik = useFormik({
     initialValues: {
-      emailOrPhoneNumber: null,
-      password: null,
+      emailOrPhoneNumber: "",
+      password: "",
     },
     validationSchema: Yup.object({
       emailOrPhoneNumber: Yup.string()
@@ -40,7 +40,23 @@ const SignIn: React.FC = () => {
         .required("Password diperlukan")
         .min(6, "Password harus minimal 6 karakter"),
     }),
-    onSubmit: () => {},
+    onSubmit: async (value) => {
+      console.log(value);
+
+      // try {
+      //   const response = await fetch('http://101.255.104.213:3000/auth/login', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify(value)
+      //   })
+      //   console.log(value);
+
+      // } catch (error) {
+
+      // }
+    },
   });
   return (
     <DefaultLayout>
@@ -201,17 +217,19 @@ const SignIn: React.FC = () => {
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                 Sign In
               </h2>
-
-              <form>
+              <form onSubmit={formik.handleSubmit}>
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label htmlFor="emailOrPhoneNumber" className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
                   <div className="relative">
                     <input
-                      type="email"
+                      id="emailOrPhoneNumber"
+                      name="emailOrPhoneNumber"
                       placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      onChange={formik.handleChange}
+                      value={formik.values.emailOrPhoneNumber}
                     />
 
                     <span className="absolute right-4 top-4">
@@ -235,14 +253,17 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label htmlFor="password" className="mb-2.5 block font-medium text-black dark:text-white">
                     Password
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
+                      id="password"
+                      name="password"
                       placeholder="6+ Characters, 1 Capital letter"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      onChange={formik.handleChange}
+                      value={formik.values.password}
                     />
 
                     <span className="absolute right-4 top-4">
