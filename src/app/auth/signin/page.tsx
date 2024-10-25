@@ -43,19 +43,25 @@ const SignIn: React.FC = () => {
     onSubmit: async (value) => {
       console.log(value);
 
-      // try {
-      //   const response = await fetch('http://101.255.104.213:3000/auth/login', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify(value)
-      //   })
-      //   console.log(value);
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(value)
+        })
+        console.log(response.json());
+        console.log(response.status);
+        if (response.status != 200) {
+          alert(`Login gagal, status kode ${response.status}`)
+        } else {
+          window.location.href = '/'
+        }
 
-      // } catch (error) {
-
-      // }
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
   return (
