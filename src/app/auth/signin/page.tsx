@@ -1,11 +1,13 @@
 "use client";
-import React, { useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import { Formik, FormikHelpers, FormikValues, useFormik } from "formik";
+import reqApi from "@/libs/reqApi";
+import { iAuthRedux, setLogin } from "@/stores/authReducer";
+import { RootState } from "@/stores/store";
+import { useFormik } from "formik";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
 // export const metadata: Metadata = {
@@ -14,6 +16,10 @@ import * as Yup from "yup";
 // };
 
 const SignIn: React.FC = () => {
+  const dispatch = useDispatch();
+  const auth = useSelector((s: RootState) => s.auth);
+  console.log(auth);
+
   const formik = useFormik({
     initialValues: {
       emailOrPhoneNumber: "",
@@ -43,24 +49,22 @@ const SignIn: React.FC = () => {
     onSubmit: async (value) => {
       console.log(value);
 
-      try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(value)
-        })
-        console.log(response.json());
-        console.log(response.status);
-        if (response.status != 200) {
-          alert(`Login gagal, status kode ${response.status}`)
-        } else {
-          window.location.href = '/'
-        }
+      const res = await reqApi.POST("/auth/login", value);
 
-      } catch (error) {
-        console.log(error);
+      if (res?.statusCode === 200) {
+        const data = res.data as iAuthRedux;
+        dispatch(
+          setLogin({
+            id: data.id,
+            outlet_id: data.outlet_id,
+            fullname: data.fullname,
+            dial_code: data.dial_code,
+            phone_number: data.phone_number,
+            email: data.email,
+            role: data.role,
+            auth: data.auth,
+          }),
+        );
       }
     },
   });
@@ -225,7 +229,10 @@ const SignIn: React.FC = () => {
               </h2>
               <form onSubmit={formik.handleSubmit}>
                 <div className="mb-4">
-                  <label htmlFor="emailOrPhoneNumber" className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label
+                    htmlFor="emailOrPhoneNumber"
+                    className="mb-2.5 block font-medium text-black dark:text-white"
+                  >
                     Email
                   </label>
                   <div className="relative">
@@ -259,7 +266,10 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label htmlFor="password" className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label
+                    htmlFor="password"
+                    className="mb-2.5 block font-medium text-black dark:text-white"
+                  >
                     Password
                   </label>
                   <div className="relative">
