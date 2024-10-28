@@ -19,6 +19,7 @@ import { CiSettings } from "react-icons/ci";
 import { BsGraphDown } from "react-icons/bs";
 import { BiLogoVisualStudio } from "react-icons/bi";
 import { IoLogOutOutline } from "react-icons/io5";
+import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -34,6 +35,11 @@ const menuGroups = [
         label: "Dashboard",
         route: "#",
         children: [{ label: "eCommerce", route: "/" }],
+      },
+      {
+        icon: <HiOutlineBuildingStorefront size={22} />,
+        label: "Outlet",
+        route: "/outlet",
       },
       {
         icon: <FaBoxOpen size={22} />,

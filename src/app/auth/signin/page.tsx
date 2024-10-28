@@ -49,7 +49,7 @@ const SignIn: React.FC = () => {
     onSubmit: async (value) => {
       console.log(value);
 
-      const res = await reqApi.POST("/auth/login", value);
+      const res = await reqApi.POST("/api/auth/login", value);
 
       if (res?.statusCode === 200) {
         const data = res.data as iAuthRedux;
@@ -276,6 +276,7 @@ const SignIn: React.FC = () => {
                     <input
                       id="password"
                       name="password"
+                      type="password"
                       placeholder="6+ Characters, 1 Capital letter"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       onChange={formik.handleChange}
