@@ -32,7 +32,7 @@ export interface iInputFile {
 export const InputDropdown: FC<iInput> = (props) => {
   const [isFocus, setIsFocus] = useState<boolean>(false);
   return (
-    <div className={`${props.className} relative flex-1 px-2`}>
+    <div className={`${props.className} relative flex-1`}>
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
@@ -77,7 +77,7 @@ export const Input: FC<iInput> = (props) => {
         type={props.type ? props.type : "text"}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-2 text-gray-500 focus:outline-none dark:bg-gray-800"
+        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:bg-gray-800"
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}
@@ -153,7 +153,7 @@ export const InputSlider: FC<iInputRange> = (props) => {
 export const InputTextArea: FC<iInput> = (props) => {
   const [isFocus, setIsFocus] = useState<boolean>(false);
   return (
-    <div className={`${props.className} relative flex-1 pl-2 pr-2`}>
+    <div className={`${props.className} relative flex-1`}>
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
