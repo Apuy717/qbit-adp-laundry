@@ -20,6 +20,13 @@ interface GetOptions {
   url: string;
 }
 
+export interface iResponse<T> {
+  statusCode: number;
+  msg: string;
+  data: T;
+  err: string | string[];
+}
+
 export async function GET<R>({ url }: GetOptions): Promise<R> {
   try {
     const res = await fetch(url, {

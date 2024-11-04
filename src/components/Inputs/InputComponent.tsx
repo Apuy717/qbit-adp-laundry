@@ -36,9 +36,8 @@ export const InputDropdown: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${
-          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
-        }  left-4 text-gray-500`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+          }  left-4 text-gray-500`}
       >
         {props.label}
       </label>
@@ -57,9 +56,8 @@ export const InputDropdown: FC<iInput> = (props) => {
           ))}
       </select>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
-          props.error === null ? `hidden` : `block`
-        }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
+          }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -88,9 +86,8 @@ export const Input: FC<iInput> = (props) => {
 
       <label
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${
-          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
-        }  left-4 text-gray-500 dark:text-gray-300`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+          }  left-4 text-gray-500 dark:text-gray-300`}
       >
         {props.label}
       </label>
@@ -101,9 +98,8 @@ export const Input: FC<iInput> = (props) => {
         <p>{props.info}</p>
       </div>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
-          props.error === null ? `hidden` : `block`
-        }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
+          }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -157,9 +153,8 @@ export const InputTextArea: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${
-          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
-        }  left-4 text-gray-500`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+          }  left-4 text-gray-500`}
       >
         {props.label}
       </label>
@@ -175,9 +170,8 @@ export const InputTextArea: FC<iInput> = (props) => {
         onChange={(e) => props.onChange(e.target.value)}
       ></textarea>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
-          props.error === null ? `hidden` : `block`
-        }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
+          }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -204,17 +198,15 @@ export const InputFile: FC<iInputFile> = (props) => {
         required={props.required}
       />
       <div
-        className={`mr-2 flex flex-row items-center text-sm normal-case text-red-500 ${
-          props.error === null ? `hidden` : `block`
-        }`}
+        className={`mr-2 flex flex-row items-center text-sm normal-case text-red-500 ${props.error === null ? `hidden` : `block`
+          }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
       </div>
       <div
-        className={`mr-2 flex flex-row items-center text-xs normal-case text-gray-500 ${
-          props.info ? `block` : `hidden`
-        }`}
+        className={`mr-2 flex flex-row items-center text-xs normal-case text-gray-500 ${props.info ? `block` : `hidden`
+          }`}
       >
         <BiInfoCircle className="mr-1" />
         <p>{props.info}</p>

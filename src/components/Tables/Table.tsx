@@ -32,67 +32,68 @@ const Table: React.FC<iTable> = (props) => {
         <tbody>{props.children}</tbody>
       </table>
 
-      <nav
-        className="flex-column flex flex-wrap items-center justify-between p-4 md:flex-row"
-        aria-label="Table navigation"
-      >
-        <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
-          Showing{" "}
-          <span className="font-semibold text-gray-900 dark:text-white">
-            1-{10}
-          </span>{" "}
-          of{" "}
-          <span className="font-semibold text-gray-900 dark:text-white">
-            {100}
+      {props.currentPage >= 1 && (
+        <nav
+          className="flex-column flex flex-wrap items-center justify-between p-4 md:flex-row"
+          aria-label="Table navigation"
+        >
+          <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
+            Menampilkan{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              1-{10}
+            </span>{" "}
+            dari{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {props.totalItem}
+            </span>
           </span>
-        </span>
-        <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
-          <li>
-            <button
-              className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              onClick={() => {
-                if (props.currentPage > 1)
-                  props.onPaginate(props.currentPage - 1);
-              }}
-            >
-              Previous
-            </button>
-          </li>
-          {[...Array(endPage - startPage + 1)].map((_, index) => {
-            const pageNumber = startPage + index;
-            return (
-              <li key={index}>
-                <button
-                  className={`flex h-8 items-center justify-center px-3 leading-tight 
+          <ul className="inline-flex h-8 -space-x-px text-sm rtl:space-x-reverse">
+            <li>
+              <button
+                className="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                onClick={() => {
+                  if (props.currentPage > 1)
+                    props.onPaginate(props.currentPage - 1);
+                }}
+              >
+                Previous
+              </button>
+            </li>
+            {[...Array(endPage - startPage + 1)].map((_, index) => {
+              const pageNumber = startPage + index;
+              return (
+                <li key={index}>
+                  <button
+                    className={`flex h-8 items-center justify-center px-3 leading-tight 
                 dark:border-gray-700 dark:bg-gray-800 
-                dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
-                  props.currentPage === pageNumber
-                    ? "border border-gray-300 bg-gray-400 text-white"
-                    : "border border-gray-300 bg-white text-gray-500"
-                }`}
-                  onClick={() => {
-                    props.onPaginate(pageNumber);
-                  }}
-                >
-                  {pageNumber}
-                </button>
-              </li>
-            );
-          })}
+                dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${props.currentPage === pageNumber
+                        ? "border border-gray-300 bg-gray-400 text-white"
+                        : "border border-gray-300 bg-white text-gray-500"
+                      }`}
+                    onClick={() => {
+                      props.onPaginate(pageNumber);
+                    }}
+                  >
+                    {pageNumber}
+                  </button>
+                </li>
+              );
+            })}
 
-          <li>
-            <button
-              className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              onClick={() => {
-                if (props.currentPage < totalPages)
-                  props.onPaginate(props.currentPage + 1);
-              }}
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+            <li>
+              <button
+                className="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                onClick={() => {
+                  if (props.currentPage < totalPages)
+                    props.onPaginate(props.currentPage + 1);
+                }}
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   );
 };
