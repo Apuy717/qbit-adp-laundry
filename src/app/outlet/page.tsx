@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
 
 interface MyResponse {
   statusCode: number;
@@ -44,6 +43,7 @@ export default function OutletPage() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const router = useRouter();
+
   useEffect(() => {
     const GotOutlets = async () => {
       let urlwithQuery = `/api/outlet?page=${currentPage}&limit=${10}`;
@@ -56,7 +56,6 @@ export default function OutletPage() {
         token: `${auth.auth.access_token}`,
       });
 
-      if (res?.statusCode === 403 || 404 || 400) toast.warning(res?.err);
       if (res?.statusCode === 200) {
         setTotalOutlet(res.total);
         setOutlets(res.data);
@@ -89,30 +88,35 @@ export default function OutletPage() {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Outlet" />
-      <div className="flex flex-row items-center space-x-2 pb-4">
-        <div className="w-90">
-          <Input
-            label={"Pencarian"}
-            name={"search"}
-            id={"search"}
-            value={search}
-            onChange={(v) => setSearch(v)}
-            error={null}
-          />
+      <div className="w-full bg-white p-4 mb-4 rounded-t">
+        <div className="flex flex-row items-center space-x-2 pb-4">
+          <div className="w-90">
+            <Input
+              label={"Pencarian"}
+              name={"search"}
+              id={"search"}
+              value={search}
+              onChange={(v) => setSearch(v)}
+              error={null}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          >
+            Cari
+          </button>
+          <Link
+            href={"/outlet/create"}
+            className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
+            hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          >
+            Buat Outlet
+          </Link>
         </div>
-        <button
-          onClick={handleSearch}
-          className={`${auth.role.name !== ERoles.PROVIDER && "hidden"} inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-        >
-          Cari
-        </button>
-        <Link
-          href={"/outlet/create"}
-          className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-        >
-          Buat Outlet
-        </Link>
       </div>
+
       <Table
         colls={CELLS}
         onPaginate={(page) => setCurrentPage(page)}
@@ -130,10 +134,10 @@ export default function OutletPage() {
               {i.dial_code} {i.phone_number}
             </td>
             <td className="px-6 py-4">
-              {i.address}
-              {i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district},
-              {i.city.split("--").length >= 2 ? i.city.split("--")[1] : i.city},
-              {i.province.split("--").length >= 2 ? i.province.split("--")[1] : i.province},
+              {i.address} {" "}
+              {i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district},{" "}
+              {i.city.split("--").length >= 2 ? i.city.split("--")[1] : i.city},{" "}
+              {i.province.split("--").length >= 2 ? i.province.split("--")[1] : i.province},{" "}
               {i.postal_code}
             </td>
             <td className="px-6 py-4">

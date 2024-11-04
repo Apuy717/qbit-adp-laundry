@@ -280,6 +280,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             <Input
               label={"No. Hp*"}
               name={"phone_number"}
+              type="number"
               id={"phone_number"}
               value={formik.values.phone_number}
               onChange={(value) => {

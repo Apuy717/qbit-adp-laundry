@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import SidebarItem from "@/components/Sidebar/SidebarItem";
 import ClickOutside from "@/components/ClickOutside";
+import SidebarItem from "@/components/Sidebar/SidebarItem";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { MdOutlineDashboard } from "react-icons/md";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { BiLogoVisualStudio } from "react-icons/bi";
+import { BsGraphDown } from "react-icons/bs";
+import { CiSettings } from "react-icons/ci";
 import {
   FaBoxOpen,
   FaCalendar,
   FaTable,
   FaUser,
+  FaUsers,
   FaWpforms,
 } from "react-icons/fa";
-import { CiSettings } from "react-icons/ci";
-import { BsGraphDown } from "react-icons/bs";
-import { BiLogoVisualStudio } from "react-icons/bi";
-import { IoLogOutOutline } from "react-icons/io5";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
+import { IoLogOutOutline } from "react-icons/io5";
+import { MdOutlineDashboard } from "react-icons/md";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -45,6 +45,11 @@ const menuGroups = [
         icon: <FaBoxOpen size={22} />,
         label: "Product",
         route: "/product",
+      },
+      {
+        icon: <FaUsers size={22} />,
+        label: "Karyawan",
+        route: "/employee",
       },
       {
         icon: <FaCalendar size={22} />,
@@ -114,9 +119,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
       <aside
-        className={`fixed left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* <!-- SIDEBAR HEADER --> */}
         <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
