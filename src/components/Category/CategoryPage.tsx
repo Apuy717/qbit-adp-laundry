@@ -1,21 +1,21 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { GET, GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
+import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import { CategoryType } from "@/types/category";
-import React, { useEffect, useState } from "react";
-import { FiEdit, FiEye, FiLock } from "react-icons/fi";
-import { useSelector } from "react-redux";
-import { Input, InputDropdown, InputToggle } from "../Inputs/InputComponent";
-import Table from "../Tables/Table";
-import Modal from "../Modals/Modal";
-import { IoCloseOutline } from "react-icons/io5";
-import { ERoles } from "@/stores/authReducer";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Outlet } from "@/types/outlet";
+import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
+import { IoCloseOutline } from "react-icons/io5";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import * as Yup from "yup";
+import { Input, InputDropdown, InputToggle } from "../Inputs/InputComponent";
+import Modal from "../Modals/Modal";
+import Table from "../Tables/Table";
 
 const CategoryPage: React.FC = () => {
   const { auth } = useSelector((s: RootState) => s.auth)
