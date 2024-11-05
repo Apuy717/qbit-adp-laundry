@@ -22,6 +22,7 @@ interface GetOptions {
 
 export interface iResponse<T> {
   statusCode: number;
+  total: number | undefined
   msg: string;
   data: T;
   err: string | string[];

@@ -137,7 +137,7 @@ export default function PageEmployee() {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Karyawan" />
-      <div className="w-full bg-white p-4 mb-4 rounded-t">
+      <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
             <Input
@@ -158,7 +158,7 @@ export default function PageEmployee() {
           </button>
           <Link
             href={"/employee/create"}
-            className={`${credential.role.name === ERoles.PROVIDER || ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
+            className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
