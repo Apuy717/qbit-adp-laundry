@@ -43,8 +43,12 @@ const menuGroups = [
       },
       {
         icon: <FaBoxOpen size={22} />,
-        label: "Product",
-        route: "/product",
+        label: "Products",
+        route: "#",
+        children: [
+          { label: "Product", route: "/product" },
+          { label: "Category", route: "/category" },
+          { label: "Voucher", route: "/voucher" }],
       },
       {
         icon: <FaUsers size={22} />,
