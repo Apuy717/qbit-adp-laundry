@@ -1,4 +1,5 @@
 "use client";
+import { Input } from "@/components/Inputs/InputComponent";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import reqApi from "@/libs/reqApi";
 import { iAuthRedux, setLogin } from "@/stores/authReducer";
@@ -6,6 +7,7 @@ import { RootState } from "@/stores/store";
 import { useFormik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
@@ -18,7 +20,7 @@ import * as Yup from "yup";
 const SignIn: React.FC = () => {
   const dispatch = useDispatch();
   const auth = useSelector((s: RootState) => s.auth);
-  console.log(auth);
+  const { replace } = useRouter()
 
   const formik = useFormik({
     initialValues: {
@@ -47,9 +49,22 @@ const SignIn: React.FC = () => {
         .min(6, "Password harus minimal 6 karakter"),
     }),
     onSubmit: async (value) => {
-      console.log(value);
-
       const res = await reqApi.POST("/api/auth/login", value);
+
+      if (res?.statusCode === 404) {
+        formik.setFieldError("emailOrPhoneNumber", res?.err);
+      }
+
+      if (res?.statusCode === 403) {
+        formik.setFieldError("password", res?.err);
+      }
+
+      if (res?.statusCode === 422) {
+        (res.err as string[]).map((i) => {
+          const field = i.split(" ");
+          if (field.length >= 1) formik.setFieldError(field[0], i);
+        });
+      }
 
       if (res?.statusCode === 200) {
         const data = res.data as iAuthRedux;
@@ -65,6 +80,9 @@ const SignIn: React.FC = () => {
             auth: data.auth,
           }),
         );
+
+        replace("/")
+
       }
     },
   });
@@ -229,20 +247,18 @@ const SignIn: React.FC = () => {
               </h2>
               <form onSubmit={formik.handleSubmit}>
                 <div className="mb-4">
-                  <label
-                    htmlFor="emailOrPhoneNumber"
-                    className="mb-2.5 block font-medium text-black dark:text-white"
-                  >
-                    Email
-                  </label>
                   <div className="relative">
-                    <input
-                      id="emailOrPhoneNumber"
-                      name="emailOrPhoneNumber"
-                      placeholder="Enter your email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      onChange={formik.handleChange}
+                    <Input
+                      label={"Email"}
+                      name={"emailOrPhoneNumber"}
+                      id={"emailOrPhoneNumber"}
                       value={formik.values.emailOrPhoneNumber}
+                      onChange={(val) => formik.setFieldValue("emailOrPhoneNumber", val)}
+                      error={
+                        formik.touched.emailOrPhoneNumber && formik.errors.emailOrPhoneNumber
+                          ? formik.errors.emailOrPhoneNumber
+                          : null
+                      }
                     />
 
                     <span className="absolute right-4 top-4">
@@ -265,22 +281,20 @@ const SignIn: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <label
-                    htmlFor="password"
-                    className="mb-2.5 block font-medium text-black dark:text-white"
-                  >
-                    Password
-                  </label>
+                <div className="mb-6 mt-10">
                   <div className="relative">
-                    <input
-                      id="password"
-                      name="password"
+                    <Input
+                      label={"Kata Sandi"}
+                      name={"password"}
+                      id={"password"}
                       type="password"
-                      placeholder="6+ Characters, 1 Capital letter"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      onChange={formik.handleChange}
                       value={formik.values.password}
+                      onChange={(val) => formik.setFieldValue("password", val)}
+                      error={
+                        formik.touched.password && formik.errors.password
+                          ? formik.errors.password
+                          : null
+                      }
                     />
 
                     <span className="absolute right-4 top-4">
