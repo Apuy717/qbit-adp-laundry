@@ -1,30 +1,55 @@
 import flatpickr from "flatpickr";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-const DatePickerOne = () => {
+interface iDatePickerInput {
+  label: string;
+  defaultDate: Date | string;
+  onChange: (v: string) => void
+}
+
+export const DatePickerOne = (props: iDatePickerInput) => {
+  const refInput = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
+    if (refInput.current === null) return
     // Init flatpickr
-    flatpickr(".form-datepicker", {
+    flatpickr(refInput.current, {
+      enableTime: true,
       mode: "single",
+      time_24hr: true,
       static: true,
       monthSelectorType: "static",
-      dateFormat: "M j, Y",
+      dateFormat: "Y-m-d,  H-i-s",
+      defaultHour: 0,
+      defaultMinute: 0,
+      defaultSeconds: 0,
+      defaultDate: props.defaultDate,
       prevArrow:
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+      onChange: (selectedDates) => {
+        if (selectedDates.length > 0) {
+          // Mengonversi ke format ISO tanpa milidetik
+          const isoDate = selectedDates[0].toISOString().split(".")[0];
+          props.onChange(isoDate);
+        }
+      },
     });
-  }, []);
+  }, [refInput.current]);
 
   return (
-    <div>
-      <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-        Date picker
+    <div className="w-full relative">
+      <label
+        className={`text-md absolute z-10 bg-white transition-all duration-500 dark:dark:bg-boxdark -top-3 left-4 text-gray-500`}
+      >
+        {props.label}
       </label>
       <div className="relative">
         <input
-          className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-          placeholder="mm/dd/yyyy"
+          ref={refInput}
+          className="form-datepicker w-full rounded border-[1.5px] border-gray-400  px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+          placeholder="yyyy/mm/dd"
           data-class="flatpickr-right"
         />
 
@@ -47,4 +72,4 @@ const DatePickerOne = () => {
   );
 };
 
-export default DatePickerOne;
+

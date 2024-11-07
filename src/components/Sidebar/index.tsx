@@ -10,16 +10,15 @@ import { BiLogoVisualStudio } from "react-icons/bi";
 import { BsGraphDown } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import {
-  FaBoxOpen,
-  FaCalendar,
   FaTable,
   FaUser,
   FaUsers,
-  FaWpforms,
+  FaWpforms
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
-import { IoLogOutOutline } from "react-icons/io5";
 import { MdOutlineDashboard } from "react-icons/md";
+import { RiShoppingBag2Line } from "react-icons/ri";
+import { TbShoppingBagPlus } from "react-icons/tb";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -42,7 +41,7 @@ const menuGroups = [
         route: "/outlet",
       },
       {
-        icon: <FaBoxOpen size={22} />,
+        icon: <RiShoppingBag2Line size={22} />,
         label: "Products",
         route: "#",
         children: [
@@ -51,14 +50,18 @@ const menuGroups = [
           { label: "Voucher", route: "/voucher" }],
       },
       {
+        icon: <TbShoppingBagPlus size={23} />,
+        label: "Purchase Request",
+        route: "#",
+        children: [
+          { label: "Item", route: "/purchase-request/item" },
+          { label: "Pengeluaran", route: "/purchase-request/trx" }
+        ],
+      },
+      {
         icon: <FaUsers size={22} />,
         label: "Karyawan",
         route: "/employee",
-      },
-      {
-        icon: <FaCalendar size={22} />,
-        label: "Calendar",
-        route: "/calendar",
       },
       {
         icon: <FaUser size={22} />,
@@ -101,15 +104,6 @@ const menuGroups = [
         children: [
           { label: "Alerts", route: "/ui/alerts" },
           { label: "Buttons", route: "/ui/buttons" },
-        ],
-      },
-      {
-        icon: <IoLogOutOutline size={23} />,
-        label: "Authentication",
-        route: "#",
-        children: [
-          { label: "Sign In", route: "/auth/signin" },
-          { label: "Sign Up", route: "/auth/signup" },
         ],
       },
     ],
