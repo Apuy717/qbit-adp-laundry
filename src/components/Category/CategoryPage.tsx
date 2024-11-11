@@ -111,11 +111,13 @@ const CategoryPage: React.FC = () => {
     onSubmit: async (values) => {
       if (loading) return
       setLoading(true)
+      let updateId = {}
+      if (values.id !== null) updateId = { id: values.id }
       const res = await PostWithToken<iResponse<CategoryType>>({
         router: router,
         url: "/api/category/create-update",
         data: {
-          id: values.id,
+          ...updateId,
           name: values.name,
           slug: values.slug.length >= 1 ? values.slug : null,
           is_deleted: values.is_deleted,
