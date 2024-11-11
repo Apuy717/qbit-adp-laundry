@@ -6,7 +6,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BiLogoVisualStudio } from "react-icons/bi";
+import { BiLogoVisualStudio, BiSolidWasher } from "react-icons/bi";
 import { BsGraphDown } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import {
@@ -93,9 +93,9 @@ const menuGroups = [
     name: "OTHERS",
     menuItems: [
       {
-        icon: <BsGraphDown size={23} />,
-        label: "Chart",
-        route: "/chart",
+        icon: <BiSolidWasher size={23} />,
+        label: "Mesin",
+        route: "/machine",
       },
       {
         icon: <BiLogoVisualStudio size={23} />,

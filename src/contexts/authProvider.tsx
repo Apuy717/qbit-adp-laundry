@@ -21,5 +21,5 @@ export const AuthProvider: FC<iLayoutProvider> = ({ children }) => {
     }
   }, [auth.auth.access_token]);
 
-  return <React.Fragment>{children}</React.Fragment>;
+  return <React.Fragment >{children}</React.Fragment>;
 };

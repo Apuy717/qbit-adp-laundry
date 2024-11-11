@@ -137,7 +137,7 @@ export default function PRTrxPage() {
               })}
             </td>
             <td className="whitespace-nowrap px-6 py-4">
-              {i.total}
+              {rupiah(parseInt(i.total))}
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.trx_pr_items.length}
