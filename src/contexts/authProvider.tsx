@@ -16,9 +16,7 @@ export const AuthProvider: FC<iLayoutProvider> = ({ children }) => {
       auth.auth.access_token !== null && auth.auth.access_token.length >= 1,
     );
 
-    if (auth.auth.access_token !== null && auth.auth.access_token.length >= 1) {
-      replace("/");
-    } else {
+    if (auth.auth.access_token === null || auth.auth.access_token.length <= 0) {
       replace("/auth/signin");
     }
   }, [auth.auth.access_token]);
