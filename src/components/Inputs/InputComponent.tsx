@@ -86,7 +86,7 @@ export const Input: FC<iInput> = (props) => {
 
       <label
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || typeof props.value === "number" ||typeof props.value === "string" && props.value.length >= 1 ? `-top-3` : `top-3`
           }  left-4 text-gray-500 dark:text-gray-300`}
       >
         {props.label}
