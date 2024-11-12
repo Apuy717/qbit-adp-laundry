@@ -115,11 +115,11 @@ export default function CreateProduct() {
           stock: "",
           unit: "",
           machine_washer: false,
-          washer_duration: "",
+          washer_duration: 0,
           machine_dryer: false,
-          dryer_duration: "",
+          dryer_duration: 0,
           machine_iron: false,
-          iron_duration: "",
+          iron_duration: 0,
         },
       ],
     },
@@ -135,9 +135,9 @@ export default function CreateProduct() {
           name: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
           price: Yup.number().min(0).required('Harus diisi'),
-          type: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
-          stock: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
-          unit: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
+          type: Yup.string().max(100, "Maksimal 100 karakter!"),
+          stock: Yup.string().max(100, "Maksimal 100 karakter!"),
+          unit: Yup.string().max(100, "Maksimal 100 karakter!"),
           washer_duration: Yup.number().min(0),
           dryer_duration: Yup.number().min(0),
           iron_duration: Yup.number().min(0),
@@ -419,7 +419,7 @@ export default function CreateProduct() {
                   label={toggleWasher ? "Durasi mesin cuci*" : ""}
                   name={"unit"}
                   id={"unit"}
-                  value={formik.values.variants[index].washer_duration}
+                  value={`${formik.values.variants[index].washer_duration ? formik.values.variants[index].washer_duration:""}`}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].washer_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.washer_duration &&
@@ -441,7 +441,7 @@ export default function CreateProduct() {
                   label={toggleDryer ? "Durasi mesin pengering*" : ""}
                   name={"unit"}
                   id={"unit"}
-                  value={formik.values.variants[index].dryer_duration}
+                  value={formik.values.variants[index].dryer_duration?formik.values.variants[index].dryer_duration:``}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].dryer_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.dryer_duration &&
