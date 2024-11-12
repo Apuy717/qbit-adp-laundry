@@ -258,8 +258,8 @@ export default function PagePaymentMethod() {
                   formik.setFieldValue("outlet_id", i.outlet_id)
                   formik.setFieldValue("name", i.name)
                   formik.setFieldValue("type", i.type)
-                  formik.setFieldValue("account_name", `${i.account_name}`)
-                  formik.setFieldValue("account_number", `${i.account_number}`)
+                  formik.setFieldValue("account_name", i.account_name ? i.account_name : "")
+                  formik.setFieldValue("account_number", i.account_number ? i.account_number : "")
                   formik.setFieldValue("icon", `${i.icon}`)
                   formik.setFieldValue("is_deleted", i.is_deleted)
                   setModalForm(true);
