@@ -64,28 +64,12 @@ const menuGroups = [
         route: "/employee",
       },
       {
-        icon: <FaUser size={22} />,
-        label: "Profile",
-        route: "/profile",
-      },
-      {
-        icon: <FaWpforms size={22} />,
-        label: "Forms",
-        route: "#",
-        children: [
-          { label: "Form Elements", route: "/forms/form-elements" },
-          { label: "Form Layout", route: "/forms/form-layout" },
-        ],
-      },
-      {
-        icon: <FaTable size={22} />,
-        label: "Tables",
-        route: "/tables",
-      },
-      {
         icon: <CiSettings size={30} />,
         label: "Settings",
-        route: "/settings",
+        route: "#",
+        children: [
+          { label: "Payment Metod", route: "/payment-method" },
+        ]
       },
     ],
   },
@@ -105,6 +89,25 @@ const menuGroups = [
           { label: "Alerts", route: "/ui/alerts" },
           { label: "Buttons", route: "/ui/buttons" },
         ],
+      },
+      {
+        icon: <FaUser size={22} />,
+        label: "Profile",
+        route: "/profile",
+      },
+      {
+        icon: <FaWpforms size={22} />,
+        label: "Forms",
+        route: "#",
+        children: [
+          { label: "Form Elements", route: "/forms/form-elements" },
+          { label: "Form Layout", route: "/forms/form-layout" },
+        ],
+      },
+      {
+        icon: <FaTable size={22} />,
+        label: "Tables",
+        route: "/tables",
       },
     ],
   },
