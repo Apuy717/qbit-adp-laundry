@@ -1,6 +1,8 @@
 import { ChangeEvent, FC, useState } from "react";
 import { BiErrorCircle, BiInfoCircle } from "react-icons/bi";
 
+export interface iDropdown { label: string; value: string }
+
 export interface iInput {
   label: string;
   name: string;
@@ -13,7 +15,7 @@ export interface iInput {
   required?: boolean;
   info?: string;
   placeholder?: string;
-  options?: { label: string; value: string }[] | any[];
+  options?: iDropdown[] | any[];
 }
 
 export interface iInputFile {
@@ -36,7 +38,7 @@ export const InputDropdown: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
           }  left-4 text-gray-500`}
       >
         {props.label}
@@ -46,7 +48,7 @@ export const InputDropdown: FC<iInput> = (props) => {
         id={props.id}
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
-        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:bg-gray-800"
+        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
       >
         {props.options &&
           props.options.map((i, k) => (
@@ -75,7 +77,7 @@ export const Input: FC<iInput> = (props) => {
         type={props.type ? props.type : "text"}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:bg-gray-800"
+        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}
@@ -129,7 +131,7 @@ export const InputSlider: FC<iInputRange> = (props) => {
           max={props.max ? props.max : 150}
           step={props.step ? props.step : 1}
           onChange={(e) => props.onChange(parseFloat(e.target.value))}
-          className="focus:border-apps-primary w-20 rounded border text-center focus:outline-none dark:bg-gray-800 dark:text-gray-500"
+          className="focus:border-apps-primary w-20 rounded border text-center focus:outline-none dark:dark:bg-boxdark dark:text-gray-500"
         />
       </div>
       <input
@@ -153,7 +155,7 @@ export const InputTextArea: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
           }  left-4 text-gray-500`}
       >
         {props.label}
@@ -166,7 +168,7 @@ export const InputTextArea: FC<iInput> = (props) => {
         id={props.id}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-2 p-2 text-gray-500 focus:outline-none dark:bg-gray-800"
+        className="focus:border-apps-primary w-full rounded-md border-2 p-2 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
         onChange={(e) => props.onChange(e.target.value)}
       ></textarea>
       <div

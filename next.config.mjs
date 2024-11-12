@@ -15,6 +15,10 @@ const nextConfig = {
         source: "/api/:path*",
         destination: "http://101.255.104.213:3000/api/:path*",
       },
+      {
+        source: "/file/:path*",
+        destination: "http://101.255.104.213:3000/file/:path*",
+      },
     ];
   },
 };

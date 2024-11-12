@@ -17,11 +17,11 @@ export const AuthProvider: FC<iLayoutProvider> = ({ children }) => {
     );
 
     if (auth.auth.access_token !== null && auth.auth.access_token.length >= 1) {
-      // replace("/");
+      replace("/");
     } else {
       replace("/auth/signin");
     }
   }, [auth.auth.access_token]);
 
-  return <React.Fragment>{children}</React.Fragment>;
+  return <React.Fragment >{children}</React.Fragment>;
 };
