@@ -40,10 +40,6 @@ export default function CreateProduct() {
   const auth = useSelector((s: RootState) => s.auth);
   const serviceType = [
     {
-      label: "",
-      value: ""
-    },
-    {
       label: "services",
       value: "services"
     }, {
@@ -419,7 +415,7 @@ export default function CreateProduct() {
                   label={toggleWasher ? "Durasi mesin cuci*" : ""}
                   name={"unit"}
                   id={"unit"}
-                  value={`${formik.values.variants[index].washer_duration ? formik.values.variants[index].washer_duration:""}`}
+                  value={`${formik.values.variants[index].washer_duration ? formik.values.variants[index].washer_duration : ""}`}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].washer_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.washer_duration &&
@@ -441,7 +437,7 @@ export default function CreateProduct() {
                   label={toggleDryer ? "Durasi mesin pengering*" : ""}
                   name={"unit"}
                   id={"unit"}
-                  value={formik.values.variants[index].dryer_duration?formik.values.variants[index].dryer_duration:``}
+                  value={formik.values.variants[index].dryer_duration ? formik.values.variants[index].dryer_duration : ``}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].dryer_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.dryer_duration &&
