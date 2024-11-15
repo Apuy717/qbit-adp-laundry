@@ -11,9 +11,10 @@ import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
+import { url } from "inspector";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaRegPlusSquare } from "react-icons/fa";
 import { FiEdit, FiEye } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -31,6 +32,8 @@ interface MyResponse {
 const CELLS = [
   "Nama",
   "Deskripsi",
+  "Total SKU",
+  "Dibuat Pada",
   "Status",
   "Aksi",
 ];
@@ -51,12 +54,16 @@ export default function Product() {
   const [loading, setLoading] = useState<boolean>(false);
   const [updateModal, setUpdateModal] = useState<boolean>(false)
   const [productOrSku, setProductOrSku] = useState<boolean>(false)
+  const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false)
 
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter()
 
   const serviceType = [
     {
+      label: "",
+      value: ""
+    }, {
       label: "services",
       value: "services"
     }, {
@@ -128,6 +135,7 @@ export default function Product() {
       is_deleted: "",
       category_id: "",
 
+      product_id: "",
       code: "",
       price: "",
       type: "",
@@ -185,27 +193,52 @@ export default function Product() {
           token: `${auth.auth.access_token}`,
         });
       } else {
-        res = await PostWithToken<MyResponse>({
-          router: router,
-          url: "/api/product/update-sku",
-          data: {
-            id: values.id,
-            code: values.code,
-            name: values.name,
-            description: values.description,
-            price: parseInt(values.price),
-            type: values.type,
-            stock: values.stock,
-            unit: values.unit,
-            machine_washer: values.machine_washer,
-            washer_duration: values.washer_duration,
-            machine_dryer: values.machine_dryer,
-            dryer_duration: values.dryer_duration,
-            machine_iron: values.machine_iron,
-            is_deleted: values.is_deleted
-          },
-          token: `${auth.auth.access_token}`,
-        });
+        if (updateOrAddSku) {
+          res = await PostWithToken<MyResponse>({
+            router: router,
+            url: "/api/product/update-sku",
+            data: {
+              id: values.id,
+              code: values.code,
+              name: values.name,
+              description: values.description,
+              price: parseInt(values.price),
+              type: values.type,
+              stock: values.stock,
+              unit: values.unit,
+              machine_washer: values.machine_washer,
+              washer_duration: values.washer_duration,
+              machine_dryer: values.machine_dryer,
+              dryer_duration: values.dryer_duration,
+              machine_iron: values.machine_iron,
+              is_deleted: values.is_deleted
+            },
+            token: `${auth.auth.access_token}`,
+          });
+        } else {
+          res = await PostWithToken<MyResponse>({
+            router: router,
+            url: "/api/product/add-sku",
+            data: {
+              product_id: values.product_id,
+              code: values.code,
+              name: values.name,
+              description: values.description,
+              price: parseInt(values.price),
+              type: values.type,
+              stock: values.stock,
+              unit: values.unit,
+              machine_washer: values.machine_washer,
+              washer_duration: values.washer_duration,
+              machine_dryer: values.machine_dryer,
+              dryer_duration: values.dryer_duration,
+              machine_iron: values.machine_iron,
+              is_deleted: values.is_deleted
+            },
+            token: `${auth.auth.access_token}`,
+          });
+        }
+
       }
 
 
@@ -271,6 +304,20 @@ export default function Product() {
               </p>
             </td>
             <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+              <p className="text-black dark:text-white mx-4">
+                {prod.skus.length}
+              </p>
+            </td>
+            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+              <p className="text-black dark:text-white mx-4">
+                {new Date(prod.created_at).toLocaleString("id", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric"
+                })}
+              </p>
+            </td>
+            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
               {prod.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 ">
                   <p className="text-white">inactive</p>
@@ -282,7 +329,7 @@ export default function Product() {
               )}
             </td>
             <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <div className="w-1/2">
+              <div className=" flex flex-row items-center space-x-2">
                 <button
                   className="cursor-pointer"
                   onClick={() => {
@@ -294,7 +341,6 @@ export default function Product() {
                   <FiEye size={18} />
                 </button>
                 <button
-                  className="cursor-pointer pl-4"
                   onClick={() => {
                     formik.setFieldValue("id", prod.id)
                     formik.setFieldValue("outlet_id", prod.outlet_id)
@@ -308,6 +354,18 @@ export default function Product() {
                   }}
                 >
                   <FiEdit size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    console.log("product_id ", prod.id);
+
+                    formik.setFieldValue("product_id", prod.id)
+                    formik.setFieldValue("is_deleted", false)
+                    setProductOrSku(false)
+                    setUpdateOrAddSku(false)
+                    setUpdateModal(true)
+                  }}>
+                  <FaRegPlusSquare size={18} />
                 </button>
               </div>
             </td>
@@ -417,6 +475,7 @@ export default function Product() {
                       formik.setFieldValue("machine_iron", i.machine_iron)
                       formik.setFieldValue("is_deleted", i.is_deleted)
                       setUpdateModal(true)
+                      setUpdateOrAddSku(true)
                       setProductOrSku(false)
                     }}
                   >
