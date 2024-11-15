@@ -28,6 +28,7 @@ export default function RootLayout({
   const persistor = persistStore(store);
   return (
     <html lang="en">
+      <title>ADP | Depth Clean</title>
       <body className="dark:bg-boxdark-2 dark:text-bodydark">
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
