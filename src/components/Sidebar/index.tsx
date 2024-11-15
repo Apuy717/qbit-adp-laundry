@@ -10,6 +10,7 @@ import { BiLogoVisualStudio, BiSolidWasher } from "react-icons/bi";
 import { BsGraphDown } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import {
+  FaLayerGroup,
   FaTable,
   FaUser,
   FaUsers,
@@ -17,7 +18,7 @@ import {
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { MdOutlineDashboard } from "react-icons/md";
-import { RiShoppingBag2Line } from "react-icons/ri";
+import { RiMoneyCnyCircleLine, RiShoppingBag2Line } from "react-icons/ri";
 import { TbShoppingBagPlus } from "react-icons/tb";
 
 interface SidebarProps {
@@ -32,8 +33,7 @@ const menuGroups = [
       {
         icon: <MdOutlineDashboard size={23} />,
         label: "Dashboard",
-        route: "#",
-        children: [{ label: "eCommerce", route: "/" }],
+        route: "/",
       },
       {
         icon: <HiOutlineBuildingStorefront size={22} />,
@@ -41,13 +41,19 @@ const menuGroups = [
         route: "/outlet",
       },
       {
+        icon: <FaUsers size={22} />,
+        label: "Karyawan",
+        route: "/employee",
+      },
+      {
         icon: <RiShoppingBag2Line size={22} />,
         label: "Products",
-        route: "#",
-        children: [
-          { label: "Product", route: "/product" },
-          { label: "Category", route: "/category" },
-          { label: "Voucher", route: "/voucher" }],
+        route: "/product",
+      },
+      {
+        icon: <FaLayerGroup size={22} />,
+        label: "Kategori",
+        route: "/category",
       },
       {
         icon: <TbShoppingBagPlus size={23} />,
@@ -55,13 +61,16 @@ const menuGroups = [
         route: "#",
         children: [
           { label: "Item", route: "/purchase-request/item" },
-          { label: "Pengeluaran", route: "/purchase-request/trx" }
         ],
       },
       {
-        icon: <FaUsers size={22} />,
-        label: "Karyawan",
-        route: "/employee",
+        icon: <RiMoneyCnyCircleLine size={23} />,
+        label: "Transaksi",
+        route: "#",
+        children: [
+          { label: "Pemasukan", route: "/orders" },
+          { label: "Pengeluaran", route: "/purchase-request/trx" }
+        ],
       },
       {
         icon: <CiSettings size={30} />,
