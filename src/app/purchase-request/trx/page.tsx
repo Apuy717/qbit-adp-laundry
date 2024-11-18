@@ -113,7 +113,7 @@ export default function PRTrxPage() {
 
 
 
-      <Table colls={["Outlet", "Tanggal", "Total", "Total Item", "Created At", "Aksi"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
+      <Table colls={["Outlet", "Tanggal Nota", "Dibuat Pada", "Total", "Total Item", "Aksi"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
         throw new Error("Function not implemented.");
       }} >
         {transaction.map((i, k) => (
@@ -129,7 +129,17 @@ export default function PRTrxPage() {
             <td className="whitespace-nowrap px-6 py-4">
               {new Date(i.trx_date).toLocaleDateString("id", {
                 day: "2-digit",
-                month: "long",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </td>
+            <td className="whitespace-nowrap px-6 py-4">
+              {new Date(i.created_at).toLocaleDateString("id", {
+                day: "2-digit",
+                month: "short",
                 year: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
@@ -142,16 +152,7 @@ export default function PRTrxPage() {
             <td className="whitespace-nowrap px-6 py-4">
               {i.trx_pr_items.length}
             </td>
-            <td className="whitespace-nowrap px-6 py-4">
-              {new Date(i.created_at).toLocaleDateString("id", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </td>
+
             <td className="px-6 py-4 whitespace-nowrap space-x-4">
               <button
                 className="cursor-pointer"
