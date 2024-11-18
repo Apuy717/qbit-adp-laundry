@@ -43,7 +43,7 @@ export default function Product() {
   const [search, setSearch] = useState<string>("");
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [products, setProducts] = useState<any>([])
+  const [products, setProducts] = useState<TypeProduct[]>([])
   const [filterSkus, setfilterSkus] = useState<any>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [fixValueSearch, setFixValueSearch] = useState("")
@@ -79,7 +79,7 @@ export default function Product() {
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/product/filter?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
-      const res = await PostWithToken<iResponse<TypeProduct>>({
+      const res = await PostWithToken<iResponse<TypeProduct[]>>({
         router: router,
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
@@ -211,6 +211,7 @@ export default function Product() {
               machine_dryer: values.machine_dryer,
               dryer_duration: values.dryer_duration,
               machine_iron: values.machine_iron,
+              iron_duration: values.iron_duration,
               is_deleted: values.is_deleted
             },
             token: `${auth.auth.access_token}`,
@@ -233,6 +234,7 @@ export default function Product() {
               machine_dryer: values.machine_dryer,
               dryer_duration: values.dryer_duration,
               machine_iron: values.machine_iron,
+              iron_duration: values.iron_duration,
               is_deleted: values.is_deleted
             },
             token: `${auth.auth.access_token}`,
@@ -291,8 +293,8 @@ export default function Product() {
         currentPage={currentPage}
         totalItem={totalProduct}>
 
-        {products.map((prod: any, index: any) => (
-          <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+        {products.map((prod, index) => (
+          <tr key={index} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
         dark:bg-gray-800 dark:hover:bg-gray-600">
             <td className="px-6 py-4">
               {prod.name}
@@ -375,7 +377,7 @@ export default function Product() {
           }
         }} />
 
-      <div className={`w-min h-full fixed right-0 top-0 z-[999] overflow-y-auto
+      <div className={`w-min h-full fixed right-0 top-0 z-[9999] overflow-y-auto
         transition-all duration-500 shadow bg-white dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
@@ -624,6 +626,7 @@ export default function Product() {
                   ? formik.errors.type
                   : null} />
               <Input
+                className={formik.values.type}
                 label={"Stok*"}
                 name={"stock"}
                 id={"stock"}
