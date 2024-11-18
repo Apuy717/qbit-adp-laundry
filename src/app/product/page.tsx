@@ -138,7 +138,7 @@ export default function Product() {
       product_id: "",
       code: "",
       price: "",
-      type: "",
+      type: "services",
       stock: "",
       unit: "",
       machine_washer: false,
@@ -292,32 +292,25 @@ export default function Product() {
         totalItem={totalProduct}>
 
         {products.map((prod: any, index: any) => (
-          <tr key={index}>
-            <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
-              <h5 className="font-medium text-black dark:text-white">
-                {prod.name}
-              </h5>
+          <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+        dark:bg-gray-800 dark:hover:bg-gray-600">
+            <td className="px-6 py-4">
+              {prod.name}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white">
-                {prod.description}
-              </p>
+            <td className="px-6 py-4">
+              {prod.description}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white mx-4">
-                {prod.skus.length}
-              </p>
+            <td className="px-6 py-4">
+              {prod.skus.length + " SKU"}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white mx-4">
-                {new Date(prod.created_at).toLocaleString("id", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric"
-                })}
-              </p>
+            <td className="px-6 py-4">
+              {new Date(prod.created_at).toLocaleString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              })}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+            <td className="px-6 py-4">
               {prod.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 ">
                   <p className="text-white">inactive</p>
@@ -328,7 +321,7 @@ export default function Product() {
                 </div>
               )}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+            <td className="px-6 py-4">
               <div className=" flex flex-row items-center space-x-2">
                 <button
                   className="cursor-pointer"
@@ -418,7 +411,7 @@ export default function Product() {
                   {i.price}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {i.stock}
+                  {i.stock + ' ' + i.unit}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.machine_washer ? (

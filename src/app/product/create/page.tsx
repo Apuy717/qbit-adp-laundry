@@ -107,7 +107,7 @@ export default function CreateProduct() {
           name: "",
           description: "",
           price: "",
-          type: "",
+          type: "services",
           stock: "",
           unit: "",
           machine_washer: false,
@@ -122,12 +122,12 @@ export default function CreateProduct() {
     validationSchema: Yup.object({
       outlet_id: Yup.string().required('Harus pilih outlet'),
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
-      slug: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
+      slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
       category_id: Yup.string().required('Harus pilih category'),
       variants: Yup.array().of(
         Yup.object({
-          code: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
+          code: Yup.string().max(100, "Maksimal 100 karakter!"),
           name: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
           price: Yup.number().min(0).required('Harus diisi'),
@@ -181,7 +181,7 @@ export default function CreateProduct() {
         name: "",
         description: "",
         price: "",
-        type: "",
+        type: "services",
         stock: "",
         unit: "",
         machine_washer: "",
@@ -305,7 +305,7 @@ export default function CreateProduct() {
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                 <Input
-                  label={"Kode SKU*"}
+                  label={"Kode SKU"}
                   name={"code"}
                   id={"code"}
                   value={formik.values.variants[index].code}
@@ -363,7 +363,7 @@ export default function CreateProduct() {
                   label={"Stok*"}
                   name={"stock"}
                   id={"stock"}
-                  value={formik.values.variants[index].stock}
+                  value={formik.values.variants[index].stock ? formik.values.variants[index].stock : ""}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].stock`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.stock &&
@@ -459,7 +459,7 @@ export default function CreateProduct() {
                   label={toggleIron ? "Durasi Setrika*" : ""}
                   name={"unit"}
                   id={"unit"}
-                  value={formik.values.variants[index].iron_duration}
+                  value={formik.values.variants[index].iron_duration ? formik.values.variants[index].iron_duration : ""}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].iron_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.iron_duration &&
