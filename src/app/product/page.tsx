@@ -3,15 +3,13 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FilterComponent } from "@/components/Filters/FilterComponent";
 import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
-import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
-import { url } from "inspector";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaArrowLeft, FaRegPlusSquare } from "react-icons/fa";
@@ -98,12 +96,12 @@ export default function Product() {
     };
     GotProduct()
 
-    console.log(products);
+    // console.log(products);
     // console.log(products[skusIdx].skus);
   }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
 
   const handleSearch = async () => {
-    console.log(products);
+    // console.log(products);
 
     if (search.length === 0) {
       setCurrentPage(1);
@@ -119,7 +117,7 @@ export default function Product() {
         setCurrentPage(1);
       }
     }
-    console.log(search);
+    // console.log(search);
 
   };
 
@@ -174,18 +172,18 @@ export default function Product() {
     }),
     onSubmit: async (values) => {
       if (values.type == "services") {
-        Object.assign(values,{ stock: null, unit: null })
+        Object.assign(values, { stock: null, unit: null })
       }
       if (!values.machine_washer) {
-        Object.assign(values,{ washer_duration:null })
+        Object.assign(values, { washer_duration: null })
       }
       if (!values.machine_dryer) {
-        Object.assign(values,{ dryer_duration:null })
+        Object.assign(values, { dryer_duration: null })
       }
       if (!values.machine_iron) {
-        Object.assign(values,{ iron_duration:null })
+        Object.assign(values, { iron_duration: null })
       }
-      console.log(values);
+      // console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -260,7 +258,7 @@ export default function Product() {
       }
 
 
-      console.log(res.err);
+      // console.log(res.err);
 
 
       if (res.statusCode === 422) {
@@ -274,7 +272,7 @@ export default function Product() {
         toast.success("Berhasil menambahkan data!");
         router.push("/product");
       }
-      console.log(res.data);
+      // console.log(res.data);
 
 
       setLoading(false);
@@ -283,7 +281,7 @@ export default function Product() {
     },
   });
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Product" />
       <FilterComponent
         search={search}
@@ -362,9 +360,9 @@ export default function Product() {
                     formik.setFieldValue("is_deleted", prod.is_deleted)
                     setUpdateModal(true)
                     setProductOrSku(true)
-                    console.log(formik.values.outlet_id);
-                    console.log(formik.values.category_id);
-                    
+                    // console.log(formik.values.outlet_id);
+                    // console.log(formik.values.category_id);
+
                   }}
                 >
                   <FiEdit size={18} />
@@ -765,6 +763,6 @@ export default function Product() {
         )}
       </Modal>
 
-    </DefaultLayout >
+    </ >
   );
 }

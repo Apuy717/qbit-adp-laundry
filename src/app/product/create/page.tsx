@@ -2,12 +2,11 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { Field, FieldArray, useFormik } from "formik";
+import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, Key, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -217,7 +216,7 @@ export default function CreateProduct() {
     formik.setFieldValue('variants', variants);
   };
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Product" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -513,6 +512,6 @@ export default function CreateProduct() {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 }
