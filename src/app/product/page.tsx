@@ -137,6 +137,7 @@ export default function Product() {
 
       product_id: "",
       code: "",
+      capital_price: "",
       price: "",
       type: "services",
       stock: "",
@@ -159,6 +160,7 @@ export default function Product() {
           code: Yup.string().max(100, "Maksimal 100 karakter!"),
           name: Yup.string().max(100, "Maksimal 100 karakter!"),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
+          capital_price: Yup.number().min(0),
           price: Yup.number().min(0),
           type: Yup.string().max(100, "Maksimal 100 karakter!"),
           stock: Yup.string().max(100, "Maksimal 100 karakter!"),
@@ -171,6 +173,18 @@ export default function Product() {
 
     }),
     onSubmit: async (values) => {
+      if (values.type == "services") {
+        Object.assign(values,{ stock: null, unit: null })
+      }
+      if (!values.machine_washer) {
+        Object.assign(values,{ washer_duration:null })
+      }
+      if (!values.machine_dryer) {
+        Object.assign(values,{ dryer_duration:null })
+      }
+      if (!values.machine_iron) {
+        Object.assign(values,{ iron_duration:null })
+      }
       console.log(values);
 
       if (loading) return;
@@ -202,6 +216,7 @@ export default function Product() {
               code: values.code,
               name: values.name,
               description: values.description,
+              capital_price: parseInt(values.capital_price),
               price: parseInt(values.price),
               type: values.type,
               stock: values.stock,
@@ -225,6 +240,7 @@ export default function Product() {
               code: values.code,
               name: values.name,
               description: values.description,
+              capital_price: parseInt(values.capital_price),
               price: parseInt(values.price),
               type: values.type,
               stock: values.stock,
@@ -338,23 +354,38 @@ export default function Product() {
                 <button
                   onClick={() => {
                     formik.setFieldValue("id", prod.id)
-                    formik.setFieldValue("outlet_id", prod.outlet_id)
+                    formik.setFieldValue("outlet_id", prod.outlet.id)
                     formik.setFieldValue("name", prod.name)
                     formik.setFieldValue("slug", prod.slug)
                     formik.setFieldValue("description", prod.description == null ? `` : prod.description)
-                    formik.setFieldValue("category_id", prod.category_id)
+                    formik.setFieldValue("category_id", prod.category.id)
                     formik.setFieldValue("is_deleted", prod.is_deleted)
                     setUpdateModal(true)
                     setProductOrSku(true)
+                    console.log(formik.values.outlet_id);
+                    console.log(formik.values.category_id);
+                    
                   }}
                 >
                   <FiEdit size={18} />
                 </button>
                 <button
                   onClick={() => {
-                    console.log("product_id ", prod.id);
-
                     formik.setFieldValue("product_id", prod.id)
+                    formik.setFieldValue("code", "")
+                    formik.setFieldValue("name", "")
+                    formik.setFieldValue("description", "")
+                    formik.setFieldValue("capital_price", "")
+                    formik.setFieldValue("price", "")
+                    formik.setFieldValue("type", "services")
+                    formik.setFieldValue("stock", "")
+                    formik.setFieldValue("unit", "")
+                    formik.setFieldValue("machine_washer", false)
+                    formik.setFieldValue("washer_duration", 0)
+                    formik.setFieldValue("machine_dryer", false)
+                    formik.setFieldValue("dryer_duration", 0)
+                    formik.setFieldValue("machine_iron", false)
+                    formik.setFieldValue("iron_duration", 0)
                     formik.setFieldValue("is_deleted", false)
                     setProductOrSku(false)
                     setUpdateOrAddSku(false)
@@ -459,6 +490,7 @@ export default function Product() {
                       formik.setFieldValue("code", i.code)
                       formik.setFieldValue("name", i.name)
                       formik.setFieldValue("description", i.description == null ? `` : i.description)
+                      formik.setFieldValue("capital_price", i.capital_price)
                       formik.setFieldValue("price", i.price)
                       formik.setFieldValue("type", i.type)
                       formik.setFieldValue("stock", i.stock)
@@ -468,6 +500,8 @@ export default function Product() {
                       formik.setFieldValue("machine_dryer", i.machine_dryer)
                       formik.setFieldValue("dryer_duration", parseInt(i.dryer_duration))
                       formik.setFieldValue("machine_iron", i.machine_iron)
+                      formik.setFieldValue("iron_duration", parseInt(i.iron_duration))
+
                       formik.setFieldValue("is_deleted", i.is_deleted)
                       setUpdateModal(true)
                       setUpdateOrAddSku(true)
@@ -516,7 +550,7 @@ export default function Product() {
                   }
                 />
                 <Input
-                  label={"slug*"}
+                  label={"Slug"}
                   name={"slug"}
                   id={"slug"}
                   value={formik.values.slug}
@@ -604,6 +638,16 @@ export default function Product() {
                   : null} />
 
               <Input
+                label={"Harga Modal*"}
+                name={"capital price"}
+                id={"capital price"}
+                value={formik.values.capital_price}
+                onChange={(v) => formik.setFieldValue(`capital_price`, parseInt(v))}
+                error={formik.touched.capital_price &&
+                  (typeof formik.errors.capital_price === 'object' && formik.errors.capital_price)
+                  ? formik.errors.capital_price
+                  : null} />
+              <Input
                 label={"Harga*"}
                 name={"price"}
                 id={"price"}
@@ -626,7 +670,7 @@ export default function Product() {
                   ? formik.errors.type
                   : null} />
               <Input
-                className={formik.values.type}
+                className={formik.values.type === "services" ? `hidden` : ``}
                 label={"Stok*"}
                 name={"stock"}
                 id={"stock"}
@@ -637,6 +681,7 @@ export default function Product() {
                   ? formik.errors.stock
                   : null} />
               <Input
+                className={formik.values.type === "services" ? `hidden` : ``}
                 label={"Unit*"}
                 name={"unit"}
                 id={"unit"}
