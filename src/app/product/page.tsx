@@ -3,15 +3,13 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FilterComponent } from "@/components/Filters/FilterComponent";
 import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
-import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
-import { url } from "inspector";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaArrowLeft, FaRegPlusSquare } from "react-icons/fa";
@@ -43,7 +41,7 @@ export default function Product() {
   const [search, setSearch] = useState<string>("");
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [products, setProducts] = useState<any>([])
+  const [products, setProducts] = useState<TypeProduct[]>([])
   const [filterSkus, setfilterSkus] = useState<any>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [fixValueSearch, setFixValueSearch] = useState("")
@@ -79,7 +77,7 @@ export default function Product() {
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/product/filter?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
-      const res = await PostWithToken<iResponse<TypeProduct>>({
+      const res = await PostWithToken<iResponse<TypeProduct[]>>({
         router: router,
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
@@ -98,12 +96,12 @@ export default function Product() {
     };
     GotProduct()
 
-    console.log(products);
+    // console.log(products);
     // console.log(products[skusIdx].skus);
   }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
 
   const handleSearch = async () => {
-    console.log(products);
+    // console.log(products);
 
     if (search.length === 0) {
       setCurrentPage(1);
@@ -119,7 +117,7 @@ export default function Product() {
         setCurrentPage(1);
       }
     }
-    console.log(search);
+    // console.log(search);
 
   };
 
@@ -137,8 +135,9 @@ export default function Product() {
 
       product_id: "",
       code: "",
+      capital_price: "",
       price: "",
-      type: "",
+      type: "services",
       stock: "",
       unit: "",
       machine_washer: false,
@@ -159,6 +158,7 @@ export default function Product() {
           code: Yup.string().max(100, "Maksimal 100 karakter!"),
           name: Yup.string().max(100, "Maksimal 100 karakter!"),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
+          capital_price: Yup.number().min(0),
           price: Yup.number().min(0),
           type: Yup.string().max(100, "Maksimal 100 karakter!"),
           stock: Yup.string().max(100, "Maksimal 100 karakter!"),
@@ -171,7 +171,19 @@ export default function Product() {
 
     }),
     onSubmit: async (values) => {
-      console.log(values);
+      if (values.type == "services") {
+        Object.assign(values, { stock: null, unit: null })
+      }
+      if (!values.machine_washer) {
+        Object.assign(values, { washer_duration: null })
+      }
+      if (!values.machine_dryer) {
+        Object.assign(values, { dryer_duration: null })
+      }
+      if (!values.machine_iron) {
+        Object.assign(values, { iron_duration: null })
+      }
+      // console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -202,6 +214,7 @@ export default function Product() {
               code: values.code,
               name: values.name,
               description: values.description,
+              capital_price: parseInt(values.capital_price),
               price: parseInt(values.price),
               type: values.type,
               stock: values.stock,
@@ -211,6 +224,7 @@ export default function Product() {
               machine_dryer: values.machine_dryer,
               dryer_duration: values.dryer_duration,
               machine_iron: values.machine_iron,
+              iron_duration: values.iron_duration,
               is_deleted: values.is_deleted
             },
             token: `${auth.auth.access_token}`,
@@ -224,6 +238,7 @@ export default function Product() {
               code: values.code,
               name: values.name,
               description: values.description,
+              capital_price: parseInt(values.capital_price),
               price: parseInt(values.price),
               type: values.type,
               stock: values.stock,
@@ -233,6 +248,7 @@ export default function Product() {
               machine_dryer: values.machine_dryer,
               dryer_duration: values.dryer_duration,
               machine_iron: values.machine_iron,
+              iron_duration: values.iron_duration,
               is_deleted: values.is_deleted
             },
             token: `${auth.auth.access_token}`,
@@ -242,7 +258,7 @@ export default function Product() {
       }
 
 
-      console.log(res.err);
+      // console.log(res.err);
 
 
       if (res.statusCode === 422) {
@@ -256,7 +272,7 @@ export default function Product() {
         toast.success("Berhasil menambahkan data!");
         router.push("/product");
       }
-      console.log(res.data);
+      // console.log(res.data);
 
 
       setLoading(false);
@@ -265,7 +281,7 @@ export default function Product() {
     },
   });
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Product" />
       <FilterComponent
         search={search}
@@ -291,33 +307,26 @@ export default function Product() {
         currentPage={currentPage}
         totalItem={totalProduct}>
 
-        {products.map((prod: any, index: any) => (
-          <tr key={index}>
-            <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
-              <h5 className="font-medium text-black dark:text-white">
-                {prod.name}
-              </h5>
+        {products.map((prod, index) => (
+          <tr key={index} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+        dark:bg-gray-800 dark:hover:bg-gray-600">
+            <td className="px-6 py-4">
+              {prod.name}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white">
-                {prod.description}
-              </p>
+            <td className="px-6 py-4">
+              {prod.description}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white mx-4">
-                {prod.skus.length}
-              </p>
+            <td className="px-6 py-4">
+              {prod.skus.length + " SKU"}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-              <p className="text-black dark:text-white mx-4">
-                {new Date(prod.created_at).toLocaleString("id", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric"
-                })}
-              </p>
+            <td className="px-6 py-4">
+              {new Date(prod.created_at).toLocaleString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              })}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+            <td className="px-6 py-4">
               {prod.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 ">
                   <p className="text-white">inactive</p>
@@ -328,7 +337,7 @@ export default function Product() {
                 </div>
               )}
             </td>
-            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+            <td className="px-6 py-4">
               <div className=" flex flex-row items-center space-x-2">
                 <button
                   className="cursor-pointer"
@@ -343,23 +352,38 @@ export default function Product() {
                 <button
                   onClick={() => {
                     formik.setFieldValue("id", prod.id)
-                    formik.setFieldValue("outlet_id", prod.outlet_id)
+                    formik.setFieldValue("outlet_id", prod.outlet.id)
                     formik.setFieldValue("name", prod.name)
                     formik.setFieldValue("slug", prod.slug)
                     formik.setFieldValue("description", prod.description == null ? `` : prod.description)
-                    formik.setFieldValue("category_id", prod.category_id)
+                    formik.setFieldValue("category_id", prod.category.id)
                     formik.setFieldValue("is_deleted", prod.is_deleted)
                     setUpdateModal(true)
                     setProductOrSku(true)
+                    // console.log(formik.values.outlet_id);
+                    // console.log(formik.values.category_id);
+
                   }}
                 >
                   <FiEdit size={18} />
                 </button>
                 <button
                   onClick={() => {
-                    console.log("product_id ", prod.id);
-
                     formik.setFieldValue("product_id", prod.id)
+                    formik.setFieldValue("code", "")
+                    formik.setFieldValue("name", "")
+                    formik.setFieldValue("description", "")
+                    formik.setFieldValue("capital_price", "")
+                    formik.setFieldValue("price", "")
+                    formik.setFieldValue("type", "services")
+                    formik.setFieldValue("stock", "")
+                    formik.setFieldValue("unit", "")
+                    formik.setFieldValue("machine_washer", false)
+                    formik.setFieldValue("washer_duration", 0)
+                    formik.setFieldValue("machine_dryer", false)
+                    formik.setFieldValue("dryer_duration", 0)
+                    formik.setFieldValue("machine_iron", false)
+                    formik.setFieldValue("iron_duration", 0)
                     formik.setFieldValue("is_deleted", false)
                     setProductOrSku(false)
                     setUpdateOrAddSku(false)
@@ -382,7 +406,7 @@ export default function Product() {
           }
         }} />
 
-      <div className={`w-min h-full fixed right-0 top-0 z-[999] overflow-y-auto
+      <div className={`w-min h-full fixed right-0 top-0 z-[9999] overflow-y-auto
         transition-all duration-500 shadow bg-white dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
@@ -418,7 +442,7 @@ export default function Product() {
                   {i.price}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {i.stock}
+                  {i.stock + ' ' + i.unit}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.machine_washer ? (
@@ -464,6 +488,7 @@ export default function Product() {
                       formik.setFieldValue("code", i.code)
                       formik.setFieldValue("name", i.name)
                       formik.setFieldValue("description", i.description == null ? `` : i.description)
+                      formik.setFieldValue("capital_price", i.capital_price)
                       formik.setFieldValue("price", i.price)
                       formik.setFieldValue("type", i.type)
                       formik.setFieldValue("stock", i.stock)
@@ -473,6 +498,8 @@ export default function Product() {
                       formik.setFieldValue("machine_dryer", i.machine_dryer)
                       formik.setFieldValue("dryer_duration", parseInt(i.dryer_duration))
                       formik.setFieldValue("machine_iron", i.machine_iron)
+                      formik.setFieldValue("iron_duration", parseInt(i.iron_duration))
+
                       formik.setFieldValue("is_deleted", i.is_deleted)
                       setUpdateModal(true)
                       setUpdateOrAddSku(true)
@@ -521,7 +548,7 @@ export default function Product() {
                   }
                 />
                 <Input
-                  label={"slug*"}
+                  label={"Slug"}
                   name={"slug"}
                   id={"slug"}
                   value={formik.values.slug}
@@ -609,6 +636,16 @@ export default function Product() {
                   : null} />
 
               <Input
+                label={"Harga Modal*"}
+                name={"capital price"}
+                id={"capital price"}
+                value={formik.values.capital_price}
+                onChange={(v) => formik.setFieldValue(`capital_price`, parseInt(v))}
+                error={formik.touched.capital_price &&
+                  (typeof formik.errors.capital_price === 'object' && formik.errors.capital_price)
+                  ? formik.errors.capital_price
+                  : null} />
+              <Input
                 label={"Harga*"}
                 name={"price"}
                 id={"price"}
@@ -631,6 +668,7 @@ export default function Product() {
                   ? formik.errors.type
                   : null} />
               <Input
+                className={formik.values.type === "services" ? `hidden` : ``}
                 label={"Stok*"}
                 name={"stock"}
                 id={"stock"}
@@ -641,6 +679,7 @@ export default function Product() {
                   ? formik.errors.stock
                   : null} />
               <Input
+                className={formik.values.type === "services" ? `hidden` : ``}
                 label={"Unit*"}
                 name={"unit"}
                 id={"unit"}
@@ -724,6 +763,6 @@ export default function Product() {
         )}
       </Modal>
 
-    </DefaultLayout >
+    </ >
   );
 }

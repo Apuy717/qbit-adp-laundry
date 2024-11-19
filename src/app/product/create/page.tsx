@@ -2,12 +2,11 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { Field, FieldArray, useFormik } from "formik";
+import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, Key, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -34,9 +33,6 @@ export default function CreateProduct() {
   const [loading, setLoading] = useState<boolean>(false);
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown)
   const [categorys, setCategorys] = useState<iDropdown[]>(dropdown)
-  const [toggleWasher, setToggleWasher] = useState<boolean>(false)
-  const [toggleDryer, setToggleDryer] = useState<boolean>(false)
-  const [toggleIron, setToggleIron] = useState<boolean>(false)
   const auth = useSelector((s: RootState) => s.auth);
   const serviceType = [
     {
@@ -106,8 +102,9 @@ export default function CreateProduct() {
           code: "",
           name: "",
           description: "",
+          capital_price: "",
           price: "",
-          type: "",
+          type: "services",
           stock: "",
           unit: "",
           machine_washer: false,
@@ -122,17 +119,18 @@ export default function CreateProduct() {
     validationSchema: Yup.object({
       outlet_id: Yup.string().required('Harus pilih outlet'),
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
-      slug: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
+      slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
       category_id: Yup.string().required('Harus pilih category'),
       variants: Yup.array().of(
         Yup.object({
-          code: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
+          code: Yup.string().max(100, "Maksimal 100 karakter!"),
           name: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
+          capital_price: Yup.number().min(0).required('Harus diisi'),
           price: Yup.number().min(0).required('Harus diisi'),
           type: Yup.string().max(100, "Maksimal 100 karakter!"),
-          stock: Yup.string().max(100, "Maksimal 100 karakter!"),
+          stock: Yup.number().max(100, "Maksimal 100 karakter!"),
           unit: Yup.string().max(100, "Maksimal 100 karakter!"),
           washer_duration: Yup.number().min(0),
           dryer_duration: Yup.number().min(0),
@@ -142,6 +140,21 @@ export default function CreateProduct() {
 
     }),
     onSubmit: async (values) => {
+      console.log(values);
+      const data = values.variants.map((i) => {
+        if (i.type == "services") {
+          Object.assign(i, { stock: null, unit: null })
+        }
+        if (!i.machine_washer) {
+          Object.assign(i, { washer_duration: null })
+        }
+        if (!i.machine_dryer) {
+          Object.assign(i, { dryer_duration: null })
+        }
+        if (!i.machine_iron) {
+          Object.assign(i, { iron_duration: null })
+        }
+      })
       console.log(values);
 
       if (loading) return;
@@ -180,16 +193,17 @@ export default function CreateProduct() {
         code: "",
         name: "",
         description: "",
+        capital_price: "",
         price: "",
-        type: "",
+        type: "services",
         stock: "",
         unit: "",
-        machine_washer: "",
-        washer_duration: "",
-        machine_dryer: "",
-        dryer_duration: "",
-        machine_iron: "",
-        iron_duration: "",
+        machine_washer: false,
+        washer_duration: 0,
+        machine_dryer: false,
+        dryer_duration: 0,
+        machine_iron: false,
+        iron_duration: 0,
       },
     ]);
     console.log(formik.values);
@@ -202,7 +216,7 @@ export default function CreateProduct() {
     formik.setFieldValue('variants', variants);
   };
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Product" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -239,7 +253,7 @@ export default function CreateProduct() {
               }
             />
             <Input
-              label={"slug*"}
+              label={"Slug"}
               name={"slug"}
               id={"slug"}
               value={formik.values.slug}
@@ -305,9 +319,9 @@ export default function CreateProduct() {
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                 <Input
-                  label={"Kode SKU*"}
-                  name={"code"}
-                  id={"code"}
+                  label={"Kode SKU"}
+                  name={`code ${index}`}
+                  id={`code ${index}`}
                   value={formik.values.variants[index].code}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].code`, v)}
                   error={
@@ -319,8 +333,8 @@ export default function CreateProduct() {
                 />
                 <Input
                   label={"Nama SKU*"}
-                  name={"name"}
-                  id={"name"}
+                  name={`name ${index}`}
+                  id={`name ${index}`}
                   value={formik.values.variants[index].name}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].name`, v)}
                   error={
@@ -332,10 +346,23 @@ export default function CreateProduct() {
                 />
 
                 <Input
+                  label={"Harga Modal*"}
+                  name={`capital price ${index}`}
+                  id={`capital price ${index}`}
+                  value={formik.values.variants[index].capital_price ? formik.values.variants[index].capital_price : ``}
+                  onChange={(v) => formik.setFieldValue(`variants[${index}].capital_price`, parseInt(v))}
+                  error={
+                    formik.touched.variants?.[index]?.capital_price &&
+                      (typeof formik.errors.variants?.[index] === 'object' && formik.errors.variants[index]?.capital_price)
+                      ? formik.errors.variants[index].capital_price
+                      : null
+                  }
+                />
+                <Input
                   label={"Harga*"}
-                  name={"price"}
-                  id={"price"}
-                  value={formik.values.variants[index].price}
+                  name={`price ${index}`}
+                  id={`price ${index}`}
+                  value={formik.values.variants[index].price ? formik.values.variants[index].price : ``}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].price`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.price &&
@@ -347,8 +374,8 @@ export default function CreateProduct() {
 
                 <InputDropdown
                   label={"Tipe*"}
-                  name={"type"}
-                  id={"type"}
+                  name={`type ${index}`}
+                  id={`type ${index}`}
                   value={formik.values.variants[index].type}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].type`, v)}
                   options={serviceType}
@@ -360,10 +387,11 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
+                  className={formik.values.variants[index].type === "goods" ? "" : "hidden"}
                   label={"Stok*"}
-                  name={"stock"}
-                  id={"stock"}
-                  value={formik.values.variants[index].stock}
+                  name={`stock ${index}`}
+                  id={`stock ${index}`}
+                  value={formik.values.variants[index].stock ? formik.values.variants[index].stock : ""}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].stock`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.stock &&
@@ -373,9 +401,10 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
+                  className={formik.values.variants[index].type === "goods" ? "" : "hidden"}
                   label={"Unit*"}
-                  name={"unit"}
-                  id={"unit"}
+                  name={`unit ${index}`}
+                  id={`unit ${index}`}
                   value={formik.values.variants[index].unit}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].unit`, v)}
                   error={
@@ -389,8 +418,8 @@ export default function CreateProduct() {
               <div className="pt-6">
                 <InputTextArea
                   label={"Deskripsi SKU"}
-                  name={"description"}
-                  id={"description"}
+                  name={`description ${index}`}
+                  id={`description ${index}`}
                   value={formik.values.variants[index].description}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].description`, v)}
                   error={
@@ -406,15 +435,14 @@ export default function CreateProduct() {
                   value={formik.values.variants[index].machine_washer}
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_washer`, v)
-                    setToggleWasher(!toggleWasher)
                   }}
                   label={"Mesin Cuci"}
                 />
                 <Input
-                  className={toggleWasher ? `` : `opacity-0 w-1`}
-                  label={toggleWasher ? "Durasi mesin cuci*" : ""}
-                  name={"unit"}
-                  id={"unit"}
+                  className={formik.values.variants[index].machine_washer ? `` : `opacity-0 w-1`}
+                  label={formik.values.variants[index].machine_washer ? "Durasi mesin cuci*" : ""}
+                  name={`washer time${index}`}
+                  id={`washer time${index}`}
                   value={`${formik.values.variants[index].washer_duration ? formik.values.variants[index].washer_duration : ""}`}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].washer_duration`, parseInt(v))}
                   error={
@@ -428,15 +456,14 @@ export default function CreateProduct() {
                   value={formik.values.variants[index].machine_dryer}
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_dryer`, v)
-                    setToggleDryer(!toggleDryer)
                   }}
                   label={"Mesin Pengering"}
                 />
                 <Input
-                  className={toggleDryer ? `` : `opacity-0 w-1`}
-                  label={toggleDryer ? "Durasi mesin pengering*" : ""}
-                  name={"unit"}
-                  id={"unit"}
+                  className={formik.values.variants[index].machine_dryer ? `` : `opacity-0 w-1`}
+                  label={formik.values.variants[index].machine_dryer ? "Durasi mesin pengering*" : ""}
+                  name={`dryer time${index}`}
+                  id={`dryer time${index}`}
                   value={formik.values.variants[index].dryer_duration ? formik.values.variants[index].dryer_duration : ``}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].dryer_duration`, parseInt(v))}
                   error={
@@ -450,16 +477,15 @@ export default function CreateProduct() {
                   value={formik.values.variants[index].machine_iron}
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_iron`, v)
-                    setToggleIron(!toggleIron)
                   }}
                   label={"Setrika"}
                 />
                 <Input
-                  className={toggleIron ? `` : `opacity-0 w-1`}
-                  label={toggleIron ? "Durasi Setrika*" : ""}
-                  name={"unit"}
-                  id={"unit"}
-                  value={formik.values.variants[index].iron_duration}
+                  className={formik.values.variants[index].machine_iron ? `` : `opacity-0 w-1`}
+                  label={formik.values.variants[index].machine_iron ? "Durasi Setrika*" : ""}
+                  name={`iron time${index}`}
+                  id={`iron time${index}`}
+                  value={formik.values.variants[index].iron_duration ? formik.values.variants[index].iron_duration : ""}
                   onChange={(v) => formik.setFieldValue(`variants[${index}].iron_duration`, parseInt(v))}
                   error={
                     formik.touched.variants?.[index]?.iron_duration &&
@@ -486,6 +512,6 @@ export default function CreateProduct() {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 }

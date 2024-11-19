@@ -1,14 +1,16 @@
 export type TypeProduct = {
   id: string;
-  outlet_id: string,
   name: string,
   picture: string,
   slug: string,
   description: string | null,
-  category_id: string,
   is_deleted: false,
   created_at: string,
   updated_at: string,
+  category:{
+    id: string,
+    name: string,
+  },
   outlet: {
     id: string,
     name: string,
@@ -21,6 +23,7 @@ export type TypeProduct = {
     name: string,
     picture: string | null,
     description: string,
+    capital_price: number,
     price: number,
     type: string,
     stock: number | null,
