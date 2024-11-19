@@ -19,6 +19,7 @@ export type OrderType = {
   payment_status: EPaymentStatus;
   status: EStatusOrder;
   total: string;
+  total_item: number | null;
   created_at: string;
   updated_at: string;
   outlet: {

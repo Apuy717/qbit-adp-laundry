@@ -3,7 +3,6 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FilterComponent } from "@/components/Filters/FilterComponent";
 import { iDropdown, Input, InputDropdown, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
@@ -15,7 +14,7 @@ import { EPaymentMethodType, PaymentMethodType } from "@/types/paymentMethod";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiEdit, FiEye } from "react-icons/fi";
+import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -196,7 +195,7 @@ export default function PagePaymentMethod() {
 
   const [modalForm, setModalForm] = useState<boolean>(false)
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName={"Payment Method"} />
       <FilterComponent
         search={search}
@@ -374,6 +373,6 @@ export default function PagePaymentMethod() {
           </button>
         </div>
       </Modal>
-    </DefaultLayout>
+    </>
   )
 }

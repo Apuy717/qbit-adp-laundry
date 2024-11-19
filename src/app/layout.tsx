@@ -12,6 +12,7 @@ import { persistStore } from "redux-persist";
 import store from "@/stores/store";
 import { AuthProvider } from "@/contexts/authProvider";
 import { ToastContainer } from "react-toastify";
+import { LayoutProvider } from "@/contexts/layoutContext";
 
 export default function RootLayout({
   children,
@@ -32,11 +33,13 @@ export default function RootLayout({
       <body className="dark:bg-boxdark-2 dark:text-bodydark">
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-            <AuthProvider>
-              <div className="dark:bg-boxdark-2 dark:text-bodydark">
-                {loading ? <Loader /> : children}
-              </div>
-            </AuthProvider>
+            <LayoutProvider>
+              <AuthProvider>
+                <div className="dark:bg-boxdark-2 dark:text-bodydark">
+                  {loading ? <Loader /> : children}
+                </div>
+              </AuthProvider>
+            </LayoutProvider>
           </PersistGate>
         </Provider>
         <ToastContainer

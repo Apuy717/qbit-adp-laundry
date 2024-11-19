@@ -85,7 +85,7 @@ export default function Orders() {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName={"Order"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
@@ -115,8 +115,9 @@ export default function Orders() {
           </button>
         </div>
       </div>
+
       {!loadingSearch && (
-        <Table colls={["#", "INVOICE", "Outlet", "Total Item", "Total", "Metode Pembayaran", "Status Pembayaran", "Status Order", "Tanggal", "Aksi"]}
+        <Table colls={["#", "INVOICE", "Outlet", "Total Pakaian", "Total Sku", "Total", "Metode Pembayaran", "Status Pembayaran", "Status Order", "Tanggal", "Aksi"]}
           currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
           {items.map((i, k) => (
             <tr
@@ -127,9 +128,10 @@ export default function Orders() {
               <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
               <td className="whitespace-nowrap px-6 py-4 uppercase">{i.invoice_id}</td>
               <td className="px-6 py-4">{i.outlet.name}</td>
+              <td className="px-6 py-4">{i.total_item !== null ? i.total_item : "-"}</td>
               <td className="px-6 py-4">{i.items.length}</td>
               <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.total))}</td>
-              <td className="px-6 py-4">{i.payment_method.name}</td>
+              <td className="px-6 py-4">{i.payment_method?.name}</td>
               <td className="px-6 py-4">
                 <p className={`px-2 py-1 text-center w-min rounded text-white
                 ${i.payment_status === EPaymentStatus.PENDING && "bg-yellow-500"}
@@ -141,7 +143,7 @@ export default function Orders() {
                 <p className={`px-2 py-1 text-center w-min rounded text-white
                 ${i.status === EStatusOrder.CANCELED && "bg-red"}
                 ${i.status === EStatusOrder.REGISTERED && "bg-yellow-500"}
-                ${i.status === EStatusOrder.CANCELED && "bg-green-500"}
+                ${i.status === EStatusOrder.COMPLETED && "bg-green-500"}
               `}>{i.status}</p>
               </td>
               <td className="whitespace-nowrap px-6 py-4">{
@@ -182,7 +184,7 @@ export default function Orders() {
 
       <div className={`w-min h-full fixed right-0 top-0 z-[999]
         transition-all duration-500 shadow bg-white dark:bg-boxdark
-        ${isViewDetail ? "" : "translate-x-full"}`}>
+        ${isViewDetail ? "" : "translate-x-full"} overflow-y-auto`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
           <button onClick={() => {
             setIsViewDetail(false)
@@ -190,7 +192,7 @@ export default function Orders() {
             <FaArrowLeft className="rotate-180" size={20} />
           </button>
         </div>
-        <div className="w-full h-full overflow-y-auto">
+        <div className="w-full h-full">
           <div className="mt-4 px-6">
             <h4 className="font-semibold text-black dark:text-white">
               Detail Pelanggan
@@ -225,6 +227,10 @@ export default function Orders() {
             </h4>
             <div className="py-3 flex flex-col space-y-1">
               <div className="flex flex-row justify-between">
+                <p>ID</p>
+                <p>{detail?.id}</p>
+              </div>
+              <div className="flex flex-row justify-between">
                 <p>Invoice</p>
                 <p>{detail?.invoice_id}</p>
               </div>
@@ -234,7 +240,7 @@ export default function Orders() {
               </div>
               <div className="flex flex-row justify-between">
                 <p>Methode Pembayaran</p>
-                <p>{detail?.payment_method.name}</p>
+                <p>{detail?.payment_method?.name}</p>
               </div>
               <div className="flex flex-row justify-between">
                 <p>Staus Pembayaran</p>
@@ -275,6 +281,6 @@ export default function Orders() {
           </div>
         </div>
       </div >
-    </DefaultLayout >
+    </>
   )
 }

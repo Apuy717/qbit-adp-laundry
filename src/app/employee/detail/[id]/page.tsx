@@ -1,12 +1,10 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { GetWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Employee } from "@/types/employee";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -34,7 +32,7 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
 
 
   return (
-    <DefaultLayout>
+    <>
       <div className="mx-auto max-w-242.5">
         <Breadcrumb pageName="Profile" />
 
@@ -214,6 +212,6 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   )
 }

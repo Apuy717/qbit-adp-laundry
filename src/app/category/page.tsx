@@ -1,5 +1,4 @@
 import CategoryPage from "@/components/Category/CategoryPage";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { Metadata } from "next";
 import React from "react";
 
@@ -10,9 +9,9 @@ export const metadata: Metadata = {
 
 const BasicChartPage: React.FC = () => {
   return (
-    <DefaultLayout>
+    <>
       <CategoryPage />
-    </DefaultLayout>
+    </>
   );
 };
 

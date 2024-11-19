@@ -2,15 +2,26 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+const isMobileDevice = (): boolean => {
+  const userAgent = navigator.userAgent || navigator.vendor;
+  // Check for mobile devices
+  return /android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(userAgent);
+};
 
 export default function DefaultLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobileDevice());
   const pathname = usePathname();
+  useEffect(() => {
+    const isMobile = isMobileDevice()
+    if (isMobile) setSidebarOpen(false)
+  }, [])
+
   return (
     <>
       {/* <!-- ===== Page Wrapper Start ===== --> */}
@@ -24,7 +35,7 @@ export default function DefaultLayout({
 
         {/* <!-- ===== Content Area Start ===== --> */}
         <div
-          className={`"relative flex flex-1 flex-col ${!pathname.includes("/auth") && "lg:ml-72.5"}`}
+          className={`"relative flex flex-1 flex-col w-full overflow-x-auto duration-150 ${!pathname.includes("/auth") && sidebarOpen && "lg:ml-72.5"}`}
         >
           {/* <!-- ===== Header Start ===== --> */}
           {!pathname.includes("/auth") && (

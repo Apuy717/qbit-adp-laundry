@@ -1,7 +1,6 @@
 'use client'
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { iDropdown, Input, InputDropdown, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
@@ -223,7 +222,7 @@ const BasicChartPage: React.FC = () => {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Purchase Request" />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
@@ -478,7 +477,7 @@ const BasicChartPage: React.FC = () => {
           </Table>
         </div>
       </Modal>
-    </DefaultLayout>
+    </>
   );
 };
 

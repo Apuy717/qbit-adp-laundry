@@ -1,17 +1,16 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import { Input, InputDropdown, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Outlet } from "@/types/outlet";
+import CountryList from "country-list-with-dial-code-and-flag";
+import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import * as Yup from "yup"
-import { useFormik } from "formik"
-import { Input, InputDropdown, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
-import CountryList from "country-list-with-dial-code-and-flag";
+import * as Yup from "yup";
 
 interface iResponseOutlet {
   statusCode: number,
@@ -238,7 +237,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Edit Outlet" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -433,6 +432,6 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           </button>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 }

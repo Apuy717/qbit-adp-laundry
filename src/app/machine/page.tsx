@@ -1,11 +1,10 @@
 'use client'
 
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FilterComponent } from "@/components/Filters/FilterComponent";
 import { iDropdown, Input, InputDropdown, InputToggle } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout"
 import Modal from "@/components/Modals/Modal";
-import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal"
+import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
@@ -15,7 +14,6 @@ import { Outlet } from "@/types/outlet";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa";
 import { FiEdit, FiEye } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -192,7 +190,7 @@ export default function PageMachine() {
 
   const [modalForm, setModalForm] = useState<boolean>(false)
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName={"Mesin"} />
       <FilterComponent
         search={search}
@@ -389,6 +387,6 @@ export default function PageMachine() {
           </button>
         </div>
       </Modal>
-    </DefaultLayout>
+    </>
   )
 }

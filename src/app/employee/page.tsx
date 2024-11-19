@@ -1,23 +1,22 @@
 'use client'
 
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Input } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout"
 import Modal from "@/components/Modals/Modal";
-import Table from "@/components/Tables/Table"
+import Table from "@/components/Tables/Table";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import { Employee } from "@/types/employee";
+import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiEdit, FiEye, FiKey, FiLock } from "react-icons/fi";
+import { FiEdit, FiEye, FiLock } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from 'yup';
-import { useFormik } from "formik";
 
 interface iResponseEmployee {
   statusCode: number;
@@ -135,7 +134,7 @@ export default function PageEmployee() {
     }
   })
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Karyawan" />
       <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
@@ -287,7 +286,6 @@ export default function PageEmployee() {
 
         </div>
       </Modal>
-
-    </DefaultLayout>
+    </>
   )
 }
