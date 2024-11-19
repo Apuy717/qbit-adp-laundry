@@ -86,7 +86,7 @@ export default function OutletPage() {
   };
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Outlet" />
       <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2 pb-4">
@@ -166,6 +166,6 @@ export default function OutletPage() {
           </tr>
         ))}
       </Table>
-    </DefaultLayout >
+    </>
   );
 }

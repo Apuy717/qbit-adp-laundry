@@ -18,7 +18,7 @@ const Table: React.FC<iTable> = (props) => {
   const endPage = Math.min(startPage + ITEMS_PER_PAGE_GROUP - 1, totalPages);
 
   return (
-    <div className="relative  overflow-x-auto border-t border-white bg-white shadow-md dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg">
+    <div className="overflow-x-auto border-t border-white bg-white shadow-md dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg">
       <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
         <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
           <tr>

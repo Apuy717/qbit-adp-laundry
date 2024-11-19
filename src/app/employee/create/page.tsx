@@ -6,7 +6,6 @@ import {
   InputTextArea,
   InputToggle,
 } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
@@ -255,7 +254,7 @@ export default function CreateEmployee() {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Tambah Karyawan" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -542,6 +541,6 @@ export default function CreateEmployee() {
           </Table>
         </div>
       </Modal>
-    </DefaultLayout>
+    </>
   );
 }

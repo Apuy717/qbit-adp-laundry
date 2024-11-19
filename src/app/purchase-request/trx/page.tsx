@@ -3,7 +3,6 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CardDataStats from "@/components/CardDataStats";
 import { DatePickerOne } from "@/components/FormElements/DatePicker/DatePickerOne";
 import { iDropdown } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
@@ -77,7 +76,7 @@ export default function PRTrxPage() {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Pengeluaran" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
         <CardDataStats title="Total Transaksi" total={`${transaction.length}`} rate="belanja" levelUp>
@@ -248,7 +247,6 @@ export default function PRTrxPage() {
             setFilterByOutlet(old => old.filter(f => f !== value))
           }
         }} />
-
-    </DefaultLayout>
+    </>
   )
 }

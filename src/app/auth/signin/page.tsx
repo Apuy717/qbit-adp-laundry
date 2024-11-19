@@ -1,6 +1,5 @@
 "use client";
 import { Input } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import reqApi from "@/libs/reqApi";
 import { iAuthRedux, setLogin } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -87,7 +86,7 @@ const SignIn: React.FC = () => {
     },
   });
   return (
-    <DefaultLayout>
+    <>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -333,7 +332,7 @@ const SignIn: React.FC = () => {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 };
 
