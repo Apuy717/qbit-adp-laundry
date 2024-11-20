@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { BiLogoVisualStudio, BiSolidWasher } from "react-icons/bi";
+import { BiLogoVisualStudio, BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import { BsGraphDown } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
 import {
@@ -50,6 +50,11 @@ const menuGroups = [
         icon: <RiShoppingBag2Line size={22} />,
         label: "Products",
         route: "/product",
+      },
+      {
+        icon: <BiSolidDiscount size={22} />,
+        label: "Voucher",
+        route: "/voucher",
       },
       {
         icon: <FaLayerGroup size={22} />,
