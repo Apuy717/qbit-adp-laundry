@@ -1,7 +1,7 @@
 'use client'
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { DatePickerOne } from "@/components/FormElements/DatePicker/DatePickerOne";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import { InputDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
@@ -9,6 +9,7 @@ import { RootState } from "@/stores/store";
 import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
 import { HiDownload } from "react-icons/hi";
@@ -37,6 +38,8 @@ export default function Orders() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const router = useRouter()
+  const [paymentStatus, setPaymentStatus] = useState<string>("all")
+  const [orderStatus, setOrderStatus] = useState<string>("all")
 
   useEffect(() => {
     async function GotPRItems() {
@@ -46,6 +49,12 @@ export default function Orders() {
         urlwithQuery = `/api/order/filter?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
 
+      let paymentStts = {}
+      if (paymentStatus !== "all") paymentStts = { payment_status: paymentStatus }
+
+      let orderStts = {}
+      if (orderStatus !== "all") orderStts = { status_order: orderStatus }
+
       const res = await PostWithToken<iResponse<OrderType[]>>({
         router: router,
         url: urlwithQuery,
@@ -53,7 +62,9 @@ export default function Orders() {
         data: {
           outlet_ids: filterByOutlet,
           started_at: startDate,
-          ended_at: endDate
+          ended_at: endDate,
+          ...paymentStts,
+          ...orderStts
         }
       })
 
@@ -70,7 +81,8 @@ export default function Orders() {
 
     GotPRItems()
 
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, startDate])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token,
+    filterByOutlet, startDate, paymentStatus, orderStatus])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
@@ -84,11 +96,43 @@ export default function Orders() {
     return `Rp. ${result}`
   }
 
+  const [loadingDownload, setLodaingDownload] = useState<boolean>(false)
+
+  async function DownloadXLXS() {
+    setLodaingDownload(true);
+    if (loadingDownload) return;
+    let paymentStts = {}
+    if (paymentStatus !== "all") paymentStts = { payment_status: paymentStatus }
+
+    let orderStts = {}
+    if (orderStatus !== "all") orderStts = { status_order: orderStatus }
+
+    const res = await PostWithToken<iResponse<{ filename: string }>>({
+      router: router,
+      url: "/api/order/download",
+      token: `${auth.access_token}`,
+      data: {
+        outlet_ids: filterByOutlet,
+        started_at: startDate,
+        ended_at: endDate,
+        ...paymentStts,
+        ...orderStts
+      }
+    })
+
+    if (res.statusCode === 200) {
+      const url = `${window.location.origin}/file/${res.data.filename}`;
+      window.open(url, '_blank');
+    }
+
+    setTimeout(() => setLodaingDownload(false), 1000)
+  }
+
   return (
     <>
       <Breadcrumb pageName={"Order"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+        <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
           <DatePickerOne label={"Dari"} defaultDate={startDate} onChange={(val) => {
             setStartDate(val)
           }} />
@@ -96,7 +140,20 @@ export default function Orders() {
             console.log(val);
           }} />
 
-          <div className="cursor-pointer w-full" onClick={() => setModalOutlet(true)}>
+          <div className="w-full">
+            <InputDropdown className="flex-1" label={"Status Pembayaran"} name={"payment_status"} id={"payment_status"}
+              options={[{ label: "all", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i, value: i }))]}
+              value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
+          </div>
+
+          <div className="w-full">
+            <InputDropdown className="flex-1" label={"Status Order"} name={"order_status"} id={"order_status"}
+              options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
+              value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
+          </div>
+
+
+          <div className="cursor-pointer w-full col-span-2" onClick={() => setModalOutlet(true)}>
             <div className="flex flex-row">
               <div className="w-full p-3 border-2 rounded-md relative">
                 <label
@@ -108,10 +165,12 @@ export default function Orders() {
             </div>
           </div>
           <button
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={DownloadXLXS}
           >
-            <HiDownload size={23} />
+            {loadingDownload && <AiOutlineLoading3Quarters size={23} className="animate-spin" />}
+            {!loadingDownload && <HiDownload size={23} />}
           </button>
         </div>
       </div>
@@ -269,6 +328,7 @@ export default function Orders() {
               onPaginate={() => null}>
               {detail && detail.items.map((i, k) => (
                 <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                  key={k}
                 >
                   <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
                   <td className="whitespace-nowrap px-6 py-4">{i.product_sku_name}</td>

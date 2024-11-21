@@ -2,12 +2,14 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLogout } from "@/stores/authReducer";
+import { RootState } from "@/stores/store";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
+  const { fullname, role } = useSelector((s: RootState) => s.auth)
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -18,9 +20,9 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            {fullname}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{role.name}</span>
         </span>
 
         <span className="h-12 w-12 rounded-full">

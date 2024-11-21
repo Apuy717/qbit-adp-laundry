@@ -78,6 +78,8 @@ export default function PageMachine() {
         token: `${auth.access_token}`,
         data: { outlet_ids: filterByOutlet, ...sttsFilter }
       })
+      console.log(res);
+
 
       if (res?.statusCode === 200) {
         if (res.total)
@@ -208,7 +210,9 @@ export default function PageMachine() {
 
       </FilterComponent>
 
-      <Table colls={["#", "Nama", "Kode", "IP", "Tipe", "Outlet", "Cycles", "Status", "Updated At", "Aksi"]}
+      <Table colls={role.name === ERoles.PROVIDER ? [
+        "#", "Nama", "Kode", "IP", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"] :
+        ["#", "Nama", "Kode", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"]}
         currentPage={currentPage} totalItem={totalItem} onPaginate={() => null}>
 
         {items.map((i, k) => (
@@ -220,12 +224,17 @@ export default function PageMachine() {
             <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.machine_id}</td>
-            <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>
+            {role.name === ERoles.PROVIDER && <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>}
             <td className="px-6 py-4">{i.type}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.outlet.name}</td>
             <td className="whitespace-nowrap px-6 py-4">
               {FormatDecimal(parseInt(i.cycles))} cycle{" / "}
               {i.total_duration ? FormatDecimal(parseInt(i.total_duration)) : 0} Menit
+            </td>
+
+            <td className="whitespace-nowrap px-6 py-4">
+              {FormatDecimal(parseInt(i.cyles_machine))} cycle{" / "}
+              {i.total_duration ? FormatDecimal(parseInt(i.average_duration_machine)) : 0} Menit
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
@@ -238,26 +247,7 @@ export default function PageMachine() {
                 </div>
               )}
             </td>
-            <td className="px-6 py-4">
-              {new Date(i.updated_at).toLocaleDateString("id", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </td>
-
             <td className="px-6 py-4 whitespace-nowrap space-x-4">
-              <button
-                className="cursor-pointer"
-                onClick={() => {
-
-                }}
-              >
-                <FiEye size={23} />
-              </button>
               <button
                 onClick={() => {
                   formik.setFieldValue("id", i.id)
@@ -278,7 +268,7 @@ export default function PageMachine() {
           </tr>
         ))}
 
-      </Table>
+      </Table >
 
       <FilterByOutletTableModal modalOutlet={modalOutlet}
         closeModal={(isOpen) => setModalOutlet(isOpen)}
