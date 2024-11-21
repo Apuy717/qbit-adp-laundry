@@ -8,9 +8,11 @@ interface iDatePickerInput {
 }
 
 export const DatePickerOne = (props: iDatePickerInput) => {
-  const refInput = useRef<HTMLInputElement>(null)
+  const refInput = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
+    console.log(props.defaultDate);
+
     if (refInput.current === null) return
     // Init flatpickr
     flatpickr(refInput.current, {
@@ -24,6 +26,7 @@ export const DatePickerOne = (props: iDatePickerInput) => {
       defaultMinute: 0,
       defaultSeconds: 0,
       defaultDate: props.defaultDate,
+
       prevArrow:
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
@@ -36,6 +39,10 @@ export const DatePickerOne = (props: iDatePickerInput) => {
         }
       },
     });
+
+    return () => {
+      refInput.current = null
+    }
   }, [refInput.current]);
 
   return (
