@@ -258,9 +258,6 @@ export default function Product() {
       }
 
 
-      // console.log(res.err);
-
-
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
@@ -271,13 +268,14 @@ export default function Product() {
       if (res.statusCode === 200) {
         toast.success("Berhasil menambahkan data!");
         router.push("/product");
+
+        setIsViewDetail(false)
+        setUpdateModal(false);
       }
       // console.log(res.data);
 
 
       setLoading(false);
-      setIsViewDetail(false)
-      setUpdateModal(false);
     },
   });
   return (
@@ -411,7 +409,7 @@ export default function Product() {
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
           <button onClick={() => setIsViewDetail(false)}>
-            <FaArrowLeft size={20} />
+            <FaArrowLeft size={20} className="rotate-180" />
           </button>
         </div>
         <div className="mt-4 p-4">

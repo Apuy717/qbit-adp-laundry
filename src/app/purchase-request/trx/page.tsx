@@ -107,6 +107,15 @@ export default function PRTrxPage() {
               </div>
             </div>
           </div>
+          <button
+            className={`inline-flex items-center w-1/4 justify-center rounded-md bg-black px-10 py-3 
+            text-center font-medium text-xs text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={() => {
+              router.push("/purchase-request/trx/create-trx-pr")
+            }}
+          >
+           Tambah TRX PR
+          </button>
         </div>
       </div>
 
