@@ -1,50 +1,70 @@
+"use client"
+import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { RootState } from "@/stores/store";
 import { BRAND } from "@/types/brand";
+import { TopPerformanceOutlet } from "@/types/profit";
 import Image from "next/image";
-
-const brandData: BRAND[] = [
-  {
-    logo: "/images/brand/brand-01.svg",
-    name: "Google",
-    visitors: 3.5,
-    revenues: "5,768",
-    sales: 590,
-    conversion: 4.8,
-  },
-  {
-    logo: "/images/brand/brand-02.svg",
-    name: "Twitter",
-    visitors: 2.2,
-    revenues: "4,635",
-    sales: 467,
-    conversion: 4.3,
-  },
-  {
-    logo: "/images/brand/brand-03.svg",
-    name: "Github",
-    visitors: 2.1,
-    revenues: "4,290",
-    sales: 420,
-    conversion: 3.7,
-  },
-  {
-    logo: "/images/brand/brand-04.svg",
-    name: "Vimeo",
-    visitors: 1.5,
-    revenues: "3,580",
-    sales: 389,
-    conversion: 2.5,
-  },
-  {
-    logo: "/images/brand/brand-05.svg",
-    name: "Facebook",
-    visitors: 3.5,
-    revenues: "6,768",
-    sales: 390,
-    conversion: 4.2,
-  },
-];
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const TableOne = () => {
+  const { auth, role } = useSelector((s: RootState) => s.auth)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [filterByOutlet, setFilterByOutlet] = useState<string[]>([])
+  const router = useRouter()
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const endOfMonth = new Date(
+    `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    ).getDate()} 23:59`,
+  )
+
+  const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
+  const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
+
+  const [items, setItems] = useState<TopPerformanceOutlet[]>([])
+
+  useEffect(() => {
+    async function GotTopPerformanceOutlet() {
+      setLoading(true);
+
+      const res = await PostWithToken<iResponse<TopPerformanceOutlet[]>>({
+        router: router,
+        url: "/api/order/top-outlet",
+        token: `${auth.access_token}`,
+        data: {
+          outlet_ids: filterByOutlet,
+          started_at: startDate,
+          ended_at: endDate,
+
+        }
+      })
+
+      if (res?.statusCode === 200) {
+        setItems(res.data);
+      }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
+    }
+
+    GotTopPerformanceOutlet()
+
+  }, [startDate, endDate, filterByOutlet])
+
+  function FormatDecimal(number: number) {
+    const result = new Intl.NumberFormat("id-ID", {
+      style: "decimal",
+      currency: "IDR"
+    }).format(number);
+
+    return result
+  }
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
@@ -52,20 +72,10 @@ const TableOne = () => {
       </h4>
 
       <div className="flex flex-col">
-        <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
+        <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4">
           <div className="p-2.5 xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
               Nama
-            </h5>
-          </div>
-          <div className="p-2.5 text-center xl:p-5">
-            <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Visitors
-            </h5>
-          </div>
-          <div className="p-2.5 text-center xl:p-5">
-            <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Revenues
             </h5>
           </div>
           <div className="hidden p-2.5 text-center sm:block xl:p-5">
@@ -73,44 +83,34 @@ const TableOne = () => {
               Sales
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:p-5">
+          <div className="p-2.5 text-center xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Conversion
+              Revenues
             </h5>
           </div>
         </div>
 
-        {brandData.map((brand, key) => (
+        {items.map((i, k) => (
           <div
-            className={`grid grid-cols-3 sm:grid-cols-5 ${key === brandData.length - 1
+            className={`grid grid-cols-3 ${k === items.length - 1
               ? ""
               : "border-b border-stroke dark:border-strokedark"
               }`}
-            key={key}
+            key={k}
           >
-            <div className="flex items-center gap-3 p-2.5 xl:p-5">
-              <div className="flex-shrink-0">
-                <Image src={brand.logo} alt="Brand" width={48} height={48} />
-              </div>
-              <p className="hidden text-black dark:text-white sm:block">
-                {brand.name}
+            <div className="flex flex-col items-start justify-center p-2.5 xl:p-5">
+              <p className="text-black dark:text-white">
+                {i.outlet.name}
               </p>
+              <span className="text-sm">{i.outlet.city}</span>
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{brand.visitors}K</p>
+              <p className="text-black dark:text-white">{FormatDecimal(parseInt(i.order_count))}</p>
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-meta-3">${brand.revenues}</p>
-            </div>
-
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-black dark:text-white">{brand.sales}</p>
-            </div>
-
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-meta-5">{brand.conversion}%</p>
+              <p className="text-meta-3">Rp. {FormatDecimal(parseInt(i.total_sum))}</p>
             </div>
           </div>
         ))}

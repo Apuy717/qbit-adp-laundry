@@ -312,9 +312,10 @@ const BasicChartPage: React.FC = () => {
                     formik.setFieldValue("name", i.name)
                     formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
                     formik.setFieldValue("is_deleted", i.is_deleted)
-                    formik.setFieldValue("outlet_id", i.outlet_id === null ? "null" : i.outlet_id)
+                    formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
                     formik.setFieldValue("status", i.status)
-                    formik.setFieldValue("category_id", i.category_id)
+                    console.log(i.category);
+                    formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
                     formik.setFieldValue("description", i.description === null ? "" : i.description)
                     setModal(true);
                   }}
