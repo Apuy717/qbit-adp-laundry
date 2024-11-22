@@ -114,7 +114,7 @@ export default function PRTrxPage() {
               router.push("/purchase-request/trx/create-trx-pr")
             }}
           >
-           Tambah TRX PR
+            Tambah TRX PR
           </button>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function PRTrxPage() {
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
           <button onClick={() => setIsViewDetail(false)}>
-            <FaArrowLeft size={20} />
+            <FaArrowLeft size={20} className="rotate-180" />
           </button>
         </div>
         <div className="mt-4 p-4">
@@ -196,6 +196,7 @@ export default function PRTrxPage() {
                 fill
                 alt="nota"
                 src={`/file/${viewDetailData?.note}`}
+                sizes=""
               />
             </a>
             <div className="flex flex-col space-y-2">

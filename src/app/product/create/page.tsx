@@ -313,7 +313,7 @@ export default function CreateProduct() {
             <div key={index}>
               <hr className="my-8 border-b-2 border-apps-primary dark:bg-gray-2"></hr>
               <div className="mb-5 mt-2" >
-                <button className={formik.values.variants.length == 0 ? `hidden` : `bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
+                <button className={index == 0 ? `hidden` : `bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
                   Hapus SKU
                 </button>
               </div>
