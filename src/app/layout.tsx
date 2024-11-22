@@ -1,18 +1,19 @@
 "use client";
-import "jsvectormap/dist/jsvectormap.css";
-import "flatpickr/dist/flatpickr.min.css";
 import "@/css/satoshi.css";
 import "@/css/style.css";
+import "flatpickr/dist/flatpickr.min.css";
+import "jsvectormap/dist/jsvectormap.css";
+import 'maplibre-gl/dist/maplibre-gl.css';
 import "react-toastify/dist/ReactToastify.css";
-import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { persistStore } from "redux-persist";
-import store from "@/stores/store";
 import { AuthProvider } from "@/contexts/authProvider";
-import { ToastContainer } from "react-toastify";
 import { LayoutProvider } from "@/contexts/layoutContext";
+import store from "@/stores/store";
+import React, { useEffect, useState } from "react";
+import { Provider } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import { persistStore } from "redux-persist";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function RootLayout({
   children,
@@ -29,17 +30,20 @@ export default function RootLayout({
   const persistor = persistStore(store);
   return (
     <html lang="en">
-      <title>ADP | Depth Clean</title>
-      <body className="dark:bg-boxdark-2 dark:text-bodydark">
+      <head>
+        <title>ADP | Depth Clean</title>
+        <link rel="icon" href="/images/favicon.ico" />
+      </head>
+      <body>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-            <LayoutProvider>
-              <AuthProvider>
-                <div className="dark:bg-boxdark-2 dark:text-bodydark">
+            <div className="dark:bg-boxdark-2 dark:text-bodydark">
+              <LayoutProvider>
+                <AuthProvider>
                   {loading ? <Loader /> : children}
-                </div>
-              </AuthProvider>
-            </LayoutProvider>
+                </AuthProvider>
+              </LayoutProvider>
+            </div>
           </PersistGate>
         </Provider>
         <ToastContainer
