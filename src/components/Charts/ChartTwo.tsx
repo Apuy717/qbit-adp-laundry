@@ -58,10 +58,6 @@ const options: ApexOptions = {
     fontFamily: "Satoshi",
     fontWeight: 500,
     fontSize: "14px",
-
-    markers: {
-      radius: 99,
-    },
   },
   fill: {
     opacity: 1,
@@ -92,7 +88,7 @@ const ChartTwo: React.FC = () => {
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-xl font-semibold text-black dark:text-white">
-            Profit this week
+            Number of active outlets
           </h4>
         </div>
         <div>
