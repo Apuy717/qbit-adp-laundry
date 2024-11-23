@@ -232,12 +232,12 @@ export default function CreateProduct() {
               }} />
           </div>
           {!!formik.values.note_file ? (
-            <div className="relative aspect-square h-48 mt-6 flex justify-center w-full">
+            <div className="relative aspect-square h-48 mt-6 flex justify-center w-full bg-sky-100 rounded-lg ">
               <NextImage
                 src={showImage}
                 alt="input-picture"
                 fill
-                className="h-auto max-w-full rounded-lg object-contain"
+                className="h-auto max-w-full rounded-lg object-contain py-2"
               />
             </div>
           ) : (

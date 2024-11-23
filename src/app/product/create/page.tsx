@@ -288,34 +288,19 @@ export default function CreateProduct() {
               }
             />
 
-            {!!formik.values.picture ? (
-              <div className="relative aspect-square h-48 mt-4 flex justify-center w-full">
-                <NextImage
-                  src={showImage}
-                  alt="input-picture"
-                  fill
-                  className="h-auto max-w-full rounded-lg object-contain"
-                />
-              </div>
-            ) : (
-
-              <InputFile
-                className="pt-4"
-                label={"picture"}
-                name={"picture"}
-                id={"picture"}
-                onChange={(e) =>
-                  handleChangeFileImage(e, (file, result) => {
-                    formik.setFieldValue("note_file", result.replace(/^data:image\/\w+;base64,/, ""));
-                    setShowImage(result)
-                    console.log(result);
-                  })}
-                error={formik.touched.picture && formik.errors.picture
-                  ? formik.errors.picture
-                  : null}>
-              </InputFile>
-            )}
-
+            <InputFile
+              label={"picture"}
+              name={"picture"}
+              id={"picture"}
+              onChange={(e) =>
+                handleChangeFileImage(e, (file, result) => {
+                  formik.setFieldValue("picture", result.replace(/^data:image\/\w+;base64,/, ""));
+                  setShowImage(result)
+                })}
+              error={formik.touched.picture && formik.errors.picture
+                ? formik.errors.picture
+                : null}>
+            </InputFile>
 
             <InputDropdown
               label={"Kategori*"}
@@ -349,6 +334,16 @@ export default function CreateProduct() {
                   : null
               }
             />
+          </div>
+          <div className={formik.values.picture ? `mt-6 py-4 bg-sky-100 rounded-lg` : `hidden`}>
+            <div className="relative aspect-square h-48 flex justify-center w-full">
+              <NextImage
+                src={showImage ? showImage : "/images/user/user-01.png"}
+                alt="input-picture"
+                fill
+                className="h-auto max-w-full rounded-lg object-contain"
+              />
+            </div>
           </div>
           {formik.values.variants.map((variant, index) => (
             <div key={index}>
