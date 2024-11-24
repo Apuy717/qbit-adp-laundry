@@ -16,6 +16,7 @@ import { RootState } from "@/stores/store";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { useRouter } from "next/navigation";
 import MapOne from "../Maps/MapOne";
+import { FilterByOutletTableModal } from "../Outlets/FilterByOutletTableModal";
 
 
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
@@ -51,6 +52,8 @@ const ECommerce: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
   const [profitAndLos, setProfitAndLos] = useState<ProfitType | null>(null)
+  const [modalProduct, setModalProduct] = useState<boolean>(false)
+
 
   useEffect(() => {
     async function GotProfitAndLost() {
@@ -128,6 +131,19 @@ const ECommerce: React.FC = () => {
 
   return (
     <>
+      <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
+        <div className="cursor-pointer w-full md:w-96" onClick={() => { setModalProduct(true) }}>
+          <div className="flex flex-row">
+            <div className="w-full p-3 border-2 rounded-md relative">
+              <label
+                className={`text-md  transition-all duration-500`}
+              >
+                Filter By Outlet
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <CardDataStats title="Total Sales" total={totalSales()} rate={countSales()} levelUp>
           <FiShoppingCart size={23} className="text-primary" />
@@ -153,6 +169,15 @@ const ECommerce: React.FC = () => {
         </div>
         <ChatCard />
       </div>
+      <FilterByOutletTableModal modalOutlet={modalProduct}
+        closeModal={(isOpen) => setModalProduct(isOpen)}
+        setFilterByOutlet={(isChecked, value) => {
+          if (isChecked) {
+            setFilterByOutlet(old => [...old, value])
+          } else {
+            setFilterByOutlet(old => old.filter(f => f !== value))
+          }
+        }} />
     </>
   );
 };

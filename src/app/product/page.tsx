@@ -366,12 +366,12 @@ export default function Product() {
             </td>
             <td className="px-6 py-4">
               {prod.is_deleted ? (
-                <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 ">
-                  <p className="text-white">inactive</p>
+                <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 flex justify-center w-auto">
+                  <p className="text-white">inaktif</p>
                 </div>
               ) : (
                 <div className="px-2 bg-green-500 rounded-xl text-center max-w-14">
-                  <p className="text-white">active</p>
+                  <p className="text-white">aktif</p>
                 </div>
               )}
             </td>
