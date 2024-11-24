@@ -211,7 +211,7 @@ export default function CreateOutlet() {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Outlet" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -407,6 +407,6 @@ export default function CreateOutlet() {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 }

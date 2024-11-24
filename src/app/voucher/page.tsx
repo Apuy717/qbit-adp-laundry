@@ -1,7 +1,7 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { DatePickerOne } from "@/components/FormElements/DatePicker/DatePickerOne";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { Input, InputDropdown, InputToggle } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
@@ -118,7 +118,7 @@ export default function Vouchers() {
     };
     GotVoucher()
 
-  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet,updateOrAddVoucher])
+  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -257,8 +257,8 @@ export default function Vouchers() {
             </td>
             <td className="px-6 py-4">
               {new Date(vou.started_at).toLocaleString("id", {
-                minute:"numeric",
-                hour:"numeric",
+                minute: "numeric",
+                hour: "numeric",
                 day: "2-digit",
                 month: "short",
                 year: "numeric"
@@ -266,8 +266,8 @@ export default function Vouchers() {
             </td>
             <td className="px-6 py-4">
               {new Date(vou.ended_at).toLocaleString("id", {
-                minute:"numeric",
-                hour:"numeric",
+                minute: "numeric",
+                hour: "numeric",
                 day: "2-digit",
                 month: "short",
                 year: "numeric"
@@ -373,7 +373,7 @@ export default function Vouchers() {
             </Input>
             <DatePickerOne
               label={"Berlaku Mulai"}
-              defaultDate={ formik.values.started_at.split(".")[0]}
+              defaultDate={formik.values.started_at.split(".")[0]}
               onChange={(val) => {
                 formik.setFieldValue("started_at", val)
                 console.log(val);

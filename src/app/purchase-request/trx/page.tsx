@@ -1,7 +1,7 @@
 'use client'
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CardDataStats from "@/components/CardDataStats";
-import { DatePickerOne } from "@/components/FormElements/DatePicker/DatePickerOne";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { iDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";

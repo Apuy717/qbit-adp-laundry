@@ -1,7 +1,7 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { DatePickerOne } from "@/components/FormElements/DatePicker/DatePickerOne";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { Input, InputDropdown, InputFile } from "@/components/Inputs/InputComponent";
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
