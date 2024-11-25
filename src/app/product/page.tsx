@@ -460,7 +460,7 @@ export default function Product() {
 
         <div className="px-4">
           <p className="text-lg font-semibold text-black dark:text-white">
-            Item
+            Detail Item
           </p>
           <Table colls={["#", "Kode", "Nama", "Harga", "Kuantitas", "Pencuci", "Pengering", "Setrika", "Deskripsi", "Aksi"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
             throw new Error("Function not implemented.");

@@ -17,6 +17,7 @@ import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { useRouter } from "next/navigation";
 import MapOne from "../Maps/MapOne";
 import { FilterByOutletTableModal } from "../Outlets/FilterByOutletTableModal";
+import DatePickerOne from "../FormElements/DatePicker/DatePickerOne";
 
 
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
@@ -52,7 +53,7 @@ const ECommerce: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
   const [profitAndLos, setProfitAndLos] = useState<ProfitType | null>(null)
-  const [modalProduct, setModalProduct] = useState<boolean>(false)
+  const [modalOutlet, setModalOutlet] = useState<boolean>(false)
 
 
   useEffect(() => {
@@ -132,14 +133,23 @@ const ECommerce: React.FC = () => {
   return (
     <>
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="cursor-pointer w-full md:w-96" onClick={() => { setModalProduct(true) }}>
-          <div className="flex flex-row">
-            <div className="w-full p-3 border-2 rounded-md relative">
-              <label
-                className={`text-md  transition-all duration-500`}
-              >
-                Filter By Outlet
-              </label>
+        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+          <DatePickerOne label={"Dari"} defaultDate={startDate} onChange={(val) => {
+            setStartDate(val)
+          }} />
+          <DatePickerOne label={"Sampai"} defaultDate={endDate} onChange={(val) => {
+            console.log(val);
+          }} />
+
+          <div className="cursor-pointer w-full" onClick={() => setModalOutlet(true)}>
+            <div className="flex flex-row">
+              <div className="w-full p-3 border-2 rounded-md relative">
+                <label
+                  className={`text-md  transition-all duration-500`}
+                >
+                  Filter By Outlet
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -169,8 +179,8 @@ const ECommerce: React.FC = () => {
         </div>
         <ChatCard />
       </div>
-      <FilterByOutletTableModal modalOutlet={modalProduct}
-        closeModal={(isOpen) => setModalProduct(isOpen)}
+      <FilterByOutletTableModal modalOutlet={modalOutlet}
+        closeModal={(isOpen) => setModalOutlet(isOpen)}
         setFilterByOutlet={(isChecked, value) => {
           if (isChecked) {
             setFilterByOutlet(old => [...old, value])

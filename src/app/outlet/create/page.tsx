@@ -6,7 +6,6 @@ import {
   InputTextArea,
   InputToggle,
 } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { GET, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
