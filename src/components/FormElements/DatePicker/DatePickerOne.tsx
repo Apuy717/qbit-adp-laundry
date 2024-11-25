@@ -7,7 +7,7 @@ interface iDatePickerInput {
   onChange: (v: string) => void
 }
 
-export const DatePickerOne = (props: iDatePickerInput) => {
+const DatePickerOne = (props: iDatePickerInput) => {
   const refInput = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
@@ -79,4 +79,5 @@ export const DatePickerOne = (props: iDatePickerInput) => {
   );
 };
 
+export default DatePickerOne
 

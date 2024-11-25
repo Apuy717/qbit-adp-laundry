@@ -34,6 +34,7 @@ export default function PageEmployee() {
 
   const [employee, setEmployee] = useState<Employee[]>([])
   const [totalEmployee, setTotalEmployee] = useState<number>(0)
+  const [showDetailOutlet, setShowDetailOutlet] = useState<number>()
 
 
   const [search, setSearch] = useState<string>("");
@@ -186,12 +187,22 @@ export default function PageEmployee() {
             <td className="px-6 py-4 whitespace-nowrap">
               {i.role.name}
             </td>
-            <td className="px-6 py-4">
-              {i.employee_outlets.map((i, key) => (
-                <div className="p-1 bg-gray-300 rounded-lg text-center my-2" key={key}>
-                  <p>{i.outlet.name}</p>
-                </div>
-              ))}
+            <td className="px-6 py-4 flex flex-wrap space-x-2">
+              {showDetailOutlet == k ? (
+                i.employee_outlets.map((i, key) => (
+                  <button className={`p-1 bg-gray-300 rounded-lg text-center m-2  hover:bg-green-500 hover:text-white`} key={key}
+                    onClick={() => setShowDetailOutlet(-1)}>
+                    <p>{i.outlet.name}</p>
+                  </button>
+                ))
+              ) :
+                (
+                  <button className={`px-2 bg-gray-300 rounded-lg text-center my-2 hover:bg-green-500 hover:text-white`}
+                    onClick={() => setShowDetailOutlet(k)}>
+                    <p>Tampilkan</p>
+                  </button>
+                )
+              }
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (

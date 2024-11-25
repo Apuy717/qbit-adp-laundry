@@ -56,7 +56,7 @@ export const FilterByOutletTableModal = (props: iFilterByOutletTableModal) => {
       <div className="relative bg-white dark:bg-boxdark shadow rounded-md h-[90vh] 
         md:h-[40rem] w-[90%] md:w-[50%] p-4">
         <div
-          className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+          className="z-9999 absolute top-3 right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
           onClick={() => props.closeModal(false)}
         >
           <IoCloseOutline color="white" size={20} />
@@ -73,20 +73,24 @@ export const FilterByOutletTableModal = (props: iFilterByOutletTableModal) => {
               setSearchOutlet(v)
             }} error={null} />
         </div>
-        <Table colls={["#", "Nama Outlet"]} currentPage={0} totalItem={1} onPaginate={() => null}>
-          {filterOutlet().map((i, k) => (
-            <tr
-              className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-              key={k}
-            >
-              <td className="whitespace-nowrap px-6 py-4">
-                <input type="checkbox" value={`${i.value}`}
-                  onChange={(e) => props.setFilterByOutlet(e.target.checked, e.target.value)} />
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">{i.label}</td>
-            </tr>
-          ))}
-        </Table>
+        <div className="relative overflow-scroll overflow-x-hidden h-[60vh]">
+
+          <Table colls={["#", "Nama Outlet"]} currentPage={0} totalItem={1} onPaginate={() => null}>
+            {filterOutlet().map((i, k) => (
+              <tr
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                key={k}
+              >
+                <td className="whitespace-nowrap px-6 py-4">
+                  <input type="checkbox" value={`${i.value}`}
+                    onChange={(e) => props.setFilterByOutlet(e.target.checked, e.target.value)} />
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">{i.label}</td>
+              </tr>
+            ))}
+          </Table>
+        </div>
+
       </div>
     </Modal>
   )

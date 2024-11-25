@@ -2,11 +2,11 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FilterComponent } from "@/components/Filters/FilterComponent";
-import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
+import { iDropdown, Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
-import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
@@ -42,12 +42,12 @@ export default function Product() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [products, setProducts] = useState<TypeProduct[]>([])
+  const [categorys, setCategorys] = useState<iDropdown[]>([])
   const [filterSkus, setfilterSkus] = useState<any>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [fixValueSearch, setFixValueSearch] = useState("")
   const [totalProduct, setTotalProduct] = useState<number>(0);
   const [modalProduct, setModalProduct] = useState<boolean>(false)
-  const [modalForm, setModalForm] = useState<boolean>(false)
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false);
   const [updateModal, setUpdateModal] = useState<boolean>(false)
@@ -57,18 +57,13 @@ export default function Product() {
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter()
 
-  const serviceType = [
-    {
-      label: "",
-      value: ""
-    }, {
-      label: "services",
-      value: "services"
-    }, {
-      label: "goods",
-      value: "goods"
-    }
-  ]
+  const serviceType = [{
+    label: "services",
+    value: "services"
+  }, {
+    label: "goods",
+    value: "goods"
+  }]
 
 
   useEffect(() => {
@@ -94,8 +89,27 @@ export default function Product() {
         setLoadingSearch(false);
       }, 100);
     };
-    GotProduct()
+    const GotCategorys = async () => {
+      let urlwithQuery = `/api/category`;
+      const res = await GetWithToken<MyResponse>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+      });
+      const mapingCategory = (res.data).map((i: any) => {
+        return {
+          label: i.name,
+          value: i.id,
+        };
+      }) as iDropdown[]
 
+      if (mapingCategory.length >= 1) formik.setFieldValue("category_id", mapingCategory[0].value)
+
+      setCategorys(mapingCategory)
+      console.log(categorys);
+    };
+    GotProduct()
+    GotCategorys()
     // console.log(products);
     // console.log(products[skusIdx].skus);
   }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
@@ -258,9 +272,6 @@ export default function Product() {
       }
 
 
-      // console.log(res.err);
-
-
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
@@ -271,15 +282,42 @@ export default function Product() {
       if (res.statusCode === 200) {
         toast.success("Berhasil menambahkan data!");
         router.push("/product");
+
+        setIsViewDetail(false)
+        setUpdateModal(false);
       }
       // console.log(res.data);
 
 
       setLoading(false);
-      setIsViewDetail(false)
-      setUpdateModal(false);
     },
   });
+  const handleChangeFileImage = (
+    event: ChangeEvent<HTMLInputElement>,
+    callBack: (file: File | undefined, result: string) => void
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        callBack(file, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      callBack(undefined, "");
+    }
+    console.log(file);
+  };
+
+  const rupiah = (number: number) => {
+    const result = new Intl.NumberFormat("id-ID", {
+      style: "decimal",
+      currency: "IDR"
+    }).format(number);
+
+    return `Rp. ${result}`
+  }
   return (
     <>
       <Breadcrumb pageName="Product" />
@@ -328,12 +366,12 @@ export default function Product() {
             </td>
             <td className="px-6 py-4">
               {prod.is_deleted ? (
-                <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 ">
-                  <p className="text-white">inactive</p>
+                <div className="px-2 bg-red-500 rounded-xl text-center max-w-14 flex justify-center w-auto">
+                  <p className="text-white">inaktif</p>
                 </div>
               ) : (
                 <div className="px-2 bg-green-500 rounded-xl text-center max-w-14">
-                  <p className="text-white">active</p>
+                  <p className="text-white">aktif</p>
                 </div>
               )}
             </td>
@@ -411,7 +449,7 @@ export default function Product() {
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
           <button onClick={() => setIsViewDetail(false)}>
-            <FaArrowLeft size={20} />
+            <FaArrowLeft size={20} className="rotate-180" />
           </button>
         </div>
         <div className="mt-4 p-4">
@@ -422,7 +460,7 @@ export default function Product() {
 
         <div className="px-4">
           <p className="text-lg font-semibold text-black dark:text-white">
-            Item
+            Detail Item
           </p>
           <Table colls={["#", "Kode", "Nama", "Harga", "Kuantitas", "Pencuci", "Pengering", "Setrika", "Deskripsi", "Aksi"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
             throw new Error("Function not implemented.");
@@ -439,10 +477,10 @@ export default function Product() {
                   {i.name}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {i.price}
+                  {rupiah(i.price)}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {i.stock + ' ' + i.unit}
+                  {i.stock ? i.stock + ' ' + i.unit : ''}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.machine_washer ? (
@@ -523,7 +561,7 @@ export default function Product() {
               className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
               onClick={() => {
                 setUpdateModal(false)
-                // resetForm()
+
               }}
             >
               <IoCloseOutline color="white" size={20} />
@@ -559,15 +597,31 @@ export default function Product() {
                       : null
                   }
                 />
+                <InputDropdown
+                  label={"Kategori*"}
+                  name={"category_id"}
+                  id={"category_id"}
+                  value={formik.values.category_id}
+                  onChange={(v) => formik.setFieldValue("category_id", v)}
+                  options={categorys}
+                  error={
+                    formik.touched.category_id && formik.errors.category_id
+                      ? formik.errors.category_id
+                      : null
+                  }
+                />
 
                 <InputFile
-                  label={""}
-                  name={""}
-                  id={""}
-                  onChange={function (e: ChangeEvent<HTMLInputElement>): void {
-                    throw new Error("Function not implemented.");
-                  }}
-                  error={null}>
+                  label={"picture"}
+                  name={"picture"}
+                  id={"picture"}
+                  onChange={(e) =>
+                    handleChangeFileImage(e, (file, result) => {
+                      formik.setFieldValue("picture", result.replace(/^data:image\/\w+;base64,/, ""));
+                    })}
+                  error={formik.touched.picture && formik.errors.picture
+                    ? formik.errors.picture
+                    : null}>
                 </InputFile>
 
                 <InputToggle
@@ -604,7 +658,6 @@ export default function Product() {
               className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
               onClick={() => {
                 setUpdateModal(false)
-                // resetForm()
               }}
             >
               <IoCloseOutline color="white" size={20} />
@@ -639,7 +692,7 @@ export default function Product() {
                 label={"Harga Modal*"}
                 name={"capital price"}
                 id={"capital price"}
-                value={formik.values.capital_price}
+                value={formik.values.capital_price ? formik.values.capital_price : ''}
                 onChange={(v) => formik.setFieldValue(`capital_price`, parseInt(v))}
                 error={formik.touched.capital_price &&
                   (typeof formik.errors.capital_price === 'object' && formik.errors.capital_price)
@@ -649,7 +702,7 @@ export default function Product() {
                 label={"Harga*"}
                 name={"price"}
                 id={"price"}
-                value={formik.values.price}
+                value={formik.values.price ? formik.values.price : ''}
                 onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
                 error={formik.touched.price &&
                   (typeof formik.errors.price === 'object' && formik.errors.price)
@@ -672,7 +725,7 @@ export default function Product() {
                 label={"Stok*"}
                 name={"stock"}
                 id={"stock"}
-                value={formik.values.stock}
+                value={formik.values.stock ? formik.values.stock : ''}
                 onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
                 error={formik.touched.stock &&
                   (typeof formik.errors.stock === 'object' && formik.errors.stock)
@@ -683,7 +736,7 @@ export default function Product() {
                 label={"Unit*"}
                 name={"unit"}
                 id={"unit"}
-                value={formik.values.unit}
+                value={formik.values.unit ? formik.values.unit : ''}
                 onChange={(v) => formik.setFieldValue(`unit`, v)}
                 error={formik.touched.unit &&
                   (typeof formik.errors.unit === 'object' && formik.errors.unit)
@@ -746,7 +799,7 @@ export default function Product() {
                 label={formik.values.machine_iron ? "Durasi Setrika*" : ""}
                 name={"iron_duration"}
                 id={"iron_duration"}
-                value={formik.values.iron_duration}
+                value={formik.values.iron_duration ? formik.values.iron_duration : ''}
                 onChange={(v) => formik.setFieldValue(`iron_duration`, parseInt(v))}
                 error={formik.touched.iron_duration &&
                   (typeof formik.errors.iron_duration === 'object' && formik.errors.iron_duration)

@@ -5,10 +5,12 @@ import { Input, InputDropdown, InputFile, InputTextArea, InputToggle } from "@/c
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { useFormik } from "formik";
+import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+
 import * as Yup from "yup";
 
 interface MyResponse {
@@ -33,6 +35,8 @@ export default function CreateProduct() {
   const [loading, setLoading] = useState<boolean>(false);
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown)
   const [categorys, setCategorys] = useState<iDropdown[]>(dropdown)
+  const [showImage, setShowImage] = useState<string>("")
+
   const auth = useSelector((s: RootState) => s.auth);
   const serviceType = [
     {
@@ -215,6 +219,25 @@ export default function CreateProduct() {
     variants.splice(index, 1);
     formik.setFieldValue('variants', variants);
   };
+
+  const handleChangeFileImage = (
+    event: ChangeEvent<HTMLInputElement>,
+    callBack: (file: File | undefined, result: string) => void
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        callBack(file, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      callBack(undefined, "");
+    }
+    console.log(file);
+    console.log(formik.values.picture);
+  };
   return (
     <>
       <Breadcrumb pageName="Product" />
@@ -266,15 +289,18 @@ export default function CreateProduct() {
             />
 
             <InputFile
-              label={""}
-              name={""}
-              id={""}
-              onChange={function (e: ChangeEvent<HTMLInputElement>): void {
-                throw new Error("Function not implemented.");
-              }}
-              error={null}>
+              label={"picture"}
+              name={"picture"}
+              id={"picture"}
+              onChange={(e) =>
+                handleChangeFileImage(e, (file, result) => {
+                  formik.setFieldValue("picture", result.replace(/^data:image\/\w+;base64,/, ""));
+                  setShowImage(result)
+                })}
+              error={formik.touched.picture && formik.errors.picture
+                ? formik.errors.picture
+                : null}>
             </InputFile>
-
 
             <InputDropdown
               label={"Kategori*"}
@@ -309,11 +335,21 @@ export default function CreateProduct() {
               }
             />
           </div>
+          <div className={formik.values.picture ? `mt-6 py-4 bg-sky-100 rounded-lg` : `hidden`}>
+            <div className="relative aspect-square h-48 flex justify-center w-full">
+              <NextImage
+                src={showImage ? showImage : "/images/user/user-01.png"}
+                alt="input-picture"
+                fill
+                className="h-auto max-w-full rounded-lg object-contain"
+              />
+            </div>
+          </div>
           {formik.values.variants.map((variant, index) => (
             <div key={index}>
               <hr className="my-8 border-b-2 border-apps-primary dark:bg-gray-2"></hr>
               <div className="mb-5 mt-2" >
-                <button className={`bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
+                <button className={index == 0 ? `hidden` : `bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
                   Hapus SKU
                 </button>
               </div>

@@ -6,7 +6,6 @@ import {
   InputTextArea,
   InputToggle,
 } from "@/components/Inputs/InputComponent";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { GET, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -211,7 +210,7 @@ export default function CreateOutlet() {
   }
 
   return (
-    <DefaultLayout>
+    <>
       <Breadcrumb pageName="Outlet" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
@@ -407,6 +406,6 @@ export default function CreateOutlet() {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 }

@@ -213,7 +213,7 @@ export default function PageMachine() {
       <Table colls={role.name === ERoles.PROVIDER ? [
         "#", "Nama", "Kode", "IP", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"] :
         ["#", "Nama", "Kode", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"]}
-        currentPage={currentPage} totalItem={totalItem} onPaginate={() => null}>
+        currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
 
         {items.map((i, k) => (
           <tr
