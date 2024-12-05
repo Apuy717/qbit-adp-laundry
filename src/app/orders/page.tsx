@@ -4,11 +4,12 @@ import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { InputDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
@@ -41,6 +42,8 @@ export default function Orders() {
   const [paymentStatus, setPaymentStatus] = useState<string>("all")
   const [orderStatus, setOrderStatus] = useState<string>("all")
 
+  const { selectedOutlets } = useContext(FilterByOutletContext)
+
   useEffect(() => {
     async function GotPRItems() {
       setLoadingSearch(true)
@@ -55,12 +58,13 @@ export default function Orders() {
       let orderStts = {}
       if (orderStatus !== "all") orderStts = { status_order: orderStatus }
 
+
       const res = await PostWithToken<iResponse<OrderType[]>>({
         router: router,
         url: urlwithQuery,
         token: `${auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet,
+          outlet_ids: selectedOutlets.map(o => o.outlet_id),
           started_at: startDate,
           ended_at: endDate,
           ...paymentStts,
@@ -82,7 +86,7 @@ export default function Orders() {
     GotPRItems()
 
   }, [currentPage, fixValueSearch, refresh, auth.access_token,
-    filterByOutlet, startDate, paymentStatus, orderStatus])
+    filterByOutlet, startDate, paymentStatus, orderStatus, selectedOutlets])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()

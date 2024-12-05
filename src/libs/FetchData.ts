@@ -71,7 +71,7 @@ export async function GetWithToken<R>({ router, url, token }: GetWihTokenOptions
 
     if (result?.statusCode === 401) {
       toast.error(`Sesi login anda telah habis!`);
-      router.push("/auth/logout")
+      router.push("/auth/signin")
     }
 
     if (result?.statusCode === 403) {
@@ -108,7 +108,7 @@ export async function PostWithToken<R>({ router, url, data, token }: PostWithTok
 
     if (result?.statusCode === 401) {
       toast.error(`Sesi login anda telah habis!`);
-      router.push("/auth/logout")
+      router.push("/auth/signin")
     }
 
     if (result?.statusCode === 403) {
