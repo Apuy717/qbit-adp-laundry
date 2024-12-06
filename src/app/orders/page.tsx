@@ -28,10 +28,8 @@ export default function Orders() {
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false);
-  const [filterByOutlet, setFilterByOutlet] = useState<string[]>([])
 
-  const { auth, role } = useSelector((s: RootState) => s.auth)
+  const { auth } = useSelector((s: RootState) => s.auth)
   const [items, setItems] = useState<OrderType[]>([])
   const [totalItem, setTotalItem] = useState<number>(0)
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
@@ -41,7 +39,6 @@ export default function Orders() {
   const router = useRouter()
   const [paymentStatus, setPaymentStatus] = useState<string>("all")
   const [orderStatus, setOrderStatus] = useState<string>("all")
-
   const { selectedOutlets } = useContext(FilterByOutletContext)
 
   useEffect(() => {
@@ -86,7 +83,7 @@ export default function Orders() {
     GotPRItems()
 
   }, [currentPage, fixValueSearch, refresh, auth.access_token,
-    filterByOutlet, startDate, paymentStatus, orderStatus, selectedOutlets])
+    startDate, paymentStatus, orderStatus, selectedOutlets])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
@@ -116,7 +113,7 @@ export default function Orders() {
       url: "/api/order/download",
       token: `${auth.access_token}`,
       data: {
-        outlet_ids: filterByOutlet,
+        outlet_ids: selectedOutlets,
         started_at: startDate,
         ended_at: endDate,
         ...paymentStts,
@@ -154,19 +151,6 @@ export default function Orders() {
             <InputDropdown className="flex-1" label={"Status Order"} name={"order_status"} id={"order_status"}
               options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
               value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
-          </div>
-
-
-          <div className="cursor-pointer w-full col-span-2" onClick={() => setModalOutlet(true)}>
-            <div className="flex flex-row">
-              <div className="w-full p-3 border-2 rounded-md relative">
-                <label
-                  className={`text-md  transition-all duration-500`}
-                >
-                  Filter By Outlet
-                </label>
-              </div>
-            </div>
           </div>
           <button
             className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
@@ -234,16 +218,6 @@ export default function Orders() {
         </Table>
       )}
 
-
-      <FilterByOutletTableModal modalOutlet={modalOutlet}
-        closeModal={(isOpen) => setModalOutlet(isOpen)}
-        setFilterByOutlet={(isChecked, value) => {
-          if (isChecked) {
-            setFilterByOutlet(old => [...old, value])
-          } else {
-            setFilterByOutlet(old => old.filter(f => f !== value))
-          }
-        }} />
 
       <div className={`w-min h-full fixed right-0 top-0 z-[999]
         transition-all duration-500 shadow bg-white dark:bg-boxdark

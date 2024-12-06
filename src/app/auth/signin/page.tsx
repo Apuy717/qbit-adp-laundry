@@ -76,6 +76,7 @@ const SignIn: React.FC = () => {
             phone_number: data.phone_number,
             email: data.email,
             role: data.role,
+            department: data.department,
             auth: data.auth,
           }),
         );
@@ -91,27 +92,26 @@ const SignIn: React.FC = () => {
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="px-26 py-17.5 text-center">
-              <Link className="mb-5.5 inline-block" href="/">
+              <Link className="inline-block mr-9" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo_header.png"}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={"/images/logo_header.png"}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
               </Link>
 
-              <p className="2xl:px-20">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                suspendisse.
-              </p>
+              {/* <p className="2xl:px-20">
+                Qyubit Laundry Admin Panel
+              </p> */}
 
               <span className="mt-15 inline-block">
                 <svg

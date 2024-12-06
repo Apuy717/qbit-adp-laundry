@@ -5,11 +5,13 @@ import ClickOutside from "@/components/ClickOutside";
 import { useDispatch, useSelector } from "react-redux";
 import { setLogout } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
+import { FiUser } from "react-icons/fi";
+import { FaRegUser, FaRegUserCircle } from "react-icons/fa";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
-  const { fullname, role } = useSelector((s: RootState) => s.auth)
+  const { fullname, department, role } = useSelector((s: RootState) => s.auth)
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -22,11 +24,12 @@ const DropdownUser = () => {
           <span className="block text-sm font-medium text-black dark:text-white">
             {fullname}
           </span>
-          <span className="block text-xs">{role.name}</span>
+          <span className="block text-xs">{department}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <Image
+        <span className="h-12 w-12 rounded-full flex items-center justify-center border-2">
+          <FaRegUser size={22} />
+          {/* <Image
             width={112}
             height={112}
             src={"/images/user/user-01.png"}
@@ -35,7 +38,7 @@ const DropdownUser = () => {
               height: "auto",
             }}
             alt="User"
-          />
+          /> */}
         </span>
 
         <svg
