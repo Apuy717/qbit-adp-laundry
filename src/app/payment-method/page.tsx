@@ -46,16 +46,14 @@ export default function PagePaymentMethod() {
       })
 
       if (res?.statusCode === 200) {
-        const outletMaping = res.data.map(i => {
+        let outletMaping = res.data.map(i => {
           const city = i.city.split("--")
           return {
             value: i.id,
             label: `${i.name} ${city.length >= 2 ? city[1] : city}`
           }
         })
-
-        if (outletMaping.length >= 1) formik.setFieldValue("outlet_id", outletMaping[0].value)
-        setOutlets(outletMaping)
+        setOutlets([{ value: "All", label: "All" }, ...outletMaping])
       }
     }
 
@@ -126,7 +124,7 @@ export default function PagePaymentMethod() {
   const formik = useFormik({
     initialValues: {
       id: null,
-      outlet_id: "",
+      outlet_id: "All",
       name: "",
       type: EPaymentMethodType.CASH,
       account_number: "",
@@ -150,7 +148,9 @@ export default function PagePaymentMethod() {
       if (loading) return
       setLoading(true)
       let idUpdate = {}
+      let withOutletId = {}
       if (values.id !== null) idUpdate = { id: values.id }
+      if (values.outlet_id !== null && !values.outlet_id.includes("All")) withOutletId = { outlet_id: values.outlet_id }
 
       const res = await PostWithToken<iResponse<any>>({
         router: router,
@@ -158,7 +158,7 @@ export default function PagePaymentMethod() {
         token: `${auth.access_token}`,
         data: {
           ...idUpdate,
-          outlet_id: values.outlet_id,
+          ...withOutletId,
           name: values.name,
           type: values.type,
           account_number: values.account_number,
@@ -208,7 +208,7 @@ export default function PagePaymentMethod() {
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           onClick={() => setModalForm(true)}
         >
-          Submit
+          Add Payment
         </button>
 
       </FilterComponent>
@@ -227,7 +227,7 @@ export default function PagePaymentMethod() {
             <td className="whitespace-nowrap px-6 py-4">{i.type}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.account_number ? i.account_number : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.account_name ? i.account_name : "-"}</td>
-            <td className="px-6 py-4">{i.outlet.name}</td>
+            <td className="px-6 py-4">{i.outlet != null ? i.outlet.name : "All"}</td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center">

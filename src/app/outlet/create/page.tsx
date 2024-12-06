@@ -63,27 +63,27 @@ export default function CreateOutlet() {
     },
     validationSchema: Yup.object({
       name: Yup.string()
-        .max(100, "max name 255 karakter!")
-        .required("diperlukan!"),
-      country: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      province: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      city: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      district: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      postal_code: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      address: Yup.string().max(255, "Maksimal 255 karakter!").optional(),
+        .max(100, "max name 255 character")
+        .required("required!"),
+      country: Yup.string().max(100, "Max 100 character").optional(),
+      province: Yup.string().max(100, "Max 100 character").optional(),
+      city: Yup.string().max(100, "Max 100 character").optional(),
+      district: Yup.string().max(100, "Max 100 character").optional(),
+      postal_code: Yup.string().max(100, "Max 100 character").optional(),
+      address: Yup.string().max(255, "Max 255 character").optional(),
       dial_code: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
-        .required("Harus diisi!"),
+        .max(100, "Max 100 character")
+        .required("Must be filled!"),
       phone_number: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
+        .max(100, "Max 100 character")
         .required("Harus diisi!"),
       email: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
+        .max(100, "Max 100 character")
         .optional()
-        .email("Format email tidak valid!"),
-      latitude: Yup.string().required("Harus diisi!"),
-      longitude: Yup.string().required("Harus diisi!"),
-      is_deleted: Yup.boolean().required("Harus diisi!"),
+        .email("Email is not valid!"),
+      latitude: Yup.string().required("Must be filled!"),
+      longitude: Yup.string().required("Must be filled!"),
+      is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -103,9 +103,10 @@ export default function CreateOutlet() {
       }
 
       if (res.statusCode === 200) {
-        toast.success("Berhasil menambahkan data!");
+        toast.success("Sucess update data!");
         router.push("/outlet");
       }
+      console.log(res.data);
 
       setLoading(false);
     },
@@ -131,12 +132,14 @@ export default function CreateOutlet() {
           };
         });
         if (maping.length >= 1) {
-          formik.setFieldValue("province", `${maping[0]}`);
+          // formik.setFieldValue("province", `${maping[0].value.split("--")[1]}`);
+          formik.setFieldValue("province", `${maping[0].value}`);
           if (maping[0].value.split("--").length >= 2)
             GotCity(maping[0].value.split("--")[0])
         }
-
         setProvince(maping);
+        console.log(`province ` + maping[0].value.split("--")[0]);
+        console.log(`province ` + maping[0].value.split("--")[1]);
       }
     }
 
@@ -175,10 +178,13 @@ export default function CreateOutlet() {
       });
 
       if (maping.length >= 1) {
-        formik.setFieldValue("city", `${maping[0]}`);
+        // formik.setFieldValue("city", `${maping[0].value.split("--")[1]}`);
+        formik.setFieldValue("city", `${maping[0].value}`);
         if (maping[0].value.split("--").length >= 2)
           GotSubDistrict(maping[0].value.split("--")[0])
       }
+      console.log(`city ` + maping[0].value.split("--")[1]);
+
       setCity(maping);
     }
   }
@@ -204,8 +210,10 @@ export default function CreateOutlet() {
           value: `${i.subdistrict_id}--${i.subdistrict_name}`,
         };
       });
-      if (maping.length >= 1) formik.setFieldValue("district", `${maping[0]}`);
+      if (maping.length >= 1) formik.setFieldValue("district", `${maping[0].value.split("--")[1]}`);
       setSubDistrict(maping);
+      console.log(`district ` + maping[0].value.split("--")[1]);
+
     }
   }
 
@@ -217,12 +225,12 @@ export default function CreateOutlet() {
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form menambahkan data outlet</p>
+          <p className="font-semibold">Add outlet form</p>
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
             <Input
-              label={"Nama*"}
+              label={"Name*"}
               name={"name"}
               id={"name"}
               value={formik.values.name}
@@ -250,7 +258,7 @@ export default function CreateOutlet() {
                 />
               </div>
               <Input
-                label={"No. Hp*"}
+                label={"Phone*"}
                 name={"phone_number"}
                 id={"phone_number"}
                 type="number"
@@ -284,7 +292,7 @@ export default function CreateOutlet() {
             />
 
             <InputDropdown
-              label={"Negara"}
+              label={"Country"}
               name={"country"}
               id={"country"}
               value={formik.values.country}
@@ -297,7 +305,7 @@ export default function CreateOutlet() {
               }
             />
             <InputDropdown
-              label={"Provinsi"}
+              label={"Province"}
               name={"province"}
               id={"province"}
               value={formik.values.province}
@@ -316,7 +324,7 @@ export default function CreateOutlet() {
               }
             />
             <InputDropdown
-              label={"Kab/Kota"}
+              label={"City"}
               name={"city"}
               id={"city"}
               value={formik.values.city}
@@ -331,7 +339,7 @@ export default function CreateOutlet() {
               error={null}
             />
             <InputDropdown
-              label={"Kecamatan"}
+              label={"District"}
               name={"district"}
               id={"district"}
               value={formik.values.district}
@@ -345,7 +353,7 @@ export default function CreateOutlet() {
               error={null}
             />
             <Input
-              label={"Kode Pos"}
+              label={"Pos"}
               name={"postal_code"}
               id={"postal_code"}
               value={formik.values.postal_code}
@@ -357,7 +365,7 @@ export default function CreateOutlet() {
               }
             />
             <Input
-              label={"Lattitude*"}
+              label={"Latitude*"}
               name={"latitude"}
               id={"latitude"}
               value={formik.values.latitude}
@@ -381,7 +389,7 @@ export default function CreateOutlet() {
               }
             />
             <InputTextArea
-              label={"Alamat / Nama Jalan"}
+              label={"Address"}
               name={"address"}
               id={"address"}
               value={formik.values.address}
@@ -401,7 +409,7 @@ export default function CreateOutlet() {
               onClick={formik.submitForm}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
-              Simpan
+              Save
             </button>
           </div>
         </div>

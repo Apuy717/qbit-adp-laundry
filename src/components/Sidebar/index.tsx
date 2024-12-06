@@ -6,7 +6,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { Children, useEffect } from "react";
 import { BiLogoVisualStudio, BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import { BsGraphDown } from "react-icons/bs";
 import { CiSettings } from "react-icons/ci";
@@ -39,18 +39,23 @@ const menuGroups = [
       {
         icon: <HiOutlineBuildingStorefront size={22} />,
         label: "Outlet",
-        route: "/outlet",
+        // route: "/outlet",
+        route: "#",
+        children: [
+          { label: "Outlet", route: "/outlet" },
+          { label: "Product", route: "/product" }
+        ],
       },
       {
         icon: <FaUsers size={22} />,
-        label: "Karyawan",
+        label: "Employee",
         route: "/employee",
       },
-      {
-        icon: <RiShoppingBag2Line size={22} />,
-        label: "Products",
-        route: "/product",
-      },
+      // {
+      //   icon: <RiShoppingBag2Line size={22} />,
+      //   label: "Products",
+      //   route: "/product",
+      // },
       {
         icon: <BiSolidDiscount size={22} />,
         label: "Voucher",
@@ -58,7 +63,7 @@ const menuGroups = [
       },
       {
         icon: <FaLayerGroup size={22} />,
-        label: "Kategori",
+        label: "Category",
         route: "/category",
       },
       {
@@ -71,7 +76,7 @@ const menuGroups = [
       },
       {
         icon: <RiMoneyCnyCircleLine size={23} />,
-        label: "Transaksi",
+        label: "Transaction",
         route: "#",
         children: [
           { label: "Pemasukan", route: "/orders" },
@@ -93,37 +98,37 @@ const menuGroups = [
     menuItems: [
       {
         icon: <BiSolidWasher size={23} />,
-        label: "Mesin",
+        label: "Machine",
         route: "/machine",
       },
-      {
-        icon: <BiLogoVisualStudio size={23} />,
-        label: "UI Elements",
-        route: "#",
-        children: [
-          { label: "Alerts", route: "/ui/alerts" },
-          { label: "Buttons", route: "/ui/buttons" },
-        ],
-      },
-      {
-        icon: <FaUser size={22} />,
-        label: "Profile",
-        route: "/profile",
-      },
-      {
-        icon: <FaWpforms size={22} />,
-        label: "Forms",
-        route: "#",
-        children: [
-          { label: "Form Elements", route: "/forms/form-elements" },
-          { label: "Form Layout", route: "/forms/form-layout" },
-        ],
-      },
-      {
-        icon: <FaTable size={22} />,
-        label: "Tables",
-        route: "/tables",
-      },
+      // {
+      //   icon: <BiLogoVisualStudio size={23} />,
+      //   label: "UI Elements",
+      //   route: "#",
+      //   children: [
+      //     { label: "Alerts", route: "/ui/alerts" },
+      //     { label: "Buttons", route: "/ui/buttons" },
+      //   ],
+      // },
+      // {
+      //   icon: <FaUser size={22} />,
+      //   label: "Profile",
+      //   route: "/profile",
+      // },
+      // {
+      //   icon: <FaWpforms size={22} />,
+      //   label: "Forms",
+      //   route: "#",
+      //   children: [
+      //     { label: "Form Elements", route: "/forms/form-elements" },
+      //     { label: "Form Layout", route: "/forms/form-layout" },
+      //   ],
+      // },
+      // {
+      //   icon: <FaTable size={22} />,
+      //   label: "Tables",
+      //   route: "/tables",
+      // },
     ],
   },
 ];

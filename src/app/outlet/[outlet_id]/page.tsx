@@ -45,14 +45,14 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
 
   useEffect(() => {
-    async function GotDetailOutlet() {
+    async function GotDetailOutlet(isupdate: boolean) {
       const res = await GetWithToken<iResponseOutlet>({
         router: router,
         url: `/api/outlet/${params.outlet_id}`,
         token: `${credential.auth.access_token}`
       });
 
-      if (res.statusCode === 404) toast.warning("Outlet tidak ditempukan, silahkan coba lagi!")
+      if (res.statusCode === 404) toast.warning("Outlet not found, try again!")
 
       formik.setFieldValue("id", res.data.id)
       formik.setFieldValue("name", res.data.name)
@@ -70,15 +70,15 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       formik.setFieldValue("is_deleted", res.data.is_deleted)
 
       if (res.data.province && res.data.province.split("--").length >= 2)
-        GotCity(res.data.province.split("--")[0])
+        GotCity(res.data.province.split("--")[0], isupdate)
 
       if (res.data.city && res.data.city.split("--").length >= 2)
-        GotSubDistrict(res.data.city.split("--")[0])
+        GotSubDistrict(res.data.city.split("--")[0], isupdate)
 
       setLoading(false)
     }
 
-    async function GotProvince() {
+    async function GotProvince(isupdate: boolean) {
       const res = await GET<iResponseAddress>({ url: "/api/address/province" });
       if (
         res.statusCode === 200 &&
@@ -96,8 +96,11 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             value: `${i.province_id}--${i.province}`,
           };
         });
+        if (formik.values.province) {
+          formik.setFieldValue("province", formik.values.province)
+        }
         setProvince(maping);
-        GotDetailOutlet()
+        GotDetailOutlet(isupdate)
       }
     }
 
@@ -111,8 +114,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       setCountrys((old) => [...old, { label: i.name, value: i.name }]);
     });
 
-    GotProvince();
-
+    GotProvince(false);
   }, [])
 
 
@@ -135,27 +137,27 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
     },
     validationSchema: Yup.object({
       name: Yup.string()
-        .max(100, "max name 255 karakter!")
-        .required("diperlukan!"),
-      country: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      province: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      city: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      district: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      postal_code: Yup.string().max(100, "Maksimal 100 karakter!").optional(),
-      address: Yup.string().max(255, "Maksimal 255 karakter!").optional(),
+        .max(100, "max name 255 character!")
+        .required("required!"),
+      country: Yup.string().max(100, "Max 100 character!").optional(),
+      province: Yup.string().max(100, "Max 100 character!").optional(),
+      city: Yup.string().max(100, "Max 100 character!").optional(),
+      district: Yup.string().max(100, "Max 100 character!").optional(),
+      postal_code: Yup.string().max(100, "Max 100 character!").optional(),
+      address: Yup.string().max(255, "Max 255 character!").optional(),
       dial_code: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
-        .required("Harus diisi!"),
+        .max(100, "Max 100 character!")
+        .required("Must be filled!"),
       phone_number: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
-        .required("Harus diisi!"),
+        .max(100, "Max 100 character!")
+        .required("Must be filled!"),
       email: Yup.string()
-        .max(100, "Maksimal 100 karakter!")
+        .max(100, "Max 100 character!")
         .optional()
-        .email("Format email tidak valid!"),
-      latitude: Yup.string().required("Harus diisi!"),
-      longitude: Yup.string().required("Harus diisi!"),
-      is_deleted: Yup.boolean().required("Harus diisi!"),
+        .email("invalid email!"),
+      latitude: Yup.string().required("Must be filled!"),
+      longitude: Yup.string().required("Must be filled!"),
+      is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -175,16 +177,16 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       }
 
       if (res.statusCode === 200) {
-        toast.success("Berhasil Merubah data!");
+        toast.success("Update data success!");
         router.push("/outlet");
+        console.log(res.data);
       }
       setLoading(false);
     },
   });
 
 
-
-  async function GotCity(province_id: string) {
+  async function GotCity(province_id: string, isupdate: boolean) {
     const res = await GET<iResponseAddress>({
       url: `/api/address/city?province_id=${province_id}`,
     });
@@ -206,11 +208,15 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           value: `${i.city_id}--${i.type} ${i.city_name}`,
         };
       });
+      if (isupdate) {
+        formik.setFieldValue("city", maping[0].value)
+        GotSubDistrict(maping[0].value.split("--")[0], true)
+      }
       setCity(maping);
     }
   }
 
-  async function GotSubDistrict(city_id: string) {
+  async function GotSubDistrict(city_id: string, isupdate: boolean) {
     const res = await GET<iResponseAddress>({
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
@@ -231,7 +237,11 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           value: `${i.subdistrict_id}--${i.subdistrict_name}`,
         };
       });
+      console.log(city_id === formik.values.city.split("--")[0]);
 
+      if (isupdate) {
+        formik.setFieldValue("district", maping[0].value.split("--")[1])
+      }
       setSubDistrict(maping);
     }
   }
@@ -249,7 +259,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
 
         <div className="grid grid-cols-1 px-10 gap-6 md:grid-cols-2">
           <Input
-            label={"Nama*"}
+            label={"Name*"}
             name={"name"}
             id={"name"}
             value={formik.values.name}
@@ -277,7 +287,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
               />
             </div>
             <Input
-              label={"No. Hp*"}
+              label={"Phone*"}
               name={"phone_number"}
               type="number"
               id={"phone_number"}
@@ -311,7 +321,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           />
 
           <InputDropdown
-            label={"Negara"}
+            label={"Country"}
             name={"country"}
             id={"country"}
             value={formik.values.country}
@@ -324,7 +334,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             }
           />
           <InputDropdown
-            label={"Provinsi"}
+            label={"Province"}
             name={"province"}
             id={"province"}
             value={formik.values.province}
@@ -333,7 +343,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
               const val = v.split("--");
               if (val.length >= 2) {
                 formik.setFieldValue("province", v);
-                GotCity(val[0]);
+                GotCity(val[0], true);
               }
             }}
             error={
@@ -343,7 +353,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             }
           />
           <InputDropdown
-            label={"Kab/Kota"}
+            label={"City"}
             name={"city"}
             id={"city"}
             value={formik.values.city}
@@ -352,13 +362,13 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
               const val = v.split("--");
               if (val.length >= 2) {
                 formik.setFieldValue("city", v);
-                GotSubDistrict(val[0]);
+                GotSubDistrict(val[0], true);
               }
             }}
             error={null}
           />
           <InputDropdown
-            label={"Kecamatan"}
+            label={"District"}
             name={"district"}
             id={"district"}
             value={formik.values.district}
@@ -372,7 +382,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             error={null}
           />
           <Input
-            label={"Kode Pos"}
+            label={"Pos"}
             name={"postal_code"}
             id={"postal_code"}
             value={formik.values.postal_code}
@@ -384,7 +394,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             }
           />
           <Input
-            label={"Lattitude*"}
+            label={"Latitude*"}
             name={"latitude"}
             id={"latitude"}
             value={formik.values.latitude}
@@ -408,7 +418,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             }
           />
           <InputTextArea
-            label={"Alamat / Nama Jalan"}
+            label={"Address"}
             name={"address"}
             id={"address"}
             value={formik.values.address}
@@ -428,7 +438,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             onClick={formik.submitForm}
             className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
-            Simpan
+            Save
           </button>
         </div>
       </div>
