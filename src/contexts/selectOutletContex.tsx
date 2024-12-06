@@ -11,19 +11,19 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { createContext } from "react";
 
-interface iOutletSelected { area_id: string | null, outlet_id: string, outlet: string }
-type OutletType = {
+export interface iOutletSelected { area_id: string | null, outlet_id: string, outlet: string }
+export type OutletType = {
   outlet_id: string;
   name: string;
 };
 
-type Area = {
+export type Area = {
   area_id: string | null;
   area: string | null;
   outlets: OutletType[];
 };
 
-interface iFilterByOutlet {
+export interface iFilterByOutlet {
   modal: boolean;
   setModal: Dispatch<SetStateAction<boolean>>
   selectedOutlets: iOutletSelected[]
@@ -80,8 +80,6 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
   const { auth } = useSelector((s: RootState) => s.auth)
 
   useEffect(() => {
-    console.log(auth);
-
     async function GotAllOutlet() {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
