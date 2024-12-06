@@ -1,15 +1,13 @@
 'use client'
 
-import { Input } from "@/components/Inputs/InputComponent"
-import Modal from "@/components/Modals/Modal"
+import { Input } from "@/components/Inputs/InputComponent";
+import Modal from "@/components/Modals/Modal";
 import { GetWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Outlet } from "@/types/outlet";
-import { useRouter } from "next/navigation";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
-import { IoIosArrowDown } from "react-icons/io";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { createContext } from "react";
 
 export interface iOutletSelected { area_id: string | null, outlet_id: string, outlet: string }
 export type OutletType = {
@@ -37,11 +35,6 @@ export interface iFilterProvider {
 export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
   const [data, setData] = useState<Area[]>([])
   const [selectedOutlets, setSelectedOutlets] = useState<iOutletSelected[]>([])
-
-  useEffect(() => {
-    console.log(selectedOutlets);
-  }, [selectedOutlets])
-
   const [search, setSearch] = useState<string>("");
 
   function findOutletByNameSubstring(nameSubstring: string): Area[] {
@@ -78,6 +71,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
 
   const router = useRouter()
   const { auth } = useSelector((s: RootState) => s.auth)
+  const pathname = usePathname()
 
   useEffect(() => {
     async function GotAllOutlet() {
@@ -115,13 +109,15 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
             })
           }
         }
-        console.log(maping);
         setData(maping)
       }
     }
 
-    GotAllOutlet()
-  }, [])
+    console.log("access token", auth.access_token);
+
+    if (!pathname.includes("/auth/signin") && auth.access_token !== null && auth.access_token.length >= 1)
+      GotAllOutlet()
+  }, [auth.access_token])
 
   const [modal, setModal] = useState<boolean>(false)
 

@@ -3,143 +3,117 @@
 import ClickOutside from "@/components/ClickOutside";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ERoles } from "@/stores/authReducer";
+import { RootState } from "@/stores/store";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Children, useEffect } from "react";
-import { BiLogoVisualStudio, BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
-import { BsGraphDown } from "react-icons/bs";
+import { useEffect } from "react";
+import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import { CiSettings } from "react-icons/ci";
 import {
   FaLayerGroup,
-  FaTable,
-  FaUser,
-  FaUsers,
-  FaWpforms
+  FaUsers
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { MdOutlineDashboard } from "react-icons/md";
-import { RiMoneyCnyCircleLine, RiShoppingBag2Line } from "react-icons/ri";
+import { RiMoneyCnyCircleLine } from "react-icons/ri";
 import { TbShoppingBagPlus } from "react-icons/tb";
+import { useSelector } from "react-redux";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
 
-const menuGroups = [
-  {
-    name: "MENU",
-    menuItems: [
-      {
-        icon: <MdOutlineDashboard size={23} />,
-        label: "Dashboard",
-        route: "/",
-      },
-      {
-        icon: <HiOutlineBuildingStorefront size={22} />,
-        label: "Outlet",
-        // route: "/outlet",
-        route: "#",
-        children: [
-          { label: "Outlet", route: "/outlet" },
-          { label: "Product", route: "/product" }
-        ],
-      },
-      {
-        icon: <FaUsers size={22} />,
-        label: "Employee",
-        route: "/employee",
-      },
-      // {
-      //   icon: <RiShoppingBag2Line size={22} />,
-      //   label: "Products",
-      //   route: "/product",
-      // },
-      {
-        icon: <BiSolidDiscount size={22} />,
-        label: "Voucher",
-        route: "/voucher",
-      },
-      {
-        icon: <FaLayerGroup size={22} />,
-        label: "Category",
-        route: "/category",
-      },
-      {
-        icon: <TbShoppingBagPlus size={23} />,
-        label: "Purchase Request",
-        route: "#",
-        children: [
-          { label: "Item", route: "/purchase-request/item" },
-        ],
-      },
-      {
-        icon: <RiMoneyCnyCircleLine size={23} />,
-        label: "Transaction",
-        route: "#",
-        children: [
-          { label: "Pemasukan", route: "/orders" },
-          { label: "Pengeluaran", route: "/purchase-request/trx" }
-        ],
-      },
-      {
-        icon: <CiSettings size={30} />,
-        label: "Settings",
-        route: "#",
-        children: [
-          { label: "Payment Metod", route: "/payment-method" },
-        ]
-      },
-    ],
-  },
-  {
-    name: "OTHERS",
-    menuItems: [
-      {
-        icon: <BiSolidWasher size={23} />,
-        label: "Machine",
-        route: "/machine",
-      },
-      // {
-      //   icon: <BiLogoVisualStudio size={23} />,
-      //   label: "UI Elements",
-      //   route: "#",
-      //   children: [
-      //     { label: "Alerts", route: "/ui/alerts" },
-      //     { label: "Buttons", route: "/ui/buttons" },
-      //   ],
-      // },
-      // {
-      //   icon: <FaUser size={22} />,
-      //   label: "Profile",
-      //   route: "/profile",
-      // },
-      // {
-      //   icon: <FaWpforms size={22} />,
-      //   label: "Forms",
-      //   route: "#",
-      //   children: [
-      //     { label: "Form Elements", route: "/forms/form-elements" },
-      //     { label: "Form Layout", route: "/forms/form-layout" },
-      //   ],
-      // },
-      // {
-      //   icon: <FaTable size={22} />,
-      //   label: "Tables",
-      //   route: "/tables",
-      // },
-    ],
-  },
-];
-
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
-  useEffect(() => {
-    console.log("render ulang sidebar");
+  const { role } = useSelector((s: RootState) => s.auth)
 
-  }, [])
+  const menuGroups = [
+    {
+      name: "MENU",
+      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+      menuItems: [
+        {
+          icon: <MdOutlineDashboard size={23} />,
+          label: "Dashboard",
+          route: "/",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN]
+        },
+        {
+          icon: <HiOutlineBuildingStorefront size={22} />,
+          label: "Outlet",
+          route: "#",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          children: [
+            { label: "Outlet", route: "/outlet" },
+            { label: "Product", route: "/product" }
+          ],
+        },
+        {
+          icon: <FaUsers size={22} />,
+          label: "Employee",
+          route: "/employee",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+        },
+        {
+          icon: <BiSolidDiscount size={22} />,
+          label: "Voucher",
+          route: "/voucher",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+        },
+        {
+          icon: <FaLayerGroup size={22} />,
+          label: "Category",
+          route: "/category",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+        {
+          icon: <TbShoppingBagPlus size={23} />,
+          label: "Purchase Request",
+          route: "#",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          children: [
+            { label: "Item", route: "/purchase-request/item" },
+          ],
+        },
+        {
+          icon: <RiMoneyCnyCircleLine size={23} />,
+          label: "Transaction",
+          route: "#",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+          children: [
+            { label: "Sales", route: "/orders" },
+            { label: "Expense", route: "/purchase-request/trx" }
+          ],
+        },
+        {
+          icon: <CiSettings size={30} />,
+          label: "Settings",
+          route: "#",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          children: [
+            { label: "Payment Metod", route: "/payment-method" },
+          ]
+        },
+      ],
+    },
+    {
+      name: "OTHERS",
+      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+      menuItems: [
+        {
+          icon: <BiSolidWasher size={23} />,
+          label: "Machine",
+          route: "/machine",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+        },
+      ],
+    },
+  ];
+
   return (
     <ClickOutside onClick={() => null}>
       <aside
@@ -185,18 +159,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           <nav className="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
-                <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+                <h3 className={`mb-4 ml-4 text-sm font-semibold text-bodydark2 
+                  ${group.role.filter(f => f === role.name).length === 0 ? "hidden" : "block"}`}>
                   {group.name}
                 </h3>
 
                 <ul className="mb-6 flex flex-col gap-1.5">
                   {group.menuItems.map((menuItem, menuIndex) => (
-                    <SidebarItem
-                      key={menuIndex}
-                      item={menuItem}
-                      pageName={pageName}
-                      setPageName={setPageName}
-                    />
+                    <div key={menuIndex} className={`${menuItem.role.filter(f => f === role.name).length === 0 ? "hidden" : "block"}`}>
+                      <SidebarItem
+                        key={menuIndex}
+                        item={menuItem}
+                        pageName={pageName}
+                        setPageName={setPageName}
+                      />
+                    </div>
                   ))}
                 </ul>
               </div>
