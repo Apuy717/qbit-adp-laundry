@@ -53,8 +53,7 @@ const BasicChartPage: React.FC = () => {
           }
         })
 
-        if (outletMaping.length >= 1) formik.setFieldValue("outlet_id", outletMaping[0].value)
-        setOutlets(outletMaping)
+        setOutlets([{ value: "All", label: "All" }, ...outletMaping])
       }
     }
 
@@ -137,7 +136,7 @@ const BasicChartPage: React.FC = () => {
       name: "",
       slug: "",
       is_deleted: false,
-      outlet_id: "",
+      outlet_id: "All",
       status: EStatusPRs.ACCEPTED,
       category_id: "",
       description: "",
@@ -156,7 +155,9 @@ const BasicChartPage: React.FC = () => {
       if (loading) return
       setLoading(true)
       let idUpdate = {}
+      let withOutletId = {}
       if (values.id !== null) idUpdate = { id: values.id }
+      if (values.outlet_id !== null && values.outlet_id !== "All") withOutletId = { outlet_id: values.outlet_id }
 
 
       const res = await PostWithToken<iResponse<PRItemType>>({
@@ -167,7 +168,7 @@ const BasicChartPage: React.FC = () => {
           name: values.name,
           slug: values.slug,
           is_deleted: values.is_deleted,
-          outlet_id: values.outlet_id,
+          ...withOutletId,
           status: values.status,
           category_id: values.category_id,
           description: values.description,

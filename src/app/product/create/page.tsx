@@ -50,24 +50,7 @@ export default function CreateProduct() {
 
   const router = useRouter();
   useEffect(() => {
-    const GotOutlets = async () => {
-      let urlwithQuery = `/api/outlet`;
-      const res = await GetWithToken<MyResponse>({
-        router: router,
-        url: urlwithQuery,
-        token: `${auth.auth.access_token}`,
-      });
-      const mapingOutlet = (res.data).map((i: any) => {
-        return {
-          label: i.name,
-          value: i.id,
-        };
-      })
-      if (mapingOutlet.length >= 1) formik.setFieldValue("outlet_id", mapingOutlet[0].value)
-
-      setOutlets(mapingOutlet)
-      // console.log(outlet);
-    };
+    
     const GotCategorys = async () => {
       let urlwithQuery = `/api/category`;
       const res = await GetWithToken<MyResponse>({
@@ -88,13 +71,11 @@ export default function CreateProduct() {
       // console.log(categorys);
     };
 
-    GotOutlets();
     GotCategorys();
   }, [])
 
   const formik = useFormik({
     initialValues: {
-      outlet_id: "",
       name: "",
       slug: "",
       picture: "",
@@ -106,7 +87,6 @@ export default function CreateProduct() {
           code: "",
           name: "",
           description: "",
-          capital_price: "",
           price: "",
           type: "services",
           stock: "",
@@ -121,7 +101,6 @@ export default function CreateProduct() {
       ],
     },
     validationSchema: Yup.object({
-      outlet_id: Yup.string().required('Harus pilih outlet'),
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
       slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
@@ -131,7 +110,6 @@ export default function CreateProduct() {
           code: Yup.string().max(100, "Maksimal 100 karakter!"),
           name: Yup.string().max(100, "Maksimal 100 karakter!").required('Harus diisi'),
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
-          capital_price: Yup.number().min(0).required('Harus diisi'),
           price: Yup.number().min(0).required('Harus diisi'),
           type: Yup.string().max(100, "Maksimal 100 karakter!"),
           stock: Yup.number().max(100, "Maksimal 100 karakter!"),
@@ -250,21 +228,9 @@ export default function CreateProduct() {
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
-            <InputDropdown
-              label={"Outlet"}
-              name={"outlet_id"}
-              id={"outlet_id"}
-              value={formik.values.outlet_id == "" ? outlets[0].label : formik.values.outlet_id}
-              onChange={(v) => formik.setFieldValue("outlet_id", v)}
-              options={outlets}
-              error={
-                formik.touched.outlet_id && formik.errors.outlet_id
-                  ? formik.errors.outlet_id
-                  : null
-              }
-            />
+
             <Input
-              label={"Nama*"}
+              label={"Nama Produk*"}
               name={"name"}
               id={"name"}
               value={formik.values.name}
@@ -381,19 +347,6 @@ export default function CreateProduct() {
                   }
                 />
 
-                <Input
-                  label={"Harga Modal*"}
-                  name={`capital price ${index}`}
-                  id={`capital price ${index}`}
-                  value={formik.values.variants[index].capital_price ? formik.values.variants[index].capital_price : ``}
-                  onChange={(v) => formik.setFieldValue(`variants[${index}].capital_price`, parseInt(v))}
-                  error={
-                    formik.touched.variants?.[index]?.capital_price &&
-                      (typeof formik.errors.variants?.[index] === 'object' && formik.errors.variants[index]?.capital_price)
-                      ? formik.errors.variants[index].capital_price
-                      : null
-                  }
-                />
                 <Input
                   label={"Harga*"}
                   name={`price ${index}`}
