@@ -3,14 +3,15 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import {
   Input,
   InputDropdown,
-  InputTextArea,
-  InputToggle,
+  InputTextArea
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
+import ModalSelectOutlet from "@/components/Outlets/ModalOutlet";
 import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
+import { EDepartmentEmployee } from "@/types/employee";
 import { Outlet } from "@/types/outlet";
 import { TRole } from "@/types/role";
 import CountryList from "country-list-with-dial-code-and-flag";
@@ -42,7 +43,7 @@ export default function CreateEmployee() {
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const auth = useSelector((s: RootState) => s.auth);
-  const [listOutlet, setListOutlet] = useState<string[]>([])
+  const [listOutlet, setListOutlet] = useState<{ area_id: string | null, outlet: string, outlet_id: string }[]>([])
   const [roles, setRoles] = useState<iDropdown[]>([])
   const [outlets, setOutlets] = useState<Outlet[]>([])
   const [modalOutlet, setModalOutlet] = useState<boolean>(false)
@@ -68,6 +69,7 @@ export default function CreateEmployee() {
       email: "",
       is_deleted: false,
       roles_id: "",
+      department: EDepartmentEmployee.AM,
       password: "",
       cPassword: ""
     },
@@ -104,8 +106,7 @@ export default function CreateEmployee() {
       }
       if (loading) return
       setLoading(true)
-      Object.assign(values, { outlet_id: listOutlet.map(i => i.split("//")[0]) })
-
+      Object.assign(values, { outlet_id: listOutlet.map(i => i.outlet_id) })
       const res = await PostWithToken<iResponse<any>>({
         router: router,
         url: "/api/auth/register",
@@ -255,18 +256,18 @@ export default function CreateEmployee() {
 
   return (
     <>
-      <Breadcrumb pageName="Tambah Karyawan" />
+      <Breadcrumb pageName="Add Employee" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form menambahkan data karyawan</p>
+          <p className="font-semibold">Form to add employee data</p>
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
             <Input
-              label={"Nama Lengkap*"}
+              label={"Full Name*"}
               name={"fullname"}
               id={"fullname"}
               value={formik.values.fullname}
@@ -294,7 +295,7 @@ export default function CreateEmployee() {
                 />
               </div>
               <Input
-                label={"No. Hp*"}
+                label={"Phone Number*"}
                 name={"phone_number"}
                 type="number"
                 id={"phone_number"}
@@ -328,20 +329,7 @@ export default function CreateEmployee() {
             />
 
             <InputDropdown
-              label={"Negara"}
-              name={"country"}
-              id={"country"}
-              value={formik.values.country}
-              onChange={(v) => formik.setFieldValue("country", v)}
-              options={countrys}
-              error={
-                formik.touched.country && formik.errors.country
-                  ? formik.errors.country
-                  : null
-              }
-            />
-            <InputDropdown
-              label={"Provinsi"}
+              label={"Province"}
               name={"province"}
               id={"province"}
               value={formik.values.province}
@@ -360,7 +348,7 @@ export default function CreateEmployee() {
               }
             />
             <InputDropdown
-              label={"Kab/Kota"}
+              label={"Kab/City"}
               name={"city"}
               id={"city"}
               value={formik.values.city}
@@ -375,7 +363,7 @@ export default function CreateEmployee() {
               error={null}
             />
             <InputDropdown
-              label={"Kecamatan"}
+              label={"District"}
               name={"district"}
               id={"district"}
               value={formik.values.district}
@@ -389,7 +377,7 @@ export default function CreateEmployee() {
               error={null}
             />
             <Input
-              label={"Kode Pos"}
+              label={"Postal Code"}
               name={"postal_code"}
               id={"postal_code"}
               value={formik.values.postal_code}
@@ -401,8 +389,58 @@ export default function CreateEmployee() {
               }
             />
 
+            {/* <InputToggle
+              value={!formik.values.is_deleted}
+              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+              label={"Status"}
+            /> */}
+
             <InputDropdown
-              label={"Jabatan"}
+              label={"Role"}
+              name={"department"}
+              id={"department"}
+              value={formik.values.department}
+              onChange={(v) => {
+                switch (v) {
+                  case EDepartmentEmployee.HQ:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.SUPER_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.FINANCE:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.FINANCE))?.value)
+                    break;
+                  case EDepartmentEmployee.AUDITOR:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.AM:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.SPV:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.HO:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.SV:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                  case EDepartmentEmployee.IS:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                  default:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                }
+                formik.setFieldValue("department", v)
+              }}
+              options={Object.values(EDepartmentEmployee).map((i) => { return { label: i, value: i } })}
+              error={
+                formik.touched.department && formik.errors.department
+                  ? formik.errors.department
+                  : null
+              }
+            />
+            {/* <InputDropdown
+              label={"Role"}
               name={"roles_id"}
               id={"roles_id"}
               value={formik.values.roles_id}
@@ -413,15 +451,11 @@ export default function CreateEmployee() {
                   ? formik.errors.roles_id
                   : null
               }
-            />
-            <InputToggle
-              value={!formik.values.is_deleted}
-              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-              label={"Status"}
-            />
+            /> */}
+
 
             <Input
-              label={"Kata Sandi*"}
+              label={"Password*"}
               name={"password"}
               type="password"
               id={"password"}
@@ -435,7 +469,7 @@ export default function CreateEmployee() {
             />
 
             <Input
-              label={"Ulangi Kata Sandi*"}
+              label={"Confirm Passowrd*"}
               type="password"
               name={"cPassword"}
               id={"cPassword"}
@@ -452,7 +486,7 @@ export default function CreateEmployee() {
 
           <div className="mt-6">
             <InputTextArea
-              label={"Alamat / Nama Jalan"}
+              label={"Address"}
               name={"address"}
               id={"address"}
               value={formik.values.address}
@@ -467,7 +501,7 @@ export default function CreateEmployee() {
           {listOutlet.map((i, k) => (
             <div className="flex flex-row pt-8" key={k}>
               <div className="w-full p-3 border-2 rounded relative">
-                <p>{i.split("//").length >= 2 ? i.split("//")[1] : i}</p>
+                <p>{i.outlet}</p>
                 <label
 
                   className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800 -top-3`}
@@ -486,61 +520,18 @@ export default function CreateEmployee() {
             onClick={formik.submitForm}
             className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
-            Simpan
+            Submit
           </button>
         </div>
-      </div>
+      </div >
 
-      <Modal isOpen={modalOutlet}>
-        <div className="relative bg-white dark:bg-gray-800 shadow rounded-md h-[90vh] 
-        md:h-[40rem] w-[90%] md:w-[50%] p-4">
-          <div
-            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
-            onClick={() => {
-              setModalOutlet(false)
-            }}
-          >
-            <IoCloseOutline color="white" size={20} />
-          </div>
-
-          <div className="p-2 mb-5 text-lg">
-            <p className="font-semibold">Tempatkan karwayan pada outlet</p>
-          </div>
-
-          <div className="p-2">
-            <Input label={"Cari Outlet"} name={"search"} id={"search"}
-              value={searchOutlet}
-              onChange={(v) => {
-                setSearchOutlet(v)
-              }} error={null} />
-          </div>
-          <Table colls={["#", "Nama", "Kota", "Kecamatan"]} currentPage={0} totalItem={1} onPaginate={() => null}>
-            {filterOutlet().map((i, k) => (
-              <tr
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                key={k}
-              >
-                <td className="whitespace-nowrap px-6 py-4">
-                  <input type="checkbox" value={`${i.id}//${i.name} -
-                    ${i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district}`}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setListOutlet(old => [...old, e.target.value])
-                      } else {
-                        setListOutlet(old => old.filter(f => f !== e.target.value))
-                      }
-                    }} />
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
-                <td className="px-6 py-4"> {i.city.split("--").length >= 2 ? i.city.split("--")[1] : i.city}</td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  {i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district}
-                </td>
-              </tr>
-            ))}
-          </Table>
-        </div>
-      </Modal>
+      <ModalSelectOutlet modal={modalOutlet} closeModal={(d) => {
+        setListOutlet([]);
+        setModalOutlet(false)
+      }} onSubmit={(d) => {
+        setModalOutlet(false);
+        setListOutlet(d);
+      }} />
     </>
   );
 }

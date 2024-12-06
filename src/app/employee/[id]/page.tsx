@@ -7,11 +7,12 @@ import {
   InputToggle,
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
+import ModalSelectOutlet from "@/components/Outlets/ModalOutlet";
 import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
-import { Employee } from "@/types/employee";
+import { EDepartmentEmployee, Employee } from "@/types/employee";
 import { Outlet } from "@/types/outlet";
 import { TRole } from "@/types/role";
 import CountryList from "country-list-with-dial-code-and-flag";
@@ -43,7 +44,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const auth = useSelector((s: RootState) => s.auth);
-  const [listOutlet, setListOutlet] = useState<string[]>([])
+  const [listOutlet, setListOutlet] = useState<{ area_id: string | null, outlet: string, outlet_id: string }[]>([]);
   const [roles, setRoles] = useState<iDropdown[]>([])
   const [outlets, setOutlets] = useState<Outlet[]>([])
   const [modalOutlet, setModalOutlet] = useState<boolean>(false)
@@ -72,6 +73,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       email: "",
       is_deleted: false,
       roles_id: "",
+      department: EDepartmentEmployee.AM
     },
     validationSchema: Yup.object({
       fullname: Yup.string()
@@ -96,13 +98,13 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       is_deleted: Yup.boolean().required("Harus diisi!"),
     }),
     onSubmit: async (values) => {
-      if (listOutlet.length === 0) {
+      if (listOutlet.length === 0 && roles.find(f => f.label.toLowerCase() === "super admin")) {
         toast.error("Karyawan harus ditempatkan di outlet!");
         return;
       }
       if (loading) return
       setLoading(true)
-      Object.assign(values, { outlet_id: listOutlet.map(i => i.split("//")[0]) })
+      Object.assign(values, { outlet_id: listOutlet.map(i => i.outlet_id) })
 
       const res = await PostWithToken<iResponse<any>>({
         router: router,
@@ -154,7 +156,10 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         formik.setFieldValue("email", `${res.data.email}`)
         formik.setFieldValue("is_deleted", res.data.is_deleted)
         formik.setFieldValue("roles_id", `${res.data.roles_id}`)
+        formik.setFieldValue("department", `${res.data.department}`)
+        console.log(res.data)
 
+        GotProvince()
         if (res.data.province && res.data.province.split("--").length >= 2)
           GotCity(res.data.province.split("--")[0])
 
@@ -166,7 +171,12 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
           if (input && input.getAttribute("type") === "checkbox")
             input.checked = true
           const district = i.outlet.district.split("--")
-          return `${i.outlet.id}//${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`
+          // return `${i.outlet.id}//${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`
+          return {
+            area_id: "",
+            outlet: `${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`,
+            outlet_id: i.outlet_id
+          }
         })
         setListOutlet(employeeOutlet)
       }
@@ -215,7 +225,6 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
     }
 
     GotRoles()
-    GotProvince()
     GotOutlets().then(() => GotDetailEmployee())
 
     const country = CountryList.getAll();
@@ -228,7 +237,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
     });
   }, [isMount]);
 
-  async function GotCity(province_id: string) {
+  async function GotCity(province_id: string, withUpdate: boolean = false) {
     const res = await GET<iResponse<any>>({
       url: `/api/address/city?province_id=${province_id}`,
     });
@@ -250,11 +259,15 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
           value: `${i.city_id}--${i.type} ${i.city_name}`,
         };
       });
+      if (maping.length >= 1 && withUpdate) {
+        formik.setFieldValue("city", maping[0].value)
+        GotSubDistrict(maping[0].value, true);
+      }
       setCity(maping);
     }
   }
 
-  async function GotSubDistrict(city_id: string) {
+  async function GotSubDistrict(city_id: string, withUpdate: boolean = false) {
     const res = await GET<iResponse<any>>({
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
@@ -271,31 +284,25 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         };
       });
 
+      if (maping.length >= 1 && withUpdate) formik.setFieldValue("district", maping[0].value)
       setSubDistrict(maping);
     }
   }
 
-  function filterOutlet() {
-    if (searchOutlet.length >= 3)
-      return outlets.filter(f => f.name.toLowerCase().includes(searchOutlet.toLowerCase()))
-
-    return outlets
-  }
-
   return (
     <>
-      <Breadcrumb pageName="Tambah Karyawan" />
+      <Breadcrumb pageName="Update Employee" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form merubah data karyawan</p>
+          <p className="font-semibold">Form Update Employee</p>
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
             <Input
-              label={"Nama Lengkap*"}
+              label={"Full Name"}
               name={"fullname"}
               id={"fullname"}
               value={formik.values.fullname}
@@ -323,7 +330,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                 />
               </div>
               <Input
-                label={"No. Hp*"}
+                label={"Phone Number*"}
                 name={"phone_number"}
                 type="number"
                 id={"phone_number"}
@@ -355,7 +362,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                   : null
               }
             />
-
+            {/* 
             <InputDropdown
               label={"Negara"}
               name={"country"}
@@ -368,9 +375,9 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                   ? formik.errors.country
                   : null
               }
-            />
+            /> */}
             <InputDropdown
-              label={"Provinsi"}
+              label={"Province"}
               name={"province"}
               id={"province"}
               value={formik.values.province}
@@ -379,7 +386,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                 const val = v.split("--");
                 if (val.length >= 2) {
                   formik.setFieldValue("province", v);
-                  GotCity(val[0]);
+                  GotCity(val[0], true);
                 }
               }}
               error={
@@ -389,7 +396,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
               }
             />
             <InputDropdown
-              label={"Kab/Kota"}
+              label={"Kab/City"}
               name={"city"}
               id={"city"}
               value={formik.values.city}
@@ -404,7 +411,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
               error={null}
             />
             <InputDropdown
-              label={"Kecamatan"}
+              label={"District"}
               name={"district"}
               id={"district"}
               value={formik.values.district}
@@ -418,7 +425,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
               error={null}
             />
             <Input
-              label={"Kode Pos"}
+              label={"Postal Code"}
               name={"postal_code"}
               id={"postal_code"}
               value={formik.values.postal_code}
@@ -431,6 +438,51 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
             />
 
             <InputDropdown
+              label={"Role"}
+              name={"department"}
+              id={"department"}
+              value={formik.values.department}
+              onChange={(v) => {
+                switch (v) {
+                  case EDepartmentEmployee.HQ:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.SUPER_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.FINANCE:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.FINANCE))?.value)
+                    break;
+                  case EDepartmentEmployee.AUDITOR:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.AM:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.SPV:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.HO:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    break;
+                  case EDepartmentEmployee.SV:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                  case EDepartmentEmployee.IS:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                  default:
+                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    break;
+                }
+                formik.setFieldValue("department", v)
+              }}
+              options={Object.values(EDepartmentEmployee).map((i) => { return { label: i, value: i } })}
+              error={
+                formik.touched.department && formik.errors.department
+                  ? formik.errors.department
+                  : null
+              }
+            />
+
+            {/* <InputDropdown
               label={"Jabatan"}
               name={"roles_id"}
               id={"roles_id"}
@@ -442,17 +494,19 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                   ? formik.errors.roles_id
                   : null
               }
-            />
-            <InputToggle
-              value={!formik.values.is_deleted}
-              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-              label={"Status"}
-            />
+            /> */}
           </div>
 
           <div className="mt-6">
+            <div className="mb-6">
+              <InputToggle
+                value={!formik.values.is_deleted}
+                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                label={"Is Active"}
+              />
+            </div>
             <InputTextArea
-              label={"Alamat / Nama Jalan"}
+              label={"Address"}
               name={"address"}
               id={"address"}
               value={formik.values.address}
@@ -463,11 +517,12 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                   : null
               }
             />
+
           </div>
           {listOutlet.map((i, k) => (
             <div className="flex flex-row pt-8" key={k}>
               <div className="w-full p-3 border-2 rounded relative">
-                <p>{i.split("//").length >= 2 ? i.split("//")[1] : i}</p>
+                <p>{i.outlet}</p>
                 <label
 
                   className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800 -top-3`}
@@ -486,60 +541,23 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
             onClick={formik.submitForm}
             className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
-            Simpan
+            Submit
           </button>
         </div>
       </div>
-
-      <Modal isOpen={modalOutlet}>
-        <div className="relative bg-white dark:bg-gray-800 shadow rounded-md h-[90vh] 
-        md:h-[40rem] w-[90%] md:w-[50%] p-4">
-          <div
-            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
-            onClick={() => {
-              setModalOutlet(false)
-            }}
-          >
-            <IoCloseOutline color="white" size={20} />
-          </div>
-
-          <div className="p-2 mb-5 text-lg">
-            <p className="font-semibold">Tempatkan karwayan pada outlet</p>
-          </div>
-
-          <div className="p-2">
-            <Input label={"Cari Outlet"} name={"search"} id={"search"}
-              value={searchOutlet}
-              onChange={(v) => {
-                setSearchOutlet(v)
-              }} error={null} />
-          </div>
-          <Table colls={["#", "Nama", "Kota", "Kecamatan"]} currentPage={0} totalItem={1} onPaginate={() => null}>
-            {filterOutlet().map((i, k) => (
-              <tr
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                key={k}
-              >
-                <td className="whitespace-nowrap px-6 py-4">
-                  <input id={i.id} type="checkbox" value={`${i.id}//${i.name} - ${i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district}`}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setListOutlet(old => [...old, e.target.value])
-                      } else {
-                        setListOutlet(old => old.filter(f => f !== e.target.value))
-                      }
-                    }} />
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
-                <td className="px-6 py-4"> {i.city.split("--").length >= 2 ? i.city.split("--")[1] : i.city}</td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  {i.district.split("--").length >= 2 ? i.district.split("--")[1] : i.district}
-                </td>
-              </tr>
-            ))}
-          </Table>
-        </div>
-      </Modal>
+      {listOutlet.length >= 1 && (
+        <ModalSelectOutlet modal={modalOutlet}
+          defaultSelected={listOutlet}
+          closeModal={() => {
+            setListOutlet([])
+            setModalOutlet(false)
+          }}
+          onSubmit={(d) => {
+            setModalOutlet(false);
+            setListOutlet(d);
+          }}
+        />
+      )}
     </>
   );
 }

@@ -38,11 +38,11 @@ const Table: React.FC<iTable> = (props) => {
           aria-label="Table navigation"
         >
           <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
-            Menampilkan{" "}
+            Showing{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               1-{10}
             </span>{" "}
-            dari{" "}
+            of{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {props.totalItem}
             </span>

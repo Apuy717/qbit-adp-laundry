@@ -1,5 +1,17 @@
 import { Outlet } from "./outlet"
 
+export enum EDepartmentEmployee {
+  HQ = "hard quarter",
+  AUDITOR = "auditor",
+  FINANCE = "finance",
+  AM = "area manager",
+  SPV = "supervisor",
+  HO = "head office",
+  IS = "iron staff",
+  SV = "server",
+
+}
+
 export type EmployeeOutlet = {
   id: string
   user_id: string
@@ -27,7 +39,8 @@ export type Employee = {
   dial_code: string
   phone_number: string
   email: string
-  is_deleted: boolean,
+  is_deleted: boolean
+  department: EDepartmentEmployee
   created_at: string
   updated_at: string
   employee_outlets: EmployeeOutlet[]

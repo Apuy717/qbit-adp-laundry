@@ -136,12 +136,12 @@ export default function PageEmployee() {
   })
   return (
     <>
-      <Breadcrumb pageName="Karyawan" />
+      <Breadcrumb pageName="Employee" />
       <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
             <Input
-              label={"Pencarian"}
+              label={"Search Employee"}
               name={"search"}
               id={"search"}
               value={search}
@@ -154,7 +154,7 @@ export default function PageEmployee() {
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            Cari
+            Search
           </button>
           <Link
             href={"/employee/create"}
@@ -162,12 +162,12 @@ export default function PageEmployee() {
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            Tambah Karyawan
+            Add Employee
           </Link>
         </div>
       </div>
       <Table
-        colls={["Nama", "No. Hp", "Email", "Jabatan", "Outlet", "Status", "Aksi"]}
+        colls={["Full Name", "Phone Number", "Email", "Role", "Outlet", "Status", "Action"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalEmployee}>

@@ -15,4 +15,13 @@ export type Outlet = {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
+  outlet_area_grouping: OutletArea
+}
+
+export type OutletArea = {
+  id: string,
+  outlet_area: {
+    id: string
+    name: string
+  }
 }

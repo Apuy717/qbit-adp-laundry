@@ -14,6 +14,7 @@ import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
+import { FilterPageProvider } from "@/contexts/selectOutletContex";
 
 export default function RootLayout({
   children,
@@ -38,11 +39,13 @@ export default function RootLayout({
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <div className="dark:bg-boxdark-2 dark:text-bodydark">
-              <LayoutProvider>
-                <AuthProvider>
-                  {loading ? <Loader /> : children}
-                </AuthProvider>
-              </LayoutProvider>
+              <FilterPageProvider>
+                <LayoutProvider>
+                  <AuthProvider>
+                    {loading ? <Loader /> : children}
+                  </AuthProvider>
+                </LayoutProvider>
+              </FilterPageProvider>
             </div>
           </PersistGate>
         </Provider>
