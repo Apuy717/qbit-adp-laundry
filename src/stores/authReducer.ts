@@ -16,6 +16,7 @@ export interface iAuthRedux {
   dial_code: string | null,
   phone_number: string | null,
   email: string | null,
+  department: string | null,
   role: {
     id: string | null,
     name: ERoles,
@@ -34,6 +35,7 @@ const defaultState: iAuthRedux = {
   dial_code: null,
   phone_number: null,
   email: null,
+  department: null,
   role: {
     id: null,
     name: ERoles.EMPLOYEE,
