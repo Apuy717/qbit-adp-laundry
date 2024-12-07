@@ -113,7 +113,7 @@ export default function OutletPage() {
       area_id: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required(),
+      name: Yup.string().required("Username shouldn't empty"),
     }),
     onSubmit: async (values) => {
       let data: any = values
@@ -230,20 +230,26 @@ export default function OutletPage() {
                   )}
                 </td>
                 <td className="px-6 py-4">
-                  <button
-                    onClick={() => {
-                      router.push(`/outlet/${i.id}`);
-                    }}
-                  >
-                    <FiEdit size={23} />
-                  </button>
+                  <div className=" relative group">
+                    <button
+                      onClick={() => {
+                        router.push(`/outlet/${i.id}`);
+                      }}
+                      className="flex items-center"
+                    >
+                      <FiEdit size={23} />
+                    </button>
+                    <div className="absolute opacity-85 bottom-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                      Edit Outlet
+                    </div>
+                  </div>
                 </td>
               </tr>
             ))}
           </Table>
         </div>
 
-        <div className="bg-white rounded-md shadow-3 space-y-4 pb-4">
+        <div className="bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit">
           <div className="w-full p-4 bg-gray-50 text-sm font-medium text-black-2">
             AREA
           </div>
@@ -251,28 +257,39 @@ export default function OutletPage() {
             <div key={k} className="flex space-x-4 items-center mx-4">
               <FaLocationDot size={28} color="teal" />
               <p className="w-3/5">{i.name}</p>
-              <button
-                onClick={
-                  () => {
-                    formik.setFieldValue("name", i.name)
-                    formik.setFieldValue("area_id", i.id)
-                    setAreaModal(true)
-                  }
-                }
-              >
-                <FiEdit size={23} />
-              </button>
-              <button
-                onClick={() => {
-                  deleteArea(i.id)
-                  setRefresh(!refresh)
-                }}
-              >
-                <FiTrash size={23} />
-              </button>
+
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    formik.setFieldValue("name", i.name);
+                    formik.setFieldValue("area_id", i.id);
+                    setAreaModal(true);
+                  }}
+                >
+                  <FiEdit size={23} />
+                </button>
+                <div className="absolute opacity-85 bottom-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  Edit Area
+                </div>
+              </div>
+
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    deleteArea(i.id);
+                    setRefresh(!refresh);
+                  }}
+                >
+                  <FiTrash size={23} />
+                </button>
+                <div className="absolute opacity-85 bottom-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  Delete Area
+                </div>
+              </div>
             </div>
           ))}
         </div>
+
       </div>
 
 
@@ -300,7 +317,7 @@ export default function OutletPage() {
                 label={"Nama*"}
                 name={"name"}
                 id={"name"}
-                value={formik.values.name}
+                value={formik.values.name ? formik.values.name : ""}
                 onChange={(v) => formik.setFieldValue("name", v)}
                 error={
                   formik.touched.name && formik.errors.name
