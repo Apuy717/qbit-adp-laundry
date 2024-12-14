@@ -25,6 +25,7 @@ export interface iFilterByOutlet {
   modal: boolean;
   setModal: Dispatch<SetStateAction<boolean>>
   selectedOutlets: iOutletSelected[]
+  defaultSelectedOutlet: iOutletSelected[]
 }
 export const FilterByOutletContext = createContext({} as iFilterByOutlet)
 
@@ -35,6 +36,7 @@ export interface iFilterProvider {
 export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
   const [data, setData] = useState<Area[]>([])
   const [selectedOutlets, setSelectedOutlets] = useState<iOutletSelected[]>([])
+  const [defaultSelectedOutlet, setDefaultSelectedOutlet] = useState<iOutletSelected[]>([])
   const [search, setSearch] = useState<string>("");
 
   function findOutletByNameSubstring(nameSubstring: string): Area[] {
@@ -82,7 +84,8 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
       })
 
       if (res?.statusCode === 200) {
-        const maping: Area[] = []
+        let maping: Area[] = []
+        let defaultOutlet: iOutletSelected[] = []
         for (const i of res.data) {
           let areaId = null;
           let areaName = "Without Area";
@@ -100,6 +103,8 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
             area: areaName,
             outlets: [outlet]
           }
+
+
           if (checkArea <= -1) {
             maping.push(outletGrouping);
           } else {
@@ -108,19 +113,21 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               outlets: maping[checkArea].outlets.concat([outlet])
             })
           }
+          defaultOutlet.push({ area_id: areaId, outlet: outlet.name, outlet_id: outlet.outlet_id })
         }
+        setDefaultSelectedOutlet(defaultOutlet)
         setData(maping)
       }
     }
 
-    if (!pathname.includes("/auth/signin") && auth.access_token !== null && auth.access_token.length >= 1)
+    if (auth.access_token !== null && auth.access_token.length >= 1)
       GotAllOutlet()
   }, [auth.access_token])
 
   const [modal, setModal] = useState<boolean>(false)
 
   return (
-    <FilterByOutletContext.Provider value={{ modal, setModal, selectedOutlets }}>
+    <FilterByOutletContext.Provider value={{ modal, setModal, selectedOutlets, defaultSelectedOutlet }}>
       {children}
       <div>
         <Modal isOpen={modal}>

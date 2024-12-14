@@ -6,9 +6,7 @@ import {
   InputTextArea,
   InputToggle,
 } from "@/components/Inputs/InputComponent";
-import Modal from "@/components/Modals/Modal";
 import ModalSelectOutlet from "@/components/Outlets/ModalOutlet";
-import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -19,7 +17,6 @@ import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -133,6 +130,15 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
   useEffect(() => {
     setIsMount(true)
   }, [])
+
+
+  useEffect(() => {
+    if (roles.length >= 1) {
+      formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+      setLoading(false)
+    }
+  }, [roles])
+
   useEffect(() => {
     if (!isMount) return;
     async function GotDetailEmployee() {
@@ -157,7 +163,6 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         formik.setFieldValue("is_deleted", res.data.is_deleted)
         formik.setFieldValue("roles_id", `${res.data.roles_id}`)
         formik.setFieldValue("department", `${res.data.department}`)
-        console.log(res.data)
 
         GotProvince()
         if (res.data.province && res.data.province.split("--").length >= 2)

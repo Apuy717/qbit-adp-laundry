@@ -16,9 +16,9 @@ export type MachineType = {
   created_at: string;
   updated_at: string;
   cycles: string;
-  total_duration: string | null;
+  relay_time_used: string | null;
   cyles_machine: string;
-  average_duration_machine: string;
+  runtime: string;
 
   outlet: {
     id: string;
