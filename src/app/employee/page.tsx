@@ -215,31 +215,45 @@ export default function PageEmployee() {
                 </div>
               )}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap space-x-4">
-              <button
-                className="cursor-pointer"
-                onClick={() => {
-                  router.push(`/employee/detail/${i.id}`);
-                }}
-              >
-                <FiEye size={23} />
-              </button>
-              <button
-                onClick={() => {
-                  router.push(`/employee/${i.id}`);
-                }}
-              >
-                <FiEdit size={23} />
-              </button>
-
-              <button
-                onClick={() => {
-                  formik.setFieldValue("id", i.id)
-                  setModal(true)
-                }}
-              >
-                <FiLock size={23} />
-              </button>
+            <td className="flex items-center px-6 py-4 whitespace-nowrap space-x-2">
+              <div className="relative group">
+                <button
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push(`/employee/detail/${i.id}`);
+                  }}
+                >
+                  <FiEye size={23} />
+                </button>
+                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  View detail
+                </div>
+              </div>
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    router.push(`/employee/${i.id}`);
+                  }}
+                >
+                  <FiEdit size={23} />
+                </button>
+                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  Edit employee
+                </div>
+              </div>
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    formik.setFieldValue("id", i.id)
+                    setModal(true)
+                  }}
+                >
+                  <FiLock size={23} />
+                </button>
+                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  Reset password
+                </div>
+              </div>
             </td>
           </tr>
         ))}
@@ -257,9 +271,9 @@ export default function PageEmployee() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName="Reset Kata Sandi" />
+            <Breadcrumb pageName="Reset Password" />
             <Input
-              label={"Kata Sandi*"}
+              label={"New Password*"}
               name={"password"}
               type="password"
               id={"password"}
@@ -272,10 +286,8 @@ export default function PageEmployee() {
               }
             />
 
-
-
             <Input
-              label={"Ulangi Kata Sandi*"}
+              label={"Re-Enter new password*"}
               type="password"
               name={"cPassword"}
               id={"cPassword"}
@@ -291,7 +303,7 @@ export default function PageEmployee() {
               onClick={formik.submitForm}
               className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
-              Simpan
+              Save
             </button>
           </div>
 
