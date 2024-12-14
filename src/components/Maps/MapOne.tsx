@@ -37,8 +37,6 @@ const MapOne: React.FC = () => {
         });
 
         for (const outlet of res.data) {
-          console.log(outlet.longitude, outlet.latitude);
-
           // Add a marker
           new maplibregl.Marker({ color: 'red' }) // Optional: Change color
             .setLngLat([outlet.longitude as any, outlet.latitude as any]) // Jakarta coordinates

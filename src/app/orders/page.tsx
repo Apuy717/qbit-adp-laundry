@@ -17,14 +17,19 @@ import { HiDownload } from "react-icons/hi";
 import { useSelector } from "react-redux";
 
 export default function Orders() {
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endOfMonth = new Date(
+  let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  let endOfMonth = new Date(
     `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
       new Date().getFullYear(),
       new Date().getMonth() + 1,
       0,
-    ).getDate()} 23:59`,
+    ).getDate()}`,
   )
+  endOfMonth.setHours(6, 59, 59, 0)
+
+  const offsetInMinutes = 7 * 60
+  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  // endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
@@ -134,11 +139,11 @@ export default function Orders() {
       <Breadcrumb pageName={"Order"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
-          <DatePickerOne label={"Dari"} defaultDate={startDate} onChange={(val) => {
+          <DatePickerOne label={"Start"} defaultDate={startDate} onChange={(val) => {
             setStartDate(val)
           }} />
-          <DatePickerOne label={"Sampai"} defaultDate={endDate} onChange={(val) => {
-            console.log(val);
+          <DatePickerOne label={"From"} defaultDate={new Date(endDate)} onChange={(val) => {
+            setEndDate(val)
           }} />
 
           <div className="w-full">

@@ -70,7 +70,7 @@ export default function ModalSelectOutlet(props: iProps) {
           let areaName = "Without Area";
           if (i.outlet_area_grouping) {
             areaId = i.outlet_area_grouping.outlet_area.id
-            areaName = i.outlet_area_grouping.outlet_area.id
+            areaName = i.outlet_area_grouping.outlet_area.name
           }
 
           const city = i.city.split("--")
