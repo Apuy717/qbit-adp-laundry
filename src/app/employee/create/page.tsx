@@ -5,9 +5,7 @@ import {
   InputDropdown,
   InputTextArea
 } from "@/components/Inputs/InputComponent";
-import Modal from "@/components/Modals/Modal";
 import ModalSelectOutlet from "@/components/Outlets/ModalOutlet";
-import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -18,7 +16,6 @@ import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -48,7 +45,7 @@ export default function CreateEmployee() {
   const [outlets, setOutlets] = useState<Outlet[]>([])
   const [modalOutlet, setModalOutlet] = useState<boolean>(false)
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [searchOutlet, setSearchOutlet] = useState<string>("")
 
   useEffect(() => {
@@ -107,6 +104,7 @@ export default function CreateEmployee() {
       if (loading) return
       setLoading(true)
       Object.assign(values, { outlet_id: listOutlet.map(i => i.outlet_id) })
+
       const res = await PostWithToken<iResponse<any>>({
         router: router,
         url: "/api/auth/register",
@@ -131,6 +129,13 @@ export default function CreateEmployee() {
       setTimeout(() => setLoading(false), 1000)
     },
   });
+
+  useEffect(() => {
+    if (roles.length >= 1) {
+      formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+      setLoading(false)
+    }
+  }, [roles])
 
   useEffect(() => {
     async function GotProvince() {

@@ -1,14 +1,15 @@
 "use client";
 
 import { ApexOptions } from "apexcharts";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { GetWithToken, iResponse } from "@/libs/FetchData";
+import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/stores/store";
 import { GraphType } from "@/types/graph";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -70,16 +71,24 @@ const ChartOne: React.FC = () => {
       height: 335,
       type: "area",
       dropShadow: {
-        enabled: true,
+        enabled: false,
         color: "#623CEA14",
         top: 10,
         blur: 4,
         left: 0,
         opacity: 0.1,
       },
-
       toolbar: {
-        show: false,
+        // show: true,
+        tools: {
+          download: true,
+          reset: true,
+          zoom: true,
+          pan: false,
+          zoomin: true,
+          selection: false,
+          zoomout: true,
+        }
       },
     },
     responsive: [
@@ -102,7 +111,7 @@ const ChartOne: React.FC = () => {
     ],
     stroke: {
       width: [2, 2],
-      curve: "straight",
+      curve: "smooth",
     },
     grid: {
       xaxis: {
@@ -175,24 +184,49 @@ const ChartOne: React.FC = () => {
       max: 1,
     },
   })
+
   const [loading, setLoading] = useState<boolean>(false)
   const [filterDate, setFilterDate] = useState<{ startedAt: Date, endedAt: Date }>({ startedAt: new Date(), endedAt: new Date() })
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
   useEffect(() => {
     async function GotGraph() {
       setLoading(true)
-      const res = await GetWithToken<iResponse<GraphType[]>>({
+      const res = await PostWithToken<iResponse<GraphType[]>>({
         url: `/api/order/transaction-graph?filter=${selectedFilter}`,
         router: router,
-        token: `${auth.access_token}`
+        token: `${auth.access_token}`,
+        data: {
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
+        }
       })
 
+
+
       if (res?.statusCode === 200) {
+        let categories: string[] = []
+        let dt = []
+
+        if (res.data.length === 0) {
+          setLoading(false)
+          setSeries((old) => {
+            return { ...old, data: [] }
+          })
+
+          setOptions((old) => {
+            return {
+              ...old, xaxis: { ...old.xaxis, categories: categories },
+              yaxis: { ...old.yaxis, max: 0 }
+            }
+          })
+          return;
+        }
+
         const maxRevenueData = res.data.reduce((max, item) =>
           parseInt(item.total_revenue) > parseInt(max.total_revenue) ? item : max
         );
 
-        let categories: string[] = []
-        let dt = []
+
         for (const item of res.data) {
           const day = new Date(item.date).getDay()
           const month = new Date(item.date).getMonth()
@@ -249,11 +283,12 @@ const ChartOne: React.FC = () => {
       }
     }
 
+    if (!modal) {
+      setDate()
+      GotGraph()
+    }
 
-    setDate()
-    GotGraph()
-
-  }, [selectedFilter])
+  }, [selectedFilter, selectedOutlets, defaultSelectedOutlet, modal])
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
@@ -290,14 +325,14 @@ const ChartOne: React.FC = () => {
             {/* <button className="bg-white shadow-card rounded px-3 py-1 text-xs font-medium text-black  hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
               Day
             </button> */}
-            <button className={`${selectedFilter === "day" && "bg-white shadow-card"} rounded px-3 py-1 text-xs font-medium text-black hover:bg-white 
+            <button className={`${selectedFilter === "day" && "bg-white dark:bg-gray-500 shadow-card"} rounded px-3 py-1 text-xs font-medium text-black hover:bg-white 
             hover:shadow-card dark:text-white dark:hover:bg-boxdark`}
               onClick={() => {
                 if (selectedFilter !== "day") setSelectedFilter("day")
               }}>
               Week
             </button>
-            <button className={`${selectedFilter === "month" && "bg-white shadow-card"} rounded px-3 py-1 text-xs font-medium text-black hover:bg-white 
+            <button className={`${selectedFilter === "month" && "bg-white dark:bg-gray-500 shadow-card"} rounded px-3 py-1 text-xs font-medium text-black hover:bg-white 
             hover:shadow-card dark:text-white dark:hover:bg-boxdark`}
               onClick={() => {
                 if (selectedFilter !== "month") setSelectedFilter("month")

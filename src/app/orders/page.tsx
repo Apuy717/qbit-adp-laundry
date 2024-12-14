@@ -2,7 +2,6 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { InputDropdown } from "@/components/Inputs/InputComponent";
-import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
@@ -25,8 +24,8 @@ export default function Orders() {
       0,
     ).getDate()}`,
   )
-  endOfMonth.setHours(6, 59, 59, 0)
 
+  endOfMonth.setHours(6, 59, 59, 0)
   const offsetInMinutes = 7 * 60
   startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
   // endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
@@ -44,7 +43,7 @@ export default function Orders() {
   const router = useRouter()
   const [paymentStatus, setPaymentStatus] = useState<string>("all")
   const [orderStatus, setOrderStatus] = useState<string>("all")
-  const { selectedOutlets } = useContext(FilterByOutletContext)
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
 
   useEffect(() => {
     async function GotPRItems() {
@@ -66,7 +65,7 @@ export default function Orders() {
         url: urlwithQuery,
         token: `${auth.access_token}`,
         data: {
-          outlet_ids: selectedOutlets.map(o => o.outlet_id),
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
           started_at: startDate,
           ended_at: endDate,
           ...paymentStts,
@@ -74,6 +73,7 @@ export default function Orders() {
         }
       })
 
+      // alert(res.total)
       if (res?.statusCode === 200) {
         if (res.total)
           setTotalItem(res.total);
@@ -85,10 +85,11 @@ export default function Orders() {
       }, 100);
     }
 
-    GotPRItems()
+    if (!modal)
+      GotPRItems()
 
   }, [currentPage, fixValueSearch, refresh, auth.access_token,
-    startDate, paymentStatus, orderStatus, selectedOutlets])
+    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
@@ -118,7 +119,7 @@ export default function Orders() {
       url: "/api/order/download",
       token: `${auth.access_token}`,
       data: {
-        outlet_ids: selectedOutlets,
+        outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
         started_at: startDate,
         ended_at: endDate,
         ...paymentStts,
@@ -194,7 +195,7 @@ export default function Orders() {
               <td className="px-6 py-4">
                 <p className={`px-2 py-1 text-center w-min rounded text-white
                 ${i.status === EStatusOrder.CANCELED && "bg-red"}
-                ${i.status === EStatusOrder.REGISTERED && "bg-yellow-500"}
+                ${i.status === EStatusOrder.PROCESS && "bg-yellow-500"}
                 ${i.status === EStatusOrder.COMPLETED && "bg-green-500"}
               `}>{i.status}</p>
               </td>

@@ -129,6 +129,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               src={"/images/logo_header.png"}
               alt="Logo"
               priority
+              style={{ height: "auto", width: "auto" }}
             />
           </Link>
 

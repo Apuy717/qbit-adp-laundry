@@ -78,8 +78,6 @@ export default function PageMachine() {
         token: `${auth.access_token}`,
         data: { outlet_ids: filterByOutlet, ...sttsFilter }
       })
-      console.log(res);
-
 
       if (res?.statusCode === 200) {
         if (res.total)
@@ -95,6 +93,7 @@ export default function PageMachine() {
     GotPRItems()
 
   }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted])
+
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -143,7 +142,6 @@ export default function PageMachine() {
       type: Yup.string().required("Tidak boleh kosong!")
     }),
     onSubmit: async (values) => {
-      console.log(values);
       if (loading) return
       setLoading(true)
       let idUpdate = {}
@@ -165,7 +163,6 @@ export default function PageMachine() {
         },
       })
 
-      console.log(res);
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
@@ -229,12 +226,12 @@ export default function PageMachine() {
             <td className="whitespace-nowrap px-6 py-4">{i.outlet.name}</td>
             <td className="whitespace-nowrap px-6 py-4">
               {FormatDecimal(parseInt(i.cycles))} cycle{" / "}
-              {i.total_duration ? FormatDecimal(parseInt(i.total_duration)) : 0} Menit
+              {i.relay_time_used ? FormatDecimal(parseInt(i.relay_time_used)) : 0} Menit
             </td>
 
             <td className="whitespace-nowrap px-6 py-4">
               {FormatDecimal(parseInt(i.cyles_machine))} cycle{" / "}
-              {i.total_duration ? FormatDecimal(parseInt(i.average_duration_machine)) : 0} Menit
+              {i.runtime ? FormatDecimal(parseInt(i.runtime)) : 0} Menit
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
