@@ -6,6 +6,7 @@ import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
+import { Outlet } from "@/types/outlet";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -90,6 +91,40 @@ export default function Product() {
       }
     };
     GotOutlets();
+
+    // const GotGroupingOutlets = async () => {
+    //   const res = await GetWithToken<iResponse<Outlet[]>>({
+    //     router: router,
+    //     url: "/api/outlet/got/forme",
+    //     token: `${auth.auth.access_token}`
+    //   })
+
+    //   if (res?.statusCode === 200) {
+    //     console.log(res.data);
+        
+    //     const mapingOutlet: any = []
+    //     for (const i of res.data) {
+    //       let label = null;
+    //       let value = null;
+    //       if (!i.outlet_area_grouping) {
+    //         value = i.name
+    //         label = i.id
+    //       }
+    //       const data = {
+    //         value: label,
+    //         label: value
+    //       }
+    //       if (data.label) {
+    //         mapingOutlet.push(data)
+    //         formik.setFieldValue("outlet_id", mapingOutlet[0].value)
+    //       }
+    //     }
+    //     // console.log(mapingOutlet);
+    //     setOutlets(mapingOutlet)
+    //   }
+    // }
+
+    // GotGroupingOutlets()
   }, [addpriceSku])
 
   useEffect(() => {
@@ -167,7 +202,7 @@ export default function Product() {
       GotPriceSku()
       console.log(skuPrices);
     }
-  }, [skuId])
+  }, [skuId, addpriceSku])
 
   const handleSearch = async () => {
     // console.log(products);
@@ -237,7 +272,6 @@ export default function Product() {
           iron_duration: Yup.number().min(0),
         })
       ),
-
     }),
 
     onSubmit: async (values) => {
@@ -616,7 +650,8 @@ export default function Product() {
                         setIsViewSkuPrices(true)
                         setSkuId(i.id)
                         console.log(skuId);
-
+                        formik.setFieldValue("sku_id", i.id)
+                        setAddpriceSku(true)
                       }}
                     >
                       <FiEye size={18} />
@@ -659,13 +694,13 @@ export default function Product() {
                     </div>
                   </div>
 
-                  <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
+                  {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
                     formik.setFieldValue("sku_id", i.id)
-                    console.log(i.id);
                     setAddpriceSku(true)
+                    console.log(i.id);
                   }}>
                     <p className="text-white">add price</p>
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))}
@@ -935,17 +970,48 @@ export default function Product() {
             <IoCloseOutline color="white" size={20} />
           </div>
 
-          <div className="flex flex-col space-y-8">
+          <div className="flex flex-col space-x-4">
             <Breadcrumb pageName={`SKU Price Detail`} />
+            <div className="flex justify-center items-center space-x-4 md:grid-cols-2">
+              <InputDropdown
+                label={"Outlets*"}
+                name={"Outlets"}
+                id={"Outlets"}
+                value={formik.values.outlet_id}
+                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                options={outlets}
+                error={
+                  formik.touched.outlet_id && formik.errors.outlet_id
+                    ? formik.errors.outlet_id
+                    : null
+                }
+              />
+
+              <Input
+                label={"Add Price*"}
+                name={"add_price"}
+                id={"add_price"}
+                value={formik.values.price ? formik.values.price : ''}
+                onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
+                error={formik.touched.price &&
+                  (typeof formik.errors.price === 'object' && formik.errors.price)
+                  ? formik.errors.price
+                  : null} />
+
+              <button
+                onClick={formik.submitForm}
+                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                Save
+              </button>
+            </div>
           </div>
 
-          <div className="overflow-y-auto">
+          <div className="flex overflow-y-scroll mt-10">
             <Table
               colls={["#", "Outlet", "City", "Price", "Action"]}
               onPaginate={(page) => setCurrentPage(page)}
               currentPage={currentPage}
               totalItem={totalProduct}>
-
               {skuPrices.map((i, k) => (
                 <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                   <td className="px-6 py-4">
@@ -955,7 +1021,7 @@ export default function Product() {
                     {i.outlet?.name}
                   </td>
                   <td className="px-6 py-4">
-                    {i.outlet?.city}
+                    {i.outlet?.city.split("--")[1]}
                   </td>
                   <td className="px-6 py-4">
                     {i.price}
@@ -973,17 +1039,6 @@ export default function Product() {
                           Edit price
                         </div>
                       </div>
-
-                      {/* <button
-                        onClick={() => {
-                        }}>
-                        <FaRegPlusSquare size={18} />
-                      </button>
-                      <button
-                        onClick={() => {
-                        }}>
-                        <FaTrash size={18} />
-                      </button> */}
                     </div>
                   </td>
                 </tr>
@@ -992,7 +1047,7 @@ export default function Product() {
           </div>
         </div>
       </Modal>
-      <Modal isOpen={addpriceSku}>
+      <Modal isOpen={false}>
         <div className="relative bg-white dark:bg-boxdark shadow rounded-md h-min w-[90%] md:w-[50%] p-4">
           <div
             className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
