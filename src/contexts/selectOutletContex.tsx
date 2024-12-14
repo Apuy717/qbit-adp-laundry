@@ -88,7 +88,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
           let areaName = "Without Area";
           if (i.outlet_area_grouping) {
             areaId = i.outlet_area_grouping.outlet_area.id
-            areaName = i.outlet_area_grouping.outlet_area.id
+            areaName = i.outlet_area_grouping.outlet_area.name
           }
 
           const city = i.city.split("--")
@@ -112,8 +112,6 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
         setData(maping)
       }
     }
-
-    console.log("access token", auth.access_token);
 
     if (!pathname.includes("/auth/signin") && auth.access_token !== null && auth.access_token.length >= 1)
       GotAllOutlet()

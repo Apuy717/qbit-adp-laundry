@@ -1,94 +1,199 @@
 "use client";
 
 import { ApexOptions } from "apexcharts";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { TopPerformanceOutlet } from "@/types/profit";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { useSelector } from "react-redux";
+import { RootState } from "@/stores/store";
+import { useRouter } from "next/navigation";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-const options: ApexOptions = {
-  colors: ["#3C50E0", "#80CAEE"],
-  chart: {
-    fontFamily: "Satoshi, sans-serif",
-    type: "bar",
-    height: 335,
-    stacked: true,
-    toolbar: {
-      show: false,
-    },
-    zoom: {
-      enabled: false,
-    },
-  },
 
-  responsive: [
-    {
-      breakpoint: 1536,
-      options: {
-        plotOptions: {
-          bar: {
-            borderRadius: 0,
-            columnWidth: "25%",
-          },
-        },
-      },
-    },
-  ],
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      borderRadius: 0,
-      columnWidth: "25%",
-      borderRadiusApplication: "end",
-      borderRadiusWhenStacked: "last",
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-
-  xaxis: {
-    categories: ["M", "T", "W", "T", "F", "S", "S"],
-  },
-  legend: {
-    position: "top",
-    horizontalAlign: "left",
-    fontFamily: "Satoshi",
-    fontWeight: 500,
-    fontSize: "14px",
-  },
-  fill: {
-    opacity: 1,
-  },
-};
-
-interface ChartTwoState {
-  series: {
-    name: string;
-    data: number[];
-  }[];
+interface iSeries {
+  name: string,
+  data: number[],
 }
 
 const ChartTwo: React.FC = () => {
-  const series = [
-    {
-      name: "Sales",
-      data: [44, 55, 41, 67, 22, 43, 65],
+  const [options, setOptions] = useState<ApexOptions>({
+    colors: ["#3C50E0", "#80CAEE"],
+    chart: {
+      fontFamily: "Satoshi, sans-serif",
+      type: "bar",
+      height: 335,
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false,
+      },
     },
-    {
-      name: "Revenue",
-      data: [13, 23, 20, 8, 13, 27, 15],
+
+    responsive: [
+      {
+        breakpoint: 1536,
+        options: {
+          plotOptions: {
+            bar: {
+              borderRadius: 0,
+              columnWidth: "25%",
+            },
+          },
+        },
+      },
+    ],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 0,
+        columnWidth: "25%",
+        borderRadiusApplication: "end",
+        borderRadiusWhenStacked: "last",
+      },
     },
-  ];
+    dataLabels: {
+      enabled: false,
+    },
+    xaxis: {
+      categories: [],
+    },
+    yaxis: {
+      labels: {
+        formatter: (value) => {
+          return new Intl.NumberFormat("id-ID", {
+            style: "decimal",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(value);
+        },
+      }
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "left",
+      fontFamily: "Satoshi",
+      fontWeight: 500,
+      fontSize: "14px",
+    },
+    fill: {
+      opacity: 1,
+    },
+  })
+
+  const { auth } = useSelector((s: RootState) => s.auth)
+  const [loading, setLoading] = useState<boolean>(true)
+  const { selectedOutlets } = useContext(FilterByOutletContext)
+  const router = useRouter()
+  const [seriesSales, setSeriesSales] = useState<iSeries>({ name: "Sales", data: [] })
+  const [seriesOrderSales, setSeriesOrderSales] = useState<iSeries>({ name: "Count Orders", data: [] })
+  const [filterByDate, setFilterByDate] = useState<string>("day")
+
+  useEffect(() => {
+    let now = new Date()
+    let startedAt: Date = new Date()
+    let endedAt: Date = new Date()
+    if (filterByDate === "day") {
+      startedAt = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
+      endedAt = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
+    }
+
+    if (filterByDate === "week") {
+      const currentDay = now.getDay();
+      // Tanggal awal minggu (Senin)
+      startedAt = new Date(now);
+      startedAt.setDate(now.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+      startedAt.setHours(0, 0, 0, 0);
+
+      // Tanggal akhir minggu (Minggu)
+      endedAt = new Date(now);
+      endedAt.setDate(now.getDate() + (currentDay === 0 ? 0 : 7 - currentDay));
+      endedAt.setHours(23, 59, 59, 999);
+    }
+
+    if (filterByDate === "month") {
+      startedAt = new Date(now.getFullYear(), now.getMonth(), 1);
+      endedAt = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    }
+
+    if (filterByDate === "year") {
+      startedAt = new Date(now.getFullYear(), 0, 1);
+      endedAt = new Date(now.getFullYear(), 11, 31);
+    }
+
+    startedAt.setHours(0, 0, 0, 0)
+    endedAt.setHours(23, 59, 59, 0)
+    const offsetInMinutes = 7 * 60;
+    startedAt = new Date(startedAt.getTime() + offsetInMinutes * 60 * 1000);
+    endedAt = new Date(endedAt.getTime() + offsetInMinutes * 60 * 1000);
+    async function GotTopPerformanceOutlet() {
+      setLoading(true);
+      const res = await PostWithToken<iResponse<TopPerformanceOutlet[]>>({
+        router: router,
+        url: "/api/order/top-outlet",
+        token: `${auth.access_token}`,
+        data: {
+          outlet_ids: selectedOutlets,
+          started_at: startedAt,
+          ended_at: endedAt
+        }
+      })
+
+      if (res?.statusCode === 200) {
+        let _salesSeries: number[] = []
+        let _orderCount: number[] = []
+        let _categories: string[] = []
+        for (const itm of res.data) {
+          _salesSeries.push(parseInt(itm.total_sum))
+          _orderCount.push(parseInt(itm.order_count))
+          _categories.push(itm.outlet.name)
+        }
+
+        setSeriesSales((old) => {
+          return {
+            name: old.name,
+            data: _salesSeries
+          }
+        })
+
+        setSeriesOrderSales((old) => {
+          return {
+            name: old.name,
+            data: _orderCount
+          }
+        })
+
+        setOptions((old) => {
+          return {
+            ...old, xaxis: { ...old.xaxis, categories: _categories },
+          }
+        })
+      }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
+    }
+
+    GotTopPerformanceOutlet()
+
+  }, [selectedOutlets, filterByDate])
+
+
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
           <h4 className="text-xl font-semibold text-black dark:text-white">
-            Number of active outlets
+            Total Sales of Outlets
           </h4>
         </div>
         <div>
@@ -97,12 +202,19 @@ const ChartTwo: React.FC = () => {
               name="#"
               id="#"
               className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+              onChange={(v) => setFilterByDate(v.target.value)}
             >
-              <option value="" className="dark:bg-boxdark">
+              <option value="day" className="dark:bg-boxdark">
+                This Day
+              </option>
+              <option value="week" className="dark:bg-boxdark">
                 This Week
               </option>
-              <option value="" className="dark:bg-boxdark">
-                Last Week
+              <option value="month" className="dark:bg-boxdark">
+                This Month
+              </option>
+              <option value="year" className="dark:bg-boxdark">
+                This Year
               </option>
             </select>
             <span className="absolute right-3 top-1/2 z-10 -translate-y-1/2">
@@ -130,10 +242,15 @@ const ChartTwo: React.FC = () => {
       </div>
 
       <div>
-        <div id="chartTwo" className="-mb-9 -ml-5">
+        <div id="chartTwo" className="-mb-9 -ml-5 relative">
+          {
+            loading && <div className="w-full h-full absolute top-0 flex items-center justify-center z-50">
+              <AiOutlineLoading3Quarters className="animate-spin text-purple-600" size={50} />
+            </div>
+          }
           <ReactApexChart
             options={options}
-            series={series}
+            series={[seriesSales, seriesOrderSales]}
             type="bar"
             height={350}
             width={"100%"}

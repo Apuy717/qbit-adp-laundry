@@ -33,7 +33,7 @@ const TableOne = () => {
 
       const res = await PostWithToken<iResponse<TopPerformanceOutlet[]>>({
         router: router,
-        url: "/api/order/top-outlet",
+        url: "/api/order/top-outlet?limit=10",
         token: `${auth.access_token}`,
         data: {
           outlet_ids: filterByOutlet,

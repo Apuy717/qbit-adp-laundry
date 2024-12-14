@@ -138,7 +138,7 @@ const ECommerce: React.FC = () => {
             setStartDate(val)
           }} />
           <DatePickerOne label={"Sampai"} defaultDate={endDate} onChange={(val) => {
-            console.log(val);
+            null
           }} />
 
           <div className="cursor-pointer w-full" onClick={() => setModalOutlet(true)}>
