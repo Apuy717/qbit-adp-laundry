@@ -26,6 +26,7 @@ const CategoryPage: React.FC = () => {
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
+  const [createOrUpdate, setCreateOrUpdate] = useState<boolean>(true)
   const credential = useSelector((s: RootState) => s.auth)
   const [outlets, setOutlets] = useState<{ value: string | null, label: string }[]>([{ value: "null", label: "All" }])
 
@@ -145,7 +146,7 @@ const CategoryPage: React.FC = () => {
         }
         setModal(false);
         formikCategory.resetForm();
-        toast.success("Berhasil menambahkan kategori");
+        toast.success("Add data success!");
       }
 
       setTimeout(() => setLoading(false), 1000)
@@ -154,12 +155,12 @@ const CategoryPage: React.FC = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Kategori" />
+      <Breadcrumb pageName="Category" />
       <div className="w-full bg-white p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
             <Input
-              label={"Pencarian"}
+              label={"Search"}
               name={"search"}
               id={"search"}
               value={search}
@@ -172,20 +173,25 @@ const CategoryPage: React.FC = () => {
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            Cari
+            Search
           </button>
           <button
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={() => setModal(true)}
+            onClick={
+              () => {
+                setModal(true)
+                setCreateOrUpdate(true)
+              }
+            }
           >
-            Tambah Kategori
+            Add Kategori
           </button>
         </div>
       </div>
       <div>
-        <Table colls={["Nama", "Slug", "Outlet", "Status", "Aksi"]}
+        <Table colls={["Name", "Slug", "Outlet", "Status", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalCategory}>
@@ -215,18 +221,25 @@ const CategoryPage: React.FC = () => {
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
-                <button
-                  onClick={() => {
-                    formikCategory.setFieldValue("id", i.id)
-                    formikCategory.setFieldValue("name", i.name)
-                    formikCategory.setFieldValue("slug", i.slug === null ? "" : i.slug)
-                    formikCategory.setFieldValue("is_deleted", i.is_deleted)
-                    formikCategory.setFieldValue("outlet_id", i.outlet_id === null ? "null" : i.outlet_id)
-                    setModal(true);
-                  }}
-                >
-                  <FiEdit size={23} />
-                </button>
+                <div className="relative group">
+
+                  <button
+                    onClick={() => {
+                      formikCategory.setFieldValue("id", i.id)
+                      formikCategory.setFieldValue("name", i.name)
+                      formikCategory.setFieldValue("slug", i.slug === null ? "" : i.slug)
+                      formikCategory.setFieldValue("is_deleted", i.is_deleted)
+                      formikCategory.setFieldValue("outlet_id", i.outlet_id === null ? "null" : i.outlet_id)
+                      setCreateOrUpdate(false)
+                      setModal(true);
+                    }}
+                  >
+                    <FiEdit size={23} />
+                  </button>
+                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                    Edit Category
+                  </div>
+                </div>
               </td>
             </tr>
           ))}
@@ -246,10 +259,10 @@ const CategoryPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName="Tambah Kategori" />
+            <Breadcrumb pageName={createOrUpdate ? `Add category` : `Edit Category`} />
           </div>
           <div className="flex flex-col space-y-8">
-            <Input label={"Nama*"} name={"name"} id={"name"}
+            <Input label={"Name*"} name={"name"} id={"name"}
               value={formikCategory.values.name}
               onChange={(v) => formikCategory.setFieldValue("name", v)}
               error={

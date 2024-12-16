@@ -101,7 +101,7 @@ export default function Product() {
 
     //   if (res?.statusCode === 200) {
     //     console.log(res.data);
-        
+
     //     const mapingOutlet: any = []
     //     for (const i of res.data) {
     //       let label = null;
@@ -483,11 +483,11 @@ export default function Product() {
             <td className="px-6 py-4">
               {prod.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center w-auto">
-                  <p className="text-white">inaktif</p>
+                  <p className="text-white">inactive</p>
                 </div>
               ) : (
                 <div className="px-2 bg-green-500 rounded-xl text-center w-auto">
-                  <p className="text-white">aktif</p>
+                  <p className="text-white">active</p>
                 </div>
               )}
             </td>
@@ -1006,9 +1006,9 @@ export default function Product() {
             </div>
           </div>
 
-          <div className="flex overflow-y-scroll mt-10">
+          <div className="max-h-96 overflow-y-auto mt-4">
             <Table
-              colls={["#", "Outlet", "City", "Price", "Action"]}
+              colls={["#", "Outlet", "City", "Price"]}
               onPaginate={(page) => setCurrentPage(page)}
               currentPage={currentPage}
               totalItem={totalProduct}>
@@ -1024,22 +1024,7 @@ export default function Product() {
                     {i.outlet?.city.split("--")[1]}
                   </td>
                   <td className="px-6 py-4">
-                    {i.price}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className=" flex flex-row items-center space-x-2">
-                      <div className="relative group">
-                        <button
-                          onClick={() => {
-                          }}
-                        >
-                          <FiEdit size={18} />
-                        </button>
-                        <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                          Edit price
-                        </div>
-                      </div>
-                    </div>
+                    {rupiah(i.price)}
                   </td>
                 </tr>
               ))}

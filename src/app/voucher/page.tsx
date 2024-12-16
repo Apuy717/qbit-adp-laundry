@@ -37,16 +37,16 @@ const discTypeList = [
 ]
 
 const CELLS = [
-  "Kode",
-  "Nama",
-  "Berlaku Sejak",
-  "Berakhir Pada",
-  "Kuota",
-  "Diskon",
-  "Tipe Diskon",
-  "Dibuat Pada",
+  "Code",
+  "Name",
+  "Start from",
+  "Expired at",
+  "Quota",
+  "Discount",
+  "Discount Type",
+  "Created at",
   "Status",
-  "Aksi",
+  "Action",
 ];
 
 export default function Vouchers() {
@@ -201,7 +201,7 @@ export default function Vouchers() {
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
           <div className="w-full md:w-96">
             <Input
-              label={"Pencarian"}
+              label={"Search"}
               name={"search"}
               id={"search"}
               value={search}
@@ -214,7 +214,7 @@ export default function Vouchers() {
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            Cari
+            Search
           </button>
           <button
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
@@ -235,7 +235,7 @@ export default function Vouchers() {
 
             }}
           >
-            Tambah Voucher
+            Add Voucher
           </button>
         </div>
       </div>
@@ -301,7 +301,7 @@ export default function Vouchers() {
               )}
             </td>
             <td className="px-6 py-4">
-              <div className=" flex flex-row items-center space-x-2">
+              <div className=" flex flex-row items-center space-x-2 relative group">
                 <button
                   onClick={() => {
                     setStartDate(vou.started_at.split(".")[0])
@@ -327,6 +327,9 @@ export default function Vouchers() {
                 >
                   <FiEdit size={18} />
                 </button>
+                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                  Edit Voucher
+                </div>
               </div>
             </td>
           </tr>
@@ -345,12 +348,12 @@ export default function Vouchers() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName={updateOrAddVoucher ? `Update Voucher` : `Tambah Voucher`} />
+            <Breadcrumb pageName={updateOrAddVoucher ? `Update Voucher` : `Add Voucher`} />
           </div>
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
             <Input
-              label={"Nama*"}
+              label={"Name*"}
               name={"name"}
               id={"name"}
               value={formik.values.name}
@@ -362,7 +365,7 @@ export default function Vouchers() {
                 : null}>
             </Input>
             <Input
-              label={"Kode*"}
+              label={"Code*"}
               name={"code"}
               id={"code"}
               value={formik.values.code}
@@ -372,7 +375,7 @@ export default function Vouchers() {
                 : null}>
             </Input>
             <DatePickerOne
-              label={"Berlaku Mulai"}
+              label={"Start from"}
               defaultDate={formik.values.started_at.split(".")[0]}
               onChange={(val) => {
                 formik.setFieldValue("started_at", val)
@@ -380,13 +383,13 @@ export default function Vouchers() {
 
               }} />
             <DatePickerOne
-              label={"Berlaku Sampai"}
+              label={"Expired at"}
               defaultDate={formik.values.ended_at.split(".")[0]}
               onChange={(val) => {
                 formik.setFieldValue("ended_at", val)
               }} />
             <Input
-              label={"Kuota*"}
+              label={"Quota*"}
               name={"quota"}
               id={"quota"}
               value={formik.values.quota ? formik.values.quota : 0}
@@ -396,7 +399,7 @@ export default function Vouchers() {
                 : null}>
             </Input>
             <Input
-              label={"Diskon*"}
+              label={"Discount*"}
               name={"discount"}
               id={"discount"}
               value={formik.values.discount ? formik.values.discount : 0}
@@ -406,7 +409,7 @@ export default function Vouchers() {
                 : null}>
             </Input>
             <InputDropdown
-              label={"Tipe Diskon*"}
+              label={"Discount Type*"}
               name={"discount_type"}
               id={"discount_type"}
               value={formik.values.discount_type}
@@ -425,7 +428,7 @@ export default function Vouchers() {
               <button
                 onClick={formik.submitForm}
                 className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Simpan
+                Save
               </button>
             </div>
           </div>
