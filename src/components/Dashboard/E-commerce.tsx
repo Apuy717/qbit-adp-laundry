@@ -1,23 +1,23 @@
 "use client";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { RootState } from "@/stores/store";
+import { ProfitType } from "@/types/profit";
 import dynamic from "next/dynamic";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
+import { CgShoppingBag } from "react-icons/cg";
+import { FaMoneyBillTransfer } from "react-icons/fa6";
+import { FiShoppingCart } from "react-icons/fi";
+import { MdOutlineSpeed } from "react-icons/md";
+import { useSelector } from "react-redux";
+import CardDataStats from "../CardDataStats";
 import ChartOne from "../Charts/ChartOne";
 import ChartTwo from "../Charts/ChartTwo";
 import ChatCard from "../Chat/ChatCard";
-import TableOne from "../Tables/TableOne";
-import CardDataStats from "../CardDataStats";
-import { FiShoppingCart } from "react-icons/fi";
-import { CgShoppingBag } from "react-icons/cg";
-import { FaMoneyBillTransfer } from "react-icons/fa6";
-import { MdOutlineSpeed } from "react-icons/md";
-import { ProfitType } from "@/types/profit";
-import { useSelector } from "react-redux";
-import { RootState } from "@/stores/store";
-import { iResponse, PostWithToken } from "@/libs/FetchData";
-import { useRouter } from "next/navigation";
-import MapOne from "../Maps/MapOne";
-import { FilterByOutletTableModal } from "../Outlets/FilterByOutletTableModal";
 import DatePickerOne from "../FormElements/DatePicker/DatePickerOne";
+import MapOne from "../Maps/MapOne";
+import TableOne from "../Tables/TableOne";
 
 
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
@@ -25,47 +25,38 @@ const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
 });
 
 
-const defaultAndLostDefaultValue = {
-  count_expense: 0,
-  total_expense: null,
-  count_sales: 0,
-  total_sales: null,
-  profit: 0,
-  avg: {
-    total: null
-  }
-}
-
 const ECommerce: React.FC = () => {
-  const { auth, role } = useSelector((s: RootState) => s.auth)
+  const { auth } = useSelector((s: RootState) => s.auth)
   const [loading, setLoading] = useState<boolean>(true)
-  const [filterByOutlet, setFilterByOutlet] = useState<string[]>([])
   const router = useRouter()
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endOfMonth = new Date(
+  let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  let endOfMonth = new Date(
     `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
       new Date().getFullYear(),
       new Date().getMonth() + 1,
       0,
-    ).getDate()} 23:59`,
+    ).getDate()}`,
   )
+
+
+  endOfMonth.setHours(6, 59, 59, 0)
+  const offsetInMinutes = 7 * 60
+  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
   const [profitAndLos, setProfitAndLos] = useState<ProfitType | null>(null)
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false)
-
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
 
   useEffect(() => {
     async function GotProfitAndLost() {
       setLoading(true);
-
       const res = await PostWithToken<iResponse<ProfitType>>({
         router: router,
         url: "/api/order/profit-lost",
         token: `${auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet,
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
           started_at: startDate,
           ended_at: endDate,
 
@@ -81,9 +72,10 @@ const ECommerce: React.FC = () => {
       }, 100);
     }
 
-    GotProfitAndLost()
+    if (!modal)
+      GotProfitAndLost()
 
-  }, [startDate, endDate, filterByOutlet])
+  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal])
 
   function FormatDecimal(number: number) {
     const result = new Intl.NumberFormat("id-ID", {
@@ -133,25 +125,11 @@ const ECommerce: React.FC = () => {
   return (
     <>
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
-          <DatePickerOne label={"Dari"} defaultDate={startDate} onChange={(val) => {
-            setStartDate(val)
-          }} />
-          <DatePickerOne label={"Sampai"} defaultDate={endDate} onChange={(val) => {
-            null
-          }} />
-
-          <div className="cursor-pointer w-full" onClick={() => setModalOutlet(true)}>
-            <div className="flex flex-row">
-              <div className="w-full p-3 border-2 rounded-md relative">
-                <label
-                  className={`text-md  transition-all duration-500`}
-                >
-                  Filter By Outlet
-                </label>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}
+            onChange={(val) => setStartDate(val)} />
+          <DatePickerOne label={"End"} defaultDate={new Date(endDate)}
+            onChange={(val) => setEndDate(val)} />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
@@ -179,15 +157,7 @@ const ECommerce: React.FC = () => {
         </div>
         <ChatCard />
       </div>
-      <FilterByOutletTableModal modalOutlet={modalOutlet}
-        closeModal={(isOpen) => setModalOutlet(isOpen)}
-        setFilterByOutlet={(isChecked, value) => {
-          if (isChecked) {
-            setFilterByOutlet(old => [...old, value])
-          } else {
-            setFilterByOutlet(old => old.filter(f => f !== value))
-          }
-        }} />
+
     </>
   );
 };

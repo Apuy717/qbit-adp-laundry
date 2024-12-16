@@ -1,22 +1,19 @@
-import Link from "next/link";
-import DarkModeSwitcher from "./DarkModeSwitcher";
-import DropdownMessage from "./DropdownMessage";
-import DropdownNotification from "./DropdownNotification";
-import DropdownUser from "./DropdownUser";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import Image from "next/image";
+import Link from "next/link";
+import { useContext } from "react";
 import { CiMenuFries } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
-import { useContext, useEffect } from "react";
-import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import DarkModeSwitcher from "./DarkModeSwitcher";
+import DropdownNotification from "./DropdownNotification";
+import DropdownUser from "./DropdownUser";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   const { setModal, modal, selectedOutlets } = useContext(FilterByOutletContext)
-  useEffect(() => {
-    console.log(modal)
-  }, [modal])
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11 space-x-4">
@@ -40,11 +37,13 @@ const Header = (props: {
               height={32}
               src={"/images/share-logo.png"}
               alt="Logo"
+              style={{ width: "auto", height: "auto" }}
+              priority
             />
           </Link>
         </div>
 
-        <div className="hidden md:block border-2 rounded-md px-4 py-2 relative cursor-pointer flex-1" onClick={() => setModal(!modal)}>
+        <div className="hidden md:block border-[1.5px] dark:border-form-strokedark rounded-md px-4 py-2 relative cursor-pointer flex-1" onClick={() => setModal(!modal)}>
           {selectedOutlets.length >= 1 ? <p>Selected {" "} {selectedOutlets.length} Outlet</p> : <p>All Area</p>}
           <div className="absolute top-0 right-0 h-full flex w-min items-center justify-center">
             <IoIosArrowDown size={23} />

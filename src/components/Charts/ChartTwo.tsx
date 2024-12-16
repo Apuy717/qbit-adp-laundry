@@ -90,7 +90,7 @@ const ChartTwo: React.FC = () => {
 
   const { auth } = useSelector((s: RootState) => s.auth)
   const [loading, setLoading] = useState<boolean>(true)
-  const { selectedOutlets } = useContext(FilterByOutletContext)
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
   const router = useRouter()
   const [seriesSales, setSeriesSales] = useState<iSeries>({ name: "Sales", data: [] })
   const [seriesOrderSales, setSeriesOrderSales] = useState<iSeries>({ name: "Count Orders", data: [] })
@@ -133,16 +133,17 @@ const ChartTwo: React.FC = () => {
     const offsetInMinutes = 7 * 60;
     startedAt = new Date(startedAt.getTime() + offsetInMinutes * 60 * 1000);
     endedAt = new Date(endedAt.getTime() + offsetInMinutes * 60 * 1000);
+
     async function GotTopPerformanceOutlet() {
       setLoading(true);
       const res = await PostWithToken<iResponse<TopPerformanceOutlet[]>>({
         router: router,
-        url: "/api/order/top-outlet",
+        url: "/api/order/top-outlet?with_order_by=false",
         token: `${auth.access_token}`,
         data: {
-          outlet_ids: selectedOutlets,
-          started_at: startedAt,
-          ended_at: endedAt
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
+          started_at: startedAt.toISOString().split(".")[0],
+          ended_at: endedAt.toISOString().split(".")[0]
         }
       })
 
@@ -182,9 +183,10 @@ const ChartTwo: React.FC = () => {
       }, 100);
     }
 
-    GotTopPerformanceOutlet()
+    if (!modal)
+      GotTopPerformanceOutlet()
 
-  }, [selectedOutlets, filterByDate])
+  }, [selectedOutlets, defaultSelectedOutlet, filterByDate, modal])
 
 
 

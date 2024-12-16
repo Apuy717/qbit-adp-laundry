@@ -1,63 +1,148 @@
+import { GetWithToken, iResponse } from "@/libs/FetchData";
+import { RootState } from "@/stores/store";
+import { GraphProductAnalytic } from "@/types/graph";
 import { ApexOptions } from "apexcharts";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-
-interface ChartThreeState {
-  series: number[];
-}
-
-const options: ApexOptions = {
-  chart: {
-    fontFamily: "Satoshi, sans-serif",
-    type: "donut",
-  },
-  colors: ["#3C50E0", "#6577F3", "#8FD0EF", "#0FADCF"],
-  labels: ["Desktop", "Tablet", "Mobile", "Unknown"],
-  legend: {
-    show: false,
-    position: "bottom",
-  },
-
-  plotOptions: {
-    pie: {
-      donut: {
-        size: "65%",
-        background: "transparent",
-      },
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  responsive: [
-    {
-      breakpoint: 2600,
-      options: {
-        chart: {
-          width: 380,
-        },
-      },
-    },
-    {
-      breakpoint: 640,
-      options: {
-        chart: {
-          width: 200,
-        },
-      },
-    },
-  ],
-};
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 const ChartThree: React.FC = () => {
-  const series = [65, 34, 12, 56];
+
+  const router = useRouter()
+  const { auth } = useSelector((s: RootState) => s.auth)
+  const [options, setOptions] = useState<ApexOptions>({
+    chart: {
+      fontFamily: "Satoshi, sans-serif",
+      type: "donut",
+    },
+    colors: ["#3C50E0", "#6577F3", "#8FD0EF", "#0FADCF"],
+    labels: [],
+    legend: {
+      show: false,
+      position: "bottom",
+    },
+
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+        },
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    responsive: [
+      {
+        breakpoint: 2600,
+        options: {
+          chart: {
+            width: 380,
+          },
+        },
+      },
+      {
+        breakpoint: 640,
+        options: {
+          chart: {
+            width: 200,
+          },
+        },
+      },
+    ],
+  })
+
+  const [series, setSeries] = useState<number[]>([])
+  const [data, setData] = useState<{ name: string, percentage: string, color: string }[]>([])
+
+  function generateRandomColor() {
+    const blueShades = [
+      "#3C50E0", // Biru tua
+      "#6577F3", // Biru medium
+      "#8FD0EF", // Biru muda pastel
+      "#0FADCF"  // Biru turquoise
+    ];
+
+
+    const baseColor = blueShades[Math.floor(Math.random() * blueShades.length)];
+
+    function adjustColor(color: string, adjustment: number) {
+      let r = parseInt(color.slice(1, 3), 16);
+      let g = parseInt(color.slice(3, 5), 16);
+      let b = parseInt(color.slice(5, 7), 16);
+
+      r = Math.min(255, Math.max(0, r + adjustment));
+      g = Math.min(255, Math.max(0, g + adjustment));
+      b = Math.min(255, Math.max(0, b + adjustment));
+
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+
+    return adjustColor(baseColor, Math.floor(Math.random() * 20 - 10));
+  }
+
+  const [filterBy, setFilterBy] = useState<string>("month")
+  const [loading, setLoading] = useState<boolean>(false)
+  useEffect(() => {
+    async function GotData() {
+      setLoading(true)
+      const res = await GetWithToken<iResponse<GraphProductAnalytic[]>>({
+        url: `/api/order/order-product-analytics?filter=${filterBy}`,
+        router: router,
+        token: `${auth.access_token}`
+      })
+
+      if (res.statusCode === 200) {
+        let _series: number[] = []
+        let _labels: string[] = []
+        let _color: string[] = []
+        let _data = []
+        const total = res.total ? res.total : 0
+        for (const itm of res.data) {
+          _series.push(parseInt(itm.count));
+          _labels.push(itm.product_sku_name);
+          const color = generateRandomColor()
+
+          _color.push(color)
+          const percentage = (parseInt(itm.count) / total) * 100;
+          _data.push({
+            name: itm.product_sku_name,
+            percentage: percentage.toFixed(2) + "%",
+            color: color
+          })
+        }
+
+        setData(_data)
+
+        setSeries(_series)
+        setOptions((old) => {
+          return {
+            ...old,
+            labels: _labels,
+            colors: _color
+          }
+        })
+      }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
+    }
+
+    GotData()
+
+  }, [filterBy])
+
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
       <div className="mb-3 justify-between gap-4 sm:flex">
         <div>
           <h5 className="text-xl font-semibold text-black dark:text-white">
-            Visitors Analytics
+            Product Analytics
           </h5>
         </div>
         <div>
@@ -66,11 +151,12 @@ const ChartThree: React.FC = () => {
               name=""
               id=""
               className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
+              onChange={(v) => setFilterBy(v.target.value)}
             >
-              <option value="" className="dark:bg-boxdark">
+              <option value="month" className="dark:bg-boxdark">
                 Monthly
               </option>
-              <option value="" className="dark:bg-boxdark">
+              <option value="year" className="dark:bg-boxdark">
                 Yearly
               </option>
             </select>
@@ -99,48 +185,28 @@ const ChartThree: React.FC = () => {
       </div>
 
       <div className="mb-2">
-        <div id="chartThree" className="mx-auto flex justify-center">
+        <div id="chartThree" className="mx-auto flex justify-center relative">
+          {
+            loading && <div className="w-full h-full absolute top-0 flex items-center justify-center z-50">
+              <AiOutlineLoading3Quarters className="animate-spin text-purple-600" size={50} />
+            </div>
+          }
           <ReactApexChart options={options} series={series} type="donut" />
         </div>
       </div>
 
-      <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-primary"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Desktop </span>
-              <span> 65% </span>
-            </p>
+      <div className="-mx-8 flex flex-col items-center justify-center max-h-32 overflow-y-auto">
+        {data.map((i, k) => (
+          <div className={`w-full px-8 mb-2`} key={k}>
+            <div className="flex w-full items-center">
+              <span className={`mr-2 block h-3 w-full max-w-3 rounded-full`} style={{ backgroundColor: i.color.toLowerCase() }}></span>
+              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+                <span className="text-sm">{i.name}</span>
+                <span> {i.percentage} </span>
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Tablet </span>
-              <span> 34% </span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#8FD0EF]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Mobile </span>
-              <span> 45% </span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#0FADCF]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Unknown </span>
-              <span> 12% </span>
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

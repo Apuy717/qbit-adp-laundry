@@ -8,7 +8,7 @@ export enum EPaymentStatus {
 }
 
 export enum EStatusOrder {
-  REGISTERED = "registered",
+  PROCESS = "process",
   COMPLETED = "completed",
   CANCELED = "canceled",
 }

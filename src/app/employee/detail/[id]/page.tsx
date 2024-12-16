@@ -150,6 +150,11 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <p>Phone</p>
+                    <p>Jabatan</p>
+                    <p>{employee?.department !== null && employee?.department} / {employee?.role !== null && employee?.role.name}</p>
+                  </div>
+                  <div className="flex flex-row items-center justify-between">
+                    <p>No. Hp</p>
                     <p>{employee?.dial_code} {employee?.phone_number}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">

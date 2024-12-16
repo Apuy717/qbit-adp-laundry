@@ -203,7 +203,7 @@ export default function ModalSelectOutlet(props: iProps) {
                   props.onSubmit(selectedOutlets)
                 }}
               >
-                Filter
+                Next
               </button>
             </div>
           </div>
