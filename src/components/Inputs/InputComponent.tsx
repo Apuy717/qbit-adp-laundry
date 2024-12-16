@@ -7,7 +7,7 @@ export interface iInput {
   label: string;
   name: string;
   id: string;
-  value: string|any;
+  value: string | any;
   type?: string;
   onChange: (e: string) => void;
   className?: string;
@@ -77,7 +77,7 @@ export const Input: FC<iInput> = (props) => {
         type={props.type ? props.type : "text"}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        className="focus:border-apps-primary bg-white w-full rounded-md border-[1.5px] dark:border-form-strokedark p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}

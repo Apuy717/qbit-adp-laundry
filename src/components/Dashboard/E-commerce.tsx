@@ -125,14 +125,11 @@ const ECommerce: React.FC = () => {
   return (
     <>
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
-          <DatePickerOne label={"Start"} defaultDate={new Date(startDate)} onChange={(val) => {
-            setStartDate(val)
-          }} />
-          <DatePickerOne label={"End"} defaultDate={new Date(endDate)} onChange={(val) => {
-            console.log(val)
-            setEndDate(val)
-          }} />
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}
+            onChange={(val) => setStartDate(val)} />
+          <DatePickerOne label={"End"} defaultDate={new Date(endDate)}
+            onChange={(val) => setEndDate(val)} />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">

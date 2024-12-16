@@ -16,9 +16,9 @@ import {
   FaUsers
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
-import { MdOutlineDashboard } from "react-icons/md";
+import { MdOutlineDashboard, MdOutlineReportGmailerrorred } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { TbShoppingBagPlus } from "react-icons/tb";
+import { TbIroningSteam, TbShoppingBagPlus } from "react-icons/tb";
 import { useSelector } from "react-redux";
 
 interface SidebarProps {
@@ -69,6 +69,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Category",
           route: "/category",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+        {
+          icon: <TbIroningSteam size={24} />,
+          label: "Iron",
+          route: "/iron",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
+        },
+        {
+          icon: <MdOutlineReportGmailerrorred size={24} />,
+          label: "Incident",
+          route: "/incident",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
         },
         {
           icon: <TbShoppingBagPlus size={23} />,
