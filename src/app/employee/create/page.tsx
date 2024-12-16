@@ -348,7 +348,7 @@ export default function CreateEmployee() {
               }
             />
             <InputDropdown
-              label={"Kab/City"}
+              label={"City"}
               name={"city"}
               id={"city"}
               value={formik.values.city}

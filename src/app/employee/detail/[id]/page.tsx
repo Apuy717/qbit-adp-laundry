@@ -141,7 +141,7 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
               <p className="font-medium">{employee?.role.name}</p>
               <div className="flex flex-col items-start mx-auto max-w-180 mt-5.5">
                 <h4 className="font-semibold text-black dark:text-white">
-                  Tentang Saya
+                  About Me
                 </h4>
                 <div className="mt-4 w-full space-y-2">
                   <div className="flex flex-row items-center justify-between">
@@ -149,7 +149,7 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
                     <p>{employee && employee.is_deleted ? <span className="text-red-500">non-active</span> : <span className="text-green-500">active</span>} </p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>No. Hp</p>
+                    <p>Phone</p>
                     <p>{employee?.dial_code} {employee?.phone_number}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
@@ -157,29 +157,29 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
                     <p>{employee?.email}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>Kec</p>
+                    <p>District</p>
                     <p>{employee?.district.split("--")[1]}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>Kab/Ko</p>
+                    <p>City</p>
                     <p>{employee?.city.split("--")[1]}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>Provinsi</p>
+                    <p>Province</p>
                     <p>{employee?.province.split("--")[1]}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>Kewarganegaraan</p>
+                    <p>Nationality</p>
                     <p>{employee?.country}</p>
                   </div>
 
-                  <div className="flex flex-row items-center justify-between">
-                    <p>Alamat Lengkap</p>
+                  {/* <div className="flex flex-row items-center justify-between">
+                    <p>Full Name</p>
                     <p>{employee && employee.address.length >= 1 ? employee?.address.length : "-"}</p>
-                  </div>
+                  </div> */}
 
                   <div className="flex flex-row items-center justify-between">
-                    <p>Terdaftar</p>
+                    <p>Registered</p>
                     <p> {new Date(`${employee?.created_at}`).toLocaleString("id", {
                       weekday: "long",
                       day: "numeric",

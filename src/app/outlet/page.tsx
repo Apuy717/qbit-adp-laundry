@@ -176,7 +176,7 @@ export default function OutletPage() {
       area_id: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Username shouldn't empty"),
+      name: Yup.string().required("Area name shouldn't empty"),
     }),
     onSubmit: async (values) => {
       let data: any = values
@@ -263,14 +263,18 @@ export default function OutletPage() {
   }
 
   const addVariantGroup = (index: any) => {
-    formikGrouping.setFieldValue('groupings', [
-      ...formikGrouping.values.groupings,
-      {
-        outlet_id: mapingGroupOutlet[0].value,
-        outlet_area_id: mapingGroupArea[0].value,
-      },
-    ]);
-    console.log(formikGrouping.values);
+    if (index <= mapingGroupOutlet.length) {
+
+      formikGrouping.setFieldValue('groupings', [
+        ...formikGrouping.values.groupings,
+        {
+          outlet_id: mapingGroupOutlet[index].value,
+          outlet_area_id: mapingGroupArea[0].value,
+        },
+      ]);
+      console.log(formikGrouping.values);
+    }
+
   };
 
   const removeVariantGroup = (index: any) => {
@@ -430,9 +434,9 @@ export default function OutletPage() {
           <div
             className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
             onClick={() => {
-              setAreaModal(false)
               formik.setFieldValue("name", "")
               formik.setFieldValue("area_id", "")
+              setAreaModal(false)
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -445,9 +449,9 @@ export default function OutletPage() {
           <div className="gap-y-6">
             <div className="grid grid-cols-1 gap-x-4 gap-y-6">
               <Input
-                label={"Nama*"}
-                name={"name"}
-                id={"name"}
+                label={"Area Name*"}
+                name={"area_name"}
+                id={"area_name"}
                 value={formik.values.name ? formik.values.name : ""}
                 onChange={(v) => formik.setFieldValue("name", v)}
                 error={
@@ -473,8 +477,7 @@ export default function OutletPage() {
             className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
             onClick={() => {
               setGroupingModal(false)
-              formik.setFieldValue("name", "")
-              formik.setFieldValue("area_id", "")
+              resetVariantGroup()
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -500,7 +503,12 @@ export default function OutletPage() {
                     id={"outlet_id"}
                     value={formikGrouping.values.groupings[index].outlet_id}
                     onChange={(v) => formikGrouping.setFieldValue(`groupings[${index}].outlet_id`, v)}
-                    options={mapingGroupOutlet}
+                    options={mapingGroupOutlet.filter(
+                      (option) =>
+                        !formikGrouping.values.groupings.some(
+                          (group) => group.outlet_id === option.value
+                        ) || formikGrouping.values.groupings[index].outlet_id === option.value
+                    )}
                     error={
                       formikGrouping.touched.groupings?.[index]?.outlet_id &&
                         (typeof formikGrouping.errors.groupings?.[index] === 'object' && formikGrouping.errors.groupings[index]?.outlet_id)
@@ -532,7 +540,7 @@ export default function OutletPage() {
                 Save
               </button>
               <button
-                onClick={() => { addVariantGroup(formikGrouping.values.groupings.length + 1) }}
+                onClick={() => { addVariantGroup(formikGrouping.values.groupings.length) }}
                 className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 mt-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
                 Add form
               </button>
