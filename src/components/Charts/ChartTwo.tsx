@@ -36,7 +36,6 @@ const ChartTwo: React.FC = () => {
         enabled: false,
       },
     },
-
     responsive: [
       {
         breakpoint: 1536,

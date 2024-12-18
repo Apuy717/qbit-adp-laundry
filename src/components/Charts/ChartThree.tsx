@@ -17,13 +17,12 @@ const ChartThree: React.FC = () => {
       fontFamily: "Satoshi, sans-serif",
       type: "donut",
     },
-    colors: ["#3C50E0", "#6577F3", "#8FD0EF", "#0FADCF"],
+    colors: [],
     labels: [],
     legend: {
       show: false,
       position: "bottom",
     },
-
     plotOptions: {
       pie: {
         donut: {
@@ -33,7 +32,22 @@ const ChartThree: React.FC = () => {
       },
     },
     dataLabels: {
-      enabled: false,
+      enabled: true, // This must be true for data labels to show
+      style: {
+        fontSize: '10px',
+      },
+      background: {
+        enabled: true,
+        foreColor: '#fff',
+        borderRadius: 2,
+        padding: 4,
+        opacity: 0.9,
+        borderWidth: 1,
+        borderColor: '#fff'
+      },
+      dropShadow: {
+        enabled: false
+      }
     },
     responsive: [
       {
@@ -56,14 +70,17 @@ const ChartThree: React.FC = () => {
   })
 
   const [series, setSeries] = useState<number[]>([])
-  const [data, setData] = useState<{ name: string, percentage: string, color: string }[]>([])
 
   function generateRandomColor() {
     const blueShades = [
       "#3C50E0", // Biru tua
-      "#6577F3", // Biru medium
-      "#8FD0EF", // Biru muda pastel
-      "#0FADCF"  // Biru turquoise
+      "#0FADCF",  // Biru turquoise
+      "#db2777", //Pink
+      "#a21caf", //Fuchsia
+      "#0891b2", //Cyan
+      "#16a34a", //Green
+      "#ea580c", //Orange
+      "dc2626", //Red
     ];
 
 
@@ -115,14 +132,12 @@ const ChartThree: React.FC = () => {
           })
         }
 
-        setData(_data)
-
         setSeries(_series)
         setOptions((old) => {
           return {
             ...old,
             labels: _labels,
-            colors: _color
+            colors: _color,
           }
         })
       }
@@ -184,7 +199,7 @@ const ChartThree: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-2">
+      <div>
         <div id="chartThree" className="mx-auto flex justify-center relative">
           {
             loading && <div className="w-full h-full absolute top-0 flex items-center justify-center z-50">
@@ -193,20 +208,6 @@ const ChartThree: React.FC = () => {
           }
           <ReactApexChart options={options} series={series} type="donut" />
         </div>
-      </div>
-
-      <div className="-mx-8 flex flex-col items-center justify-center max-h-32 overflow-y-auto">
-        {data.map((i, k) => (
-          <div className={`w-full px-8 mb-2`} key={k}>
-            <div className="flex w-full items-center">
-              <span className={`mr-2 block h-3 w-full max-w-3 rounded-full`} style={{ backgroundColor: i.color.toLowerCase() }}></span>
-              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-                <span className="text-sm">{i.name}</span>
-                <span> {i.percentage} </span>
-              </p>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );

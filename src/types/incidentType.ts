@@ -58,7 +58,7 @@ type IncidentReport = {
       id: string,
       name: string,
       type: string,
-    },
+    } | null,
     order_item: {
       product_name: string,
       product_sku_name: string,
