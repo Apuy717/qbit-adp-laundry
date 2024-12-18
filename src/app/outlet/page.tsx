@@ -291,9 +291,9 @@ export default function OutletPage() {
   return (
     <>
       <Breadcrumb pageName="Outlet" />
-      <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
-        <div className="flex flex-row items-center space-x-2 pb-4">
-          <div className="w-90">
+      <div className="w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t">
+        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+          <div className="lg:w-90">
             <Input
               label={"Search"}
               name={"search"}
@@ -305,14 +305,14 @@ export default function OutletPage() {
           </div>
           <button
             onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400 hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
           </button>
           <Link
             href={"/outlet/create"}
             className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Create Outlet
@@ -320,7 +320,7 @@ export default function OutletPage() {
           <button
             onClick={() => setAreaModal(true)}
             className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Create Area
@@ -331,7 +331,7 @@ export default function OutletPage() {
               // console.log(mapingGroupOutlet);
             }}
             className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Grouping Outlet
@@ -339,7 +339,7 @@ export default function OutletPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-3 md:gap-4 grid-cols-1 lg:space-y-0 min-h-screen">
         <div className="col-span-2">
           <Table
             colls={CELLS}
@@ -387,8 +387,8 @@ export default function OutletPage() {
           </Table>
         </div>
 
-        <div className="bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit">
-          <div className="w-full p-4 bg-gray-50 text-sm font-medium text-black-2">
+        <div className="bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit dark:bg-boxdark">
+          <div className="w-full p-4 bg-gray-50 text-sm font-medium text-black-2 dark:bg-gray-700 rounded-t-lg dark:text-gray-400">
             AREA
           </div>
           {areas.map((i, k) => (

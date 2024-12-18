@@ -23,7 +23,7 @@ export default function IncidentPage() {
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
 
-  const [data, setData] = useState<IronTypes[]>([])
+  const [data, setData] = useState<any[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState<string>("");
 
@@ -38,11 +38,11 @@ export default function IncidentPage() {
 
   useEffect(() => {
     async function GotData() {
-      let urlwithQuery = `/api/iron/filter-data?page=${currentPage}&limit=${10}`;
+      let urlwithQuery = `/api/iron/performance-of-employee?page=${currentPage}&limit=${10}`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/iron/filter-data?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
+        urlwithQuery = `/api/iron/performance-of-employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
-      const res = await PostWithToken<iResponse<IronTypes[]>>({
+      const res = await PostWithToken<iResponse<any[]>>({
         url: urlwithQuery,
         router: router,
         token: `${auth.access_token}`,
@@ -99,7 +99,7 @@ export default function IncidentPage() {
             onChange={(val) => setEndDate(val)} />
           <div className="w-full">
             <Input
-              label={"Serach User"}
+              label={"Search User"}
               name={"search"}
               id={"search"}
               value={search}
@@ -118,7 +118,7 @@ export default function IncidentPage() {
       </div>
 
       <Table
-        colls={["Name", "Department", "Outlet", "Work Time Hour", "Started At", "Ended At"]}
+        colls={["Name", "Department", "Outlet", "Total Work Hour", "Total Item", "Total Job"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
@@ -137,15 +137,13 @@ export default function IncidentPage() {
               <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
             </td>
             <td className="px-6 py-4">
-              {(i.work_duration_minutes! / 60).toFixed(2)}
+              {(i.total_work_duration_minutes! / 60).toFixed(2)}
             </td>
             <td className="px-6 py-4">
-              {new Date(i.started_at!).toLocaleDateString()}
-              <p className="text-xs font-thin">{` ` + new Date(i.started_at!).toLocaleTimeString()}</p>
+              {i.total_item}
             </td>
             <td className="px-6 py-4">
-              {i.finished_at == null ? `on progress` : new Date(i.finished_at).toLocaleDateString()}
-              <p className="text-xs font-thin">{i.finished_at == null ?``:` ` + new Date(i.finished_at!).toLocaleTimeString()}</p>
+              {i.total_job}
             </td>
           </tr>
         ))}

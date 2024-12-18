@@ -73,8 +73,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         {
           icon: <TbIroningSteam size={24} />,
           label: "Iron",
-          route: "/iron",
+          route: "#",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
+          children: [
+            { label: "Detail", route: "/iron" },
+            { label: "Performance", route: "/iron/performance" },
+          ],
         },
         {
           icon: <MdOutlineReportGmailerrorred size={24} />,

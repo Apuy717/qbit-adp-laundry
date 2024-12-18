@@ -229,7 +229,7 @@ const BasicChartPage: React.FC = () => {
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
             <Input
-              label={"Pencarian"}
+              label={"Search"}
               name={"search"}
               id={"search"}
               value={search}
@@ -247,7 +247,7 @@ const BasicChartPage: React.FC = () => {
             error={null}
           />
 
-          <div className="flex-1 cursor-pointer" onClick={() => setModalOutlet(true)}>
+          {/* <div className="flex-1 cursor-pointer" onClick={() => setModalOutlet(true)}>
             <div className="flex flex-row">
               <div className="w-full p-3 border-2 rounded-md relative">
                 <label
@@ -257,13 +257,13 @@ const BasicChartPage: React.FC = () => {
                 </label>
               </div>
             </div>
-          </div>
+          </div> */}
           <button
             onClick={handleSearch}
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            Cari
+            Search
           </button>
           <button
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
@@ -271,12 +271,12 @@ const BasicChartPage: React.FC = () => {
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={() => setModal(true)}
           >
-            Tambah Item
+            Add Item
           </button>
         </div>
       </div>
       <div>
-        <Table colls={["Nama", "Slug", "Outlet", "Status", "Req By", "Acc", "Aksi"]}
+        <Table colls={["Name", "Slug", "Outlet", "Status", "Req By", "Acc", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalItem}>
@@ -291,10 +291,11 @@ const BasicChartPage: React.FC = () => {
                 {i.slug && i.slug.length >= 1 ? i.slug : "-"}
               </td>
               <td className="whitespace-nowrap px-6 py-4">
-                {i.outlet?.name}
+                {/* {i.outlet?.name}
                 <span className="font-light">
                   {" "} ({i.outlet && i.outlet.city.split("--").length >= 2 ? i.outlet.city.split("--")[1] : i.outlet?.city})
-                </span>
+                </span> */}
+                All
               </td>
 
               <td className="whitespace-nowrap px-6 py-4">
@@ -307,22 +308,28 @@ const BasicChartPage: React.FC = () => {
                 {i.accept_by}
               </td>
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
-                <button
-                  onClick={() => {
-                    formik.setFieldValue("id", i.id)
-                    formik.setFieldValue("name", i.name)
-                    formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
-                    formik.setFieldValue("is_deleted", i.is_deleted)
-                    formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
-                    formik.setFieldValue("status", i.status)
-                    console.log(i.category);
-                    formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
-                    formik.setFieldValue("description", i.description === null ? "" : i.description)
-                    setModal(true);
-                  }}
-                >
-                  <FiEdit size={23} />
-                </button>
+                <div className="relative group">
+
+                  <button
+                    onClick={() => {
+                      formik.setFieldValue("id", i.id)
+                      formik.setFieldValue("name", i.name)
+                      formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
+                      formik.setFieldValue("is_deleted", i.is_deleted)
+                      formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
+                      formik.setFieldValue("status", i.status)
+                      console.log(i.category);
+                      formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
+                      formik.setFieldValue("description", i.description === null ? "" : i.description)
+                      setModal(true);
+                    }}
+                  >
+                    <FiEdit size={23} />
+                  </button>
+                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                    Edit Item
+                  </div>
+                </div>
               </td>
             </tr>
           ))}
@@ -341,10 +348,10 @@ const BasicChartPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName="Tambah Item" />
+            <Breadcrumb pageName="Add Item" />
           </div>
           <div className="flex flex-col space-y-8">
-            <Input label={"Nama*"} name={"name"} id={"name"}
+            <Input label={"Name*"} name={"name"} id={"name"}
               value={formik.values.name}
               onChange={(v) => formik.setFieldValue("name", v)}
               error={
@@ -363,7 +370,7 @@ const BasicChartPage: React.FC = () => {
               } />
 
             <InputDropdown
-              label={"Kategori*"}
+              label={"Category*"}
               name={"category"}
               id={"category"}
               value={formik.values.category_id}
@@ -410,7 +417,7 @@ const BasicChartPage: React.FC = () => {
               label={"Activated"} />
 
             <InputTextArea
-              label={"Deskripsi*"}
+              label={"Description*"}
               name={"description"}
               id={"description"}
               value={formik.values.description}
@@ -434,7 +441,7 @@ const BasicChartPage: React.FC = () => {
         </div>
       </Modal>
 
-      <Modal isOpen={modalOutlet}>
+      {/* <Modal isOpen={modalOutlet}>
         <div className="relative bg-white dark:bg-boxdark shadow rounded-md h-[90vh] 
         md:h-[40rem] w-[90%] md:w-[50%] p-4">
           <div
@@ -478,7 +485,7 @@ const BasicChartPage: React.FC = () => {
             ))}
           </Table>
         </div>
-      </Modal>
+      </Modal> */}
     </>
   );
 };
