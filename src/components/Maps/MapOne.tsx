@@ -41,7 +41,7 @@ const MapOne: React.FC = () => {
           new maplibregl.Marker({ color: 'red' }) // Optional: Change color
             .setLngLat([outlet.longitude as any, outlet.latitude as any]) // Jakarta coordinates
             .setPopup(
-              new maplibregl.Popup({ offset: 25 }).setText(outlet.name) // Add a popup
+              new maplibregl.Popup({ offset: 25 }).setText(`${outlet.name} contribute 20%`) // Add a popup
             ) // Optional: Add popup
             .addTo(map);
         }

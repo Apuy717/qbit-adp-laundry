@@ -6,7 +6,7 @@ import Table from "@/components/Tables/Table"
 import { FilterByOutletContext } from "@/contexts/selectOutletContex"
 import { iResponse, PostWithToken } from "@/libs/FetchData"
 import { RootState } from "@/stores/store"
-import { ETypeIncident, IncidentType } from "@/types/incidentType"
+import { IncidentType } from "@/types/incidentType"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { FaArrowLeft } from "react-icons/fa"
@@ -317,8 +317,8 @@ export default function IncidentPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
-                          {i.order_item_stage.machine.name}
-                          <span className="text-xs font-thin">{i.order_item_stage.machine.type}</span>
+                          {i.order_item_stage.name}
+                          <span className="text-xs font-thin">{i.order_item_stage.machine?.type}</span>
                         </div>
                       </td>
                     </tr>
