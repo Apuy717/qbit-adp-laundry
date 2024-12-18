@@ -91,40 +91,6 @@ export default function Product() {
       }
     };
     GotOutlets();
-
-    // const GotGroupingOutlets = async () => {
-    //   const res = await GetWithToken<iResponse<Outlet[]>>({
-    //     router: router,
-    //     url: "/api/outlet/got/forme",
-    //     token: `${auth.auth.access_token}`
-    //   })
-
-    //   if (res?.statusCode === 200) {
-    //     console.log(res.data);
-
-    //     const mapingOutlet: any = []
-    //     for (const i of res.data) {
-    //       let label = null;
-    //       let value = null;
-    //       if (!i.outlet_area_grouping) {
-    //         value = i.name
-    //         label = i.id
-    //       }
-    //       const data = {
-    //         value: label,
-    //         label: value
-    //       }
-    //       if (data.label) {
-    //         mapingOutlet.push(data)
-    //         formik.setFieldValue("outlet_id", mapingOutlet[0].value)
-    //       }
-    //     }
-    //     // console.log(mapingOutlet);
-    //     setOutlets(mapingOutlet)
-    //   }
-    // }
-
-    // GotGroupingOutlets()
   }, [addpriceSku])
 
   useEffect(() => {
@@ -455,118 +421,119 @@ export default function Product() {
         </div>
       </div>
 
-      <Table
-        colls={CELLS}
-        onPaginate={(page) => setCurrentPage(page)}
-        currentPage={currentPage}
-        totalItem={totalProduct}>
+      <div className=" dark:min-h-screen">
+        <Table
+          colls={CELLS}
+          onPaginate={(page) => setCurrentPage(page)}
+          currentPage={currentPage}
+          totalItem={totalProduct}>
 
-        {products.map((prod, index) => (
-          <tr key={index} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+          {products.map((prod, index) => (
+            <tr key={index} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
         dark:bg-gray-800 dark:hover:bg-gray-600">
-            <td className="px-6 py-4">
-              {prod.name}
-            </td>
-            <td className="px-6 py-4">
-              {prod.description}
-            </td>
-            <td className="px-6 py-4">
-              {prod.skus.length + " SKU"}
-            </td>
-            <td className="px-6 py-4">
-              {new Date(prod.created_at).toLocaleString("id", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-              })}
-            </td>
-            <td className="px-6 py-4">
-              {prod.is_deleted ? (
-                <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center w-auto">
-                  <p className="text-white">inactive</p>
-                </div>
-              ) : (
-                <div className="px-2 bg-green-500 rounded-xl text-center w-auto">
-                  <p className="text-white">active</p>
-                </div>
-              )}
-            </td>
-            <td className="px-6 py-4">
-              <div className=" flex flex-row items-center space-x-2">
-                <div className="relative group">
-                  <button
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsViewDetail(true)
-                      const filter = products.filter((f: any) => f.id == prod.id)
-                      setfilterSkus(filter[0].skus);
-                    }}
-                  >
-                    <FiEye size={18} />
-                  </button>
-                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                    View detail
+              <td className="px-6 py-4">
+                {prod.name}
+              </td>
+              <td className="px-6 py-4">
+                {prod.description}
+              </td>
+              <td className="px-6 py-4">
+                {prod.skus.length + " SKU"}
+              </td>
+              <td className="px-6 py-4">
+                {new Date(prod.created_at).toLocaleString("id", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric"
+                })}
+              </td>
+              <td className="px-6 py-4">
+                {prod.is_deleted ? (
+                  <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center w-auto">
+                    <p className="text-white">inactive</p>
                   </div>
-                </div>
-                <div className="relative group">
-                  <button
-                    onClick={() => {
-                      formik.setFieldValue("id", prod.id)
-                      // formik.setFieldValue("outlet_id", prod.outlet.id)
-                      formik.setFieldValue("name", prod.name)
-                      formik.setFieldValue("slug", prod.slug)
-                      formik.setFieldValue("description", prod.description == null ? `` : prod.description)
-                      formik.setFieldValue("category_id", prod.category.id)
-                      formik.setFieldValue("is_deleted", prod.is_deleted)
-                      setUpdateModal(true)
-                      setProductOrSku(true)
-                      // console.log(formik.values.outlet_id);
-                      // console.log(formik.values.category_id);
-
-                    }}
-                  >
-                    <FiEdit size={18} />
-                  </button>
-                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                    Edit Product
+                ) : (
+                  <div className="px-2 bg-green-500 rounded-xl text-center w-auto">
+                    <p className="text-white">active</p>
                   </div>
-                </div>
-                <div className="relative group">
-                  <button
-                    onClick={() => {
-                      formik.setFieldValue("product_id", prod.id)
-                      formik.setFieldValue("code", "")
-                      formik.setFieldValue("name", "")
-                      formik.setFieldValue("description", "")
-                      formik.setFieldValue("capital_price", "")
-                      formik.setFieldValue("price", "")
-                      formik.setFieldValue("type", "services")
-                      formik.setFieldValue("stock", "")
-                      formik.setFieldValue("unit", "")
-                      formik.setFieldValue("machine_washer", false)
-                      formik.setFieldValue("washer_duration", 0)
-                      formik.setFieldValue("machine_dryer", false)
-                      formik.setFieldValue("dryer_duration", 0)
-                      formik.setFieldValue("machine_iron", false)
-                      formik.setFieldValue("iron_duration", 0)
-                      formik.setFieldValue("is_deleted", false)
-                      setProductOrSku(false)
-                      setUpdateOrAddSku(false)
-                      setUpdateModal(true)
-                    }}>
-                    <FaRegPlusSquare size={18} />
-                  </button>
-                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                    Add SKU
+                )}
+              </td>
+              <td className="px-6 py-4">
+                <div className=" flex flex-row items-center space-x-2">
+                  <div className="relative group">
+                    <button
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setIsViewDetail(true)
+                        const filter = products.filter((f: any) => f.id == prod.id)
+                        setfilterSkus(filter[0].skus);
+                      }}
+                    >
+                      <FiEye size={18} />
+                    </button>
+                    <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                      View detail
+                    </div>
                   </div>
+                  <div className="relative group">
+                    <button
+                      onClick={() => {
+                        formik.setFieldValue("id", prod.id)
+                        // formik.setFieldValue("outlet_id", prod.outlet.id)
+                        formik.setFieldValue("name", prod.name)
+                        formik.setFieldValue("slug", prod.slug)
+                        formik.setFieldValue("description", prod.description == null ? `` : prod.description)
+                        formik.setFieldValue("category_id", prod.category.id)
+                        formik.setFieldValue("is_deleted", prod.is_deleted)
+                        setUpdateModal(true)
+                        setProductOrSku(true)
+                        // console.log(formik.values.outlet_id);
+                        // console.log(formik.values.category_id);
+
+                      }}
+                    >
+                      <FiEdit size={18} />
+                    </button>
+                    <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                      Edit Product
+                    </div>
+                  </div>
+                  <div className="relative group">
+                    <button
+                      onClick={() => {
+                        formik.setFieldValue("product_id", prod.id)
+                        formik.setFieldValue("code", "")
+                        formik.setFieldValue("name", "")
+                        formik.setFieldValue("description", "")
+                        formik.setFieldValue("capital_price", "")
+                        formik.setFieldValue("price", "")
+                        formik.setFieldValue("type", "services")
+                        formik.setFieldValue("stock", "")
+                        formik.setFieldValue("unit", "")
+                        formik.setFieldValue("machine_washer", false)
+                        formik.setFieldValue("washer_duration", 0)
+                        formik.setFieldValue("machine_dryer", false)
+                        formik.setFieldValue("dryer_duration", 0)
+                        formik.setFieldValue("machine_iron", false)
+                        formik.setFieldValue("iron_duration", 0)
+                        formik.setFieldValue("is_deleted", false)
+                        setProductOrSku(false)
+                        setUpdateOrAddSku(false)
+                        setUpdateModal(true)
+                      }}>
+                      <FaRegPlusSquare size={18} />
+                    </button>
+                    <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                      Add SKU
+                    </div>
+                  </div>
+
                 </div>
-
-              </div>
-            </td>
-          </tr>
-        ))}
-      </Table>
-
+              </td>
+            </tr>
+          ))}
+        </Table>
+      </div>
 
       <div className={`w-[80%] h-full fixed right-0 top-0 z-[9999] overflow-y-auto overflow-x-auto
         transition-all duration-500 shadow bg-white dark:bg-boxdark
@@ -972,7 +939,7 @@ export default function Product() {
 
           <div className="flex flex-col space-x-4">
             <Breadcrumb pageName={`SKU Price Detail`} />
-            <div className="flex justify-center items-center space-x-4 md:grid-cols-2">
+            <div className="space-y-4">
               <InputDropdown
                 label={"Outlets*"}
                 name={"Outlets"}
@@ -986,7 +953,6 @@ export default function Product() {
                     : null
                 }
               />
-
               <Input
                 label={"Add Price*"}
                 name={"add_price"}
@@ -1000,7 +966,7 @@ export default function Product() {
 
               <button
                 onClick={formik.submitForm}
-                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
                 Save
               </button>
             </div>

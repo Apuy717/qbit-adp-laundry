@@ -129,7 +129,7 @@ export default function IncidentPage() {
             className={`w-full md:w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
-            {loadingSearch ? "Loading" : "Cari"}
+            {loadingSearch ? "Loading" : "Search"}
           </button>
         </div>
       </div>
