@@ -28,7 +28,7 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
     }
 
     GotDetailEmployee();
-  }, [])
+  }, [auth.access_token, router, params.id])
 
 
   return (

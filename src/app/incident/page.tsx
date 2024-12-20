@@ -1,5 +1,6 @@
 "use client"
 
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne"
 import { Input } from "@/components/Inputs/InputComponent"
 import Table from "@/components/Tables/Table"
@@ -73,7 +74,7 @@ export default function IncidentPage() {
 
     if (!modal)
       GotData()
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate, router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -107,7 +108,10 @@ export default function IncidentPage() {
   }
 
   return (
+    
     <div>
+      <Breadcrumb pageName={"Incident"} />
+
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}

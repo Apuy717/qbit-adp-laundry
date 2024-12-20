@@ -118,7 +118,7 @@ export default function Vouchers() {
     };
     GotVoucher()
 
-  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher])
+  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher,router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -196,7 +196,7 @@ export default function Vouchers() {
   });
   return (
     <>
-      <Breadcrumb pageName="Product" />
+      <Breadcrumb pageName="Voucher" />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
           <div className="w-full md:w-96">

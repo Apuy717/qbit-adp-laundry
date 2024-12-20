@@ -115,6 +115,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
     });
 
     GotProvince(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
 

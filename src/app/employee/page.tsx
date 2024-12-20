@@ -65,7 +65,7 @@ export default function PageEmployee() {
     }
 
     GotAllEmployee()
-  }, [currentPage, fixValueSearch, refresh, credential.auth.access_token])
+  }, [currentPage, fixValueSearch, refresh, credential.auth.access_token, router])
 
 
   const handleSearch = async () => {

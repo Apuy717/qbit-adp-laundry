@@ -43,7 +43,7 @@ const DatePickerOne = (props: iDatePickerInput) => {
     return () => {
       refInput.current = null
     }
-  }, [refInput.current]);
+  }, [props]);
 
   return (
     <div className="w-full relative">

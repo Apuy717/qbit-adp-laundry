@@ -53,7 +53,7 @@ const CategoryPage: React.FC = () => {
     }
 
     GotAllOutlet()
-  }, [])
+  }, [router, auth.access_token])
 
   useEffect(() => {
     async function GotAllCategory() {

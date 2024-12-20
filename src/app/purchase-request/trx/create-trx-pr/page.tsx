@@ -60,7 +60,8 @@ export default function CreateProduct() {
       console.log(outletId);
     };
     GotOutlets();
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, auth.auth.access_token, outletId])
 
   useEffect(() => {
     if (outletId) {
@@ -86,8 +87,8 @@ export default function CreateProduct() {
       };
       GotIdPurchaseItem();
     }
-
-  }, [outletId, outlets])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outletId, outlets, router, auth.auth.access_token])
 
   const formik = useFormik({
     initialValues: {

@@ -6,6 +6,7 @@ import { iDropdown, Input, InputDropdown, InputToggle } from "@/components/Input
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -13,7 +14,7 @@ import { Outlet } from "@/types/outlet";
 import { EPaymentMethodType, PaymentMethodType } from "@/types/paymentMethod";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -33,6 +34,8 @@ export default function PagePaymentMethod() {
   const [filterIsDeleted, setFilterIsDeleted] = useState<boolean | undefined>()
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
   const router = useRouter()
 
   const [outlets, setOutlets] = useState<iDropdown[]>([])
@@ -58,7 +61,7 @@ export default function PagePaymentMethod() {
     }
 
     GotAllOutlet()
-  }, [])
+  }, [auth.access_token, router])
 
   useEffect(() => {
     async function GotPRItems() {
@@ -74,7 +77,10 @@ export default function PagePaymentMethod() {
         router: router,
         url: urlwithQuery,
         token: `${auth.access_token}`,
-        data: { outlet_ids: filterByOutlet, ...sttsFilter }
+        data: {
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map((o: any) => o.outlet_id) : defaultSelectedOutlet.map((o: any) => o.outlet_id),
+          ...sttsFilter
+        }
       })
 
       console.log(res);
@@ -89,10 +95,10 @@ export default function PagePaymentMethod() {
         setLoadingSearch(false);
       }, 100);
     }
+    if (!modal)
+      GotPRItems()
 
-    GotPRItems()
-
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted, router, selectedOutlets, defaultSelectedOutlet, modal])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -133,14 +139,14 @@ export default function PagePaymentMethod() {
       is_deleted: false
     },
     validationSchema: Yup.object({
-      name: Yup.string().max(100, "Maksimal 100 karakter").required("Tidak boleh kosong!"),
-      outlet_id: Yup.string().required("Tidak boleh kosong!"),
-      type: Yup.string().required("Tidak boleh kosong!"),
+      name: Yup.string().max(100, "Max 100 char").required("Should not be empty!"),
+      outlet_id: Yup.string().required("Should not be empty!"),
+      type: Yup.string().required("Should not be empty!"),
       account_number: Yup.string().when("type", (type, schema) => {
-        return type.length >= 1 && type[0] === EPaymentMethodType.CASHLESS ? schema.required("Tidak boleh Kosong") : schema
+        return type.length >= 1 && type[0] === EPaymentMethodType.CASHLESS ? schema.required("Should not be empty") : schema
       }),
       account_name: Yup.string().when("type", (type, schema) => {
-        return type.length >= 1 && type[0] === EPaymentMethodType.CASHLESS ? schema.required("Tidak boleh Kosong") : schema
+        return type.length >= 1 && type[0] === EPaymentMethodType.CASHLESS ? schema.required("Should not be empty") : schema
       }),
     }),
     onSubmit: async (values) => {
@@ -197,23 +203,36 @@ export default function PagePaymentMethod() {
   return (
     <>
       <Breadcrumb pageName={"Payment Method"} />
-      <FilterComponent
-        search={search}
-        setSearch={(e) => setSearch(e)}
-        onClickFilterOutlet={() => setModalOutlet(true)}
-        handleSearch={handleSearch} >
 
-        <button
-          className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+      <div className="w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t">
+        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+          <div className="lg:w-90">
+            <Input
+              label={"Search"}
+              name={"search"}
+              id={"search"}
+              value={search}
+              onChange={(v) => setSearch(v)}
+              error={null}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400 hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          >
+            Search
+          </button>
+          <button
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          onClick={() => setModalForm(true)}
-        >
-          Add Payment
-        </button>
+            onClick={() => setModalForm(true)}
+          >
+            Add Payment
+          </button>
+        </div>
+      </div>
 
-      </FilterComponent>
-
-      <Table colls={["#", "Nama", "Tipe", "No Akun/No Rek", "Akun", "Outlet", "Status", "Updated At", "Aksi"]}
+      <Table colls={["#", "Name", "Type", "Account Number", "Account", "Outlet", "Status", "Updated At", "Action"]}
         currentPage={currentPage} totalItem={totalItem} onPaginate={() => null}>
 
         {items.map((i, k) => (
@@ -254,7 +273,7 @@ export default function PagePaymentMethod() {
               <button
                 onClick={() => {
                   formik.setFieldValue("id", i.id)
-                  formik.setFieldValue("outlet_id", i.outlet_id)
+                  formik.setFieldValue("outlet_id", i.outlet_id === null ? "All" : i.outlet_id)
                   formik.setFieldValue("name", i.name)
                   formik.setFieldValue("type", i.type)
                   formik.setFieldValue("account_name", i.account_name ? i.account_name : "")
@@ -296,11 +315,11 @@ export default function PagePaymentMethod() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName="Metode Pembayaran" />
+            <Breadcrumb pageName="Payment Method" />
           </div>
           <div className="flex flex-col space-y-8">
 
-            <Input label={"Nama*"} name={"name"} id={"name"}
+            <Input label={"Name*"} name={"name"} id={"name"}
               value={formik.values.name}
               onChange={(v) => formik.setFieldValue("name", v)}
               error={
@@ -310,7 +329,7 @@ export default function PagePaymentMethod() {
               } />
 
             <InputDropdown
-              label={"Tipe Pembayaran*"}
+              label={"Payment Type*"}
               name={"type"}
               id={"type"}
               value={formik.values.type}
@@ -324,7 +343,7 @@ export default function PagePaymentMethod() {
             />
 
             <div className={`${formik.values.type !== EPaymentMethodType.CASHLESS && "hidden"} flex flex-row space-x-3`}>
-              <Input label={"Nama Akun*"} name={"account_name"} id={"account_name"}
+              <Input label={"Account Name*"} name={"account_name"} id={"account_name"}
                 value={formik.values.account_name}
                 onChange={(v) => formik.setFieldValue("account_name", v)}
                 error={
@@ -333,7 +352,7 @@ export default function PagePaymentMethod() {
                     : null
                 } />
 
-              <Input label={"No Rek/Akun*"} name={"account_number"} id={"account_number"}
+              <Input label={"Account Number*"} name={"account_number"} id={"account_number"}
                 value={formik.values.account_number}
                 onChange={(v) => formik.setFieldValue("account_number", v)}
                 error={

@@ -137,6 +137,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roles])
 
   useEffect(() => {
@@ -240,6 +241,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       ]);
       setCountrys((old) => [...old, { label: i.name, value: i.name }]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMount]);
 
   async function GotCity(province_id: string, withUpdate: boolean = false) {

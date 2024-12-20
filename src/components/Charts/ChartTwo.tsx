@@ -185,7 +185,7 @@ const ChartTwo: React.FC = () => {
     if (!modal)
       GotTopPerformanceOutlet()
 
-  }, [selectedOutlets, defaultSelectedOutlet, filterByDate, modal])
+  }, [selectedOutlets, defaultSelectedOutlet, filterByDate, modal, router, auth.access_token])
 
 
 

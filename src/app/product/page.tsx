@@ -91,6 +91,7 @@ export default function Product() {
       }
     };
     GotOutlets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addpriceSku])
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function Product() {
     GotCategorys()
     console.log(products);
     // console.log(products[skusIdx].skus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
 
   useEffect(() => {
@@ -168,7 +170,8 @@ export default function Product() {
       GotPriceSku()
       console.log(skuPrices);
     }
-  }, [skuId, addpriceSku])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skuId, addpriceSku, auth.auth.access_token])
 
   const handleSearch = async () => {
     // console.log(products);
@@ -396,6 +399,8 @@ export default function Product() {
 
   return (
     <>
+      <Breadcrumb pageName="Product" />
+
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
           <div className="w-full md:w-96">
