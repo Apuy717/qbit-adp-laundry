@@ -74,7 +74,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <TbIroningSteam size={24} />,
           label: "Iron",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
           children: [
             { label: "Detail", route: "/iron" },
             { label: "Performance", route: "/iron/performance" },
@@ -84,7 +84,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <MdOutlineReportGmailerrorred size={24} />,
           label: "Incident",
           route: "/incident",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
         },
         {
           icon: <TbShoppingBagPlus size={23} />,
