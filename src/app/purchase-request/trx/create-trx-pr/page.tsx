@@ -193,13 +193,13 @@ export default function CreateProduct() {
   };
   return (
     <>
-      <Breadcrumb pageName="Transaksi" />
+      <Breadcrumb pageName="Transaction" />
       <div
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form menambahkan Transaksi</p>
+          <p className="font-semibold">Add Transaction</p>
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
@@ -223,7 +223,7 @@ export default function CreateProduct() {
             />
 
             <DatePickerOne
-              label={"Tanggal Transaksi"}
+              label={"Transaction Date"}
               defaultDate={formik.values.trx_date}
               onChange={(val) => {
                 formik.setFieldValue("trx_date", val)
@@ -262,7 +262,7 @@ export default function CreateProduct() {
               <hr className="my-8 border-b-2 border-apps-primary dark:bg-gray-2"></hr>
               <div className="mb-5 mt-2" >
                 <button className={index == 0 ? `hidden` : `bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
-                  Hapus Item
+                  Delete Item
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
@@ -286,7 +286,7 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
-                  label={"harga*"}
+                  label={"Price*"}
                   name={`price ${index}`}
                   id={`price ${index}`}
                   value={formik.values.items[index].price ? formik.values.items[index].price : ""}
@@ -299,7 +299,7 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
-                  label={"Kuantitas*"}
+                  label={"Quantity*"}
                   name={`quantity ${index}`}
                   id={`quantity ${index}`}
                   value={formik.values.items[index].quantity ? formik.values.items[index].quantity : ""}
@@ -332,12 +332,12 @@ export default function CreateProduct() {
             <button
               onClick={addVariant}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Tambah Item
+              Add Item
             </button>
             <button
               onClick={formik.submitForm}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Simpan
+              Submit
             </button>
           </div>
         </div>

@@ -159,7 +159,7 @@ export default function CreateProduct() {
       }
 
       if (res.statusCode === 200) {
-        toast.success("Berhasil menambahkan data!");
+        toast.success("Success create product!");
         router.push("/product");
       }
       console.log(res.data);
@@ -224,13 +224,13 @@ export default function CreateProduct() {
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form menambahkan product</p>
+          <p className="font-semibold">Add Product</p>
         </div>
         <div className="px-10">
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
 
             <Input
-              label={"Nama Produk*"}
+              label={"Product Name*"}
               name={"name"}
               id={"name"}
               value={formik.values.name}
@@ -255,7 +255,7 @@ export default function CreateProduct() {
             />
 
             <InputFile
-              label={"picture"}
+              label={"Picture"}
               name={"picture"}
               id={"picture"}
               onChange={(e) =>
@@ -269,7 +269,7 @@ export default function CreateProduct() {
             </InputFile>
 
             <InputDropdown
-              label={"Kategori*"}
+              label={"Category*"}
               name={"category_id"}
               id={"category_id"}
               value={formik.values.category_id}
@@ -289,7 +289,7 @@ export default function CreateProduct() {
           </div>
           <div className="pt-6">
             <InputTextArea
-              label={"Deskripsi Produk"}
+              label={"Description"}
               name={"description"}
               id={"description"}
               value={formik.values.description}
@@ -321,7 +321,7 @@ export default function CreateProduct() {
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                 <Input
-                  label={"Kode SKU"}
+                  label={"SKU Code"}
                   name={`code ${index}`}
                   id={`code ${index}`}
                   value={formik.values.variants[index].code}
@@ -334,7 +334,7 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
-                  label={"Nama SKU*"}
+                  label={"SKU Name*"}
                   name={`name ${index}`}
                   id={`name ${index}`}
                   value={formik.values.variants[index].name}
@@ -348,7 +348,7 @@ export default function CreateProduct() {
                 />
 
                 <Input
-                  label={"Harga*"}
+                  label={"Price*"}
                   name={`price ${index}`}
                   id={`price ${index}`}
                   value={formik.values.variants[index].price ? formik.values.variants[index].price : ``}
@@ -362,7 +362,7 @@ export default function CreateProduct() {
                 />
 
                 <InputDropdown
-                  label={"Tipe*"}
+                  label={"Type*"}
                   name={`type ${index}`}
                   id={`type ${index}`}
                   value={formik.values.variants[index].type}
@@ -377,7 +377,7 @@ export default function CreateProduct() {
                 />
                 <Input
                   className={formik.values.variants[index].type === "goods" ? "" : "hidden"}
-                  label={"Stok*"}
+                  label={"Stock*"}
                   name={`stock ${index}`}
                   id={`stock ${index}`}
                   value={formik.values.variants[index].stock ? formik.values.variants[index].stock : ""}
@@ -406,7 +406,7 @@ export default function CreateProduct() {
               </div>
               <div className="pt-6">
                 <InputTextArea
-                  label={"Deskripsi SKU"}
+                  label={"SKU Description"}
                   name={`description ${index}`}
                   id={`description ${index}`}
                   value={formik.values.variants[index].description}
@@ -425,11 +425,11 @@ export default function CreateProduct() {
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_washer`, v)
                   }}
-                  label={"Mesin Cuci"}
+                  label={"Washer Machine"}
                 />
                 <Input
                   className={formik.values.variants[index].machine_washer ? `` : `opacity-0 w-1`}
-                  label={formik.values.variants[index].machine_washer ? "Durasi mesin cuci*" : ""}
+                  label={formik.values.variants[index].machine_washer ? "Time in minutes*" : ""}
                   name={`washer time${index}`}
                   id={`washer time${index}`}
                   value={`${formik.values.variants[index].washer_duration ? formik.values.variants[index].washer_duration : ""}`}
@@ -446,11 +446,11 @@ export default function CreateProduct() {
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_dryer`, v)
                   }}
-                  label={"Mesin Pengering"}
+                  label={"Dryer machine"}
                 />
                 <Input
                   className={formik.values.variants[index].machine_dryer ? `` : `opacity-0 w-1`}
-                  label={formik.values.variants[index].machine_dryer ? "Durasi mesin pengering*" : ""}
+                  label={formik.values.variants[index].machine_dryer ? "Time in minutes*" : ""}
                   name={`dryer time${index}`}
                   id={`dryer time${index}`}
                   value={formik.values.variants[index].dryer_duration ? formik.values.variants[index].dryer_duration : ``}
@@ -467,11 +467,11 @@ export default function CreateProduct() {
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_iron`, v)
                   }}
-                  label={"Setrika"}
+                  label={"Iron Machine"}
                 />
                 <Input
                   className={formik.values.variants[index].machine_iron ? `` : `opacity-0 w-1`}
-                  label={formik.values.variants[index].machine_iron ? "Durasi Setrika*" : ""}
+                  label={formik.values.variants[index].machine_iron ? "Time in minutes*" : ""}
                   name={`iron time${index}`}
                   id={`iron time${index}`}
                   value={formik.values.variants[index].iron_duration ? formik.values.variants[index].iron_duration : ""}
@@ -491,12 +491,12 @@ export default function CreateProduct() {
             <button
               onClick={addVariant}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Tambah SKU
+              Add SKU
             </button>
             <button
               onClick={formik.submitForm}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Simpan
+              Submit
             </button>
           </div>
         </div>

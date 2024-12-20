@@ -190,16 +190,16 @@ export default function PageEmployee() {
             <td className="px-6 py-4 flex flex-wrap space-x-2">
               {showDetailOutlet == k ? (
                 i.employee_outlets.map((i, key) => (
-                  <button className={`p-1 bg-gray-300 rounded-lg text-center m-2  hover:bg-green-500 hover:text-white`} key={key}
+                  <button className={`p-1 bg-gray-300 dark:bg-boxdark rounded-lg text-center m-2  hover:bg-green-500 hover:text-white`} key={key}
                     onClick={() => setShowDetailOutlet(-1)}>
                     <p>{i.outlet.name}</p>
                   </button>
                 ))
               ) :
                 (
-                  <button className={`px-2 bg-gray-300 rounded-lg text-center my-2 hover:bg-green-500 hover:text-white`}
+                  <button className={`px-2 bg-gray-300 dark:bg-boxdark rounded-lg text-center my-2 hover:bg-green-500 hover:text-white`}
                     onClick={() => setShowDetailOutlet(k)}>
-                    <p>Tampilkan</p>
+                    <p>Show</p>
                   </button>
                 )
               }

@@ -88,6 +88,13 @@ export default function IncidentPage() {
     }
   };
 
+  function formatWorkDuration(totalMinutes: number) {
+    if (!totalMinutes || totalMinutes <= 0) return "0m";
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours > 0 ? `${hours}h ` : ""}${minutes > 0 ? `${minutes}m` : ""}`.trim();
+  }
+
 
   return (
     <div className="min-h-screen">
@@ -118,7 +125,7 @@ export default function IncidentPage() {
       </div>
 
       <Table
-        colls={["Name", "Department", "Outlet", "Work Time Hour", "Started At", "Ended At"]}
+        colls={["Name", "Department", "Outlet", "Work Time", "Started At", "Ended At"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
@@ -137,15 +144,15 @@ export default function IncidentPage() {
               <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
             </td>
             <td className="px-6 py-4">
-              {(i.work_duration_minutes! / 60).toFixed(2)}
+              {formatWorkDuration(i.work_duration_minutes!)}
             </td>
             <td className="px-6 py-4">
               {new Date(i.started_at!).toLocaleDateString()}
-              <p className="text-xs font-thin">{` ` + new Date(i.started_at!).toLocaleTimeString()}</p>
+              <p className="text-xs font-thin">{new Date(i.started_at!).toLocaleTimeString()}</p>
             </td>
             <td className="px-6 py-4">
               {i.finished_at == null ? `on progress` : new Date(i.finished_at).toLocaleDateString()}
-              <p className="text-xs font-thin">{i.finished_at == null ?``:` ` + new Date(i.finished_at!).toLocaleTimeString()}</p>
+              <p className="text-xs font-thin">{i.finished_at == null ? `` : ` ` + new Date(i.finished_at!).toLocaleTimeString()}</p>
             </td>
           </tr>
         ))}

@@ -154,11 +154,11 @@ const CategoryPage: React.FC = () => {
   })
 
   return (
-    <>
+    <div className="min-h-screen">
       <Breadcrumb pageName="Category" />
-      <div className="w-full bg-white p-4 mb-4 rounded-t">
-        <div className="flex flex-row items-center space-x-2">
-          <div className="w-90">
+      <div className="w-full bg-white p-4 mb-4 rounded-t dark:bg-boxdark">
+        <div className="lg:flex lg:flex-row lg:space-y-0 lg:space-x-2 items-center space-x-0 space-y-4">
+          <div className="lg:w-90">
             <Input
               label={"Search"}
               name={"search"}
@@ -170,15 +170,15 @@ const CategoryPage: React.FC = () => {
           </div>
           <button
             onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
-              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-0 py-3 w-full lg:w-auto
+              text-center font-medium text-white hover:bg-opacity-90 lg:px-8`}
           >
             Search
           </button>
           <button
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            justify-center rounded-md bg-black px-0 py-3 text-center font-medium text-white w-full lg:w-auto
+            hover:bg-opacity-90 lg:px-8`}
             onClick={
               () => {
                 setModal(true)
@@ -310,7 +310,7 @@ const CategoryPage: React.FC = () => {
           </button>
         </div>
       </Modal>
-    </>
+    </div>
   );
 };
 
