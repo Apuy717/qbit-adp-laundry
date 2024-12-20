@@ -151,7 +151,7 @@ const ECommerce: React.FC = () => {
         <ChartOne />
         <ChartTwo />
         <ChartThree />
-        <MapOne />
+        <MapOne started_at={startDate} ended_at={endDate} />
         <div className="col-span-12 xl:col-span-8">
           <TableOne />
         </div>

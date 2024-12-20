@@ -15,7 +15,7 @@ export const AuthProvider: FC<iLayoutProvider> = ({ children }) => {
     if (auth.auth.access_token === null || auth.auth.access_token.length <= 0) {
       replace("/auth/signin");
     }
-  }, [auth.auth.access_token]);
+  }, [auth.auth.access_token, replace]);
 
   return <React.Fragment>{children}</React.Fragment>;
 };

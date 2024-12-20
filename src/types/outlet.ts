@@ -25,3 +25,12 @@ export type OutletArea = {
     name: string
   }
 }
+
+export type OutletMapWitContribution = {
+  id: string;
+  name: string;
+  latitude: string;
+  longitude: string;
+  order_count: string;
+  total_sum: string | null;
+};
