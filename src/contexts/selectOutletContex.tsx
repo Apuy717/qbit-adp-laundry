@@ -122,7 +122,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
 
     if (auth.access_token !== null && auth.access_token.length >= 1)
       GotAllOutlet()
-  }, [auth.access_token])
+  }, [auth.access_token, router])
 
   const [modal, setModal] = useState<boolean>(false)
 

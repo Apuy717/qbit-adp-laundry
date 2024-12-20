@@ -1,14 +1,17 @@
 "use client";
+import { GetWithToken, iResponse } from '@/libs/FetchData';
 import { RootState } from '@/stores/store';
+import { OutletMapWitContribution } from '@/types/outlet';
 import maplibregl, { Map } from 'maplibre-gl';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { iDropdown } from '../Inputs/InputComponent';
-import { GetWithToken, iResponse } from '@/libs/FetchData';
-import { Outlet } from '@/types/outlet';
 
-const MapOne: React.FC = () => {
+interface iMapOne {
+  started_at: Date | string,
+  ended_at: Date | string
+}
+const MapOne: React.FC<iMapOne> = (filter) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter()
   const { auth } = useSelector((s: RootState) => s.auth)
@@ -18,9 +21,9 @@ const MapOne: React.FC = () => {
     let map: Map | null = null
 
     async function GotAllOutlet() {
-      const res = await GetWithToken<iResponse<Outlet[]>>({
+      const res = await GetWithToken<iResponse<OutletMapWitContribution[]>>({
         router: router,
-        url: "/api/outlet",
+        url: `/api/outlet/got/with-contribution-income?started=${filter.started_at}&ended=${filter.ended_at}`,
         token: `${auth.access_token}`
       })
 
@@ -36,14 +39,29 @@ const MapOne: React.FC = () => {
           zoom: 3.8,
         });
 
+        const totalRevenue = res.data.reduce((sum, outlet) => {
+          return sum + (outlet.total_sum ? parseFloat(outlet.total_sum) : 0);
+        }, 0);
+
         for (const outlet of res.data) {
+          //calculate percentage contribution 
+          const totalSum = outlet.total_sum ? parseFloat(outlet.total_sum) : 0;
+          const contributionPercentage = totalRevenue > 0 ? (totalSum / totalRevenue) * 100 : 0;
           // Add a marker
           new maplibregl.Marker({ color: 'red' }) // Optional: Change color
             .setLngLat([outlet.longitude as any, outlet.latitude as any]) // Jakarta coordinates
             .setPopup(
-              new maplibregl.Popup({ offset: 25 }).setText(`${outlet.name} contribute 20%`) // Add a popup
-            ) // Optional: Add popup
-            .addTo(map);
+              new maplibregl.Popup({ offset: 25 })
+                .setHTML(
+                  `<div style="font-weight: bold;">
+                    ${outlet.name}
+                    </br>
+                    <span style="color: green;">
+                    Contribution: ${parseFloat(contributionPercentage.toFixed(1))}%
+                    </span>
+                  </div>`
+                )
+            ).addTo(map);
         }
       }
     }
@@ -52,7 +70,7 @@ const MapOne: React.FC = () => {
 
     // Clean up on component unmount
     return () => { map !== null && map.remove(); }
-  }, []);
+  }, [filter, router, auth.access_token]);
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-1 py-1 

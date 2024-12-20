@@ -4,7 +4,7 @@ import ClickOutside from "@/components/ClickOutside";
 
 const DropdownNotification = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
+  const [notifying, setNotifying] = useState(false);
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -18,9 +18,8 @@ const DropdownNotification = () => {
           className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
         >
           <span
-            className={`absolute -top-0.5 right-0 z-1 h-2 w-2 rounded-full bg-meta-1 ${
-              notifying === false ? "hidden" : "inline"
-            }`}
+            className={`absolute -top-0.5 right-0 z-1 h-2 w-2 rounded-full bg-meta-1 ${notifying === false ? "hidden" : "inline"
+              }`}
           >
             <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"></span>
           </span>
@@ -50,7 +49,7 @@ const DropdownNotification = () => {
               </h5>
             </div>
 
-            <ul className="flex h-auto flex-col overflow-y-auto">
+            {/* <ul className="flex h-auto flex-col overflow-y-auto">
               <li>
                 <Link
                   className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
@@ -114,7 +113,7 @@ const DropdownNotification = () => {
                   <p className="text-xs">01 Dec, 2024</p>
                 </Link>
               </li>
-            </ul>
+            </ul> */}
           </div>
         )}
       </li>
