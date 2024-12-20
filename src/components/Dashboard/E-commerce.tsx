@@ -75,7 +75,7 @@ const ECommerce: React.FC = () => {
     if (!modal)
       GotProfitAndLost()
 
-  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal])
+  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal, auth.access_token, router])
 
   function FormatDecimal(number: number) {
     const result = new Intl.NumberFormat("id-ID", {

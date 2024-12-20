@@ -54,7 +54,7 @@ const TableOne = () => {
 
     GotTopPerformanceOutlet()
 
-  }, [startDate, endDate, filterByOutlet])
+  }, [startDate, endDate, filterByOutlet, auth.access_token, router])
 
   function FormatDecimal(number: number) {
     const result = new Intl.NumberFormat("id-ID", {
