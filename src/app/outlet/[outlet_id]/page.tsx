@@ -254,7 +254,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
         <div className="mb-8 border-b-2 py-6 px-10">
-          <p className="font-semibold">Form merubah data outlet</p>
+          <p className="font-semibold">Edit Outlet</p>
         </div>
 
         <div className="grid grid-cols-1 px-10 gap-6 md:grid-cols-2">

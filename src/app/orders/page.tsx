@@ -89,7 +89,7 @@ export default function Orders() {
       GotPRItems()
 
   }, [currentPage, fixValueSearch, refresh, auth.access_token,
-    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal])
+    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
@@ -143,18 +143,18 @@ export default function Orders() {
           <DatePickerOne label={"Start"} defaultDate={startDate} onChange={(val) => {
             setStartDate(val)
           }} />
-          <DatePickerOne label={"From"} defaultDate={new Date(endDate)} onChange={(val) => {
+          <DatePickerOne label={"End"} defaultDate={new Date(endDate)} onChange={(val) => {
             setEndDate(val)
           }} />
 
           <div className="w-full">
-            <InputDropdown className="flex-1" label={"Status Pembayaran"} name={"payment_status"} id={"payment_status"}
+            <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
               options={[{ label: "all", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i, value: i }))]}
               value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
           </div>
 
           <div className="w-full">
-            <InputDropdown className="flex-1" label={"Status Order"} name={"order_status"} id={"order_status"}
+            <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
               options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
               value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
           </div>
@@ -170,7 +170,7 @@ export default function Orders() {
       </div>
 
       {!loadingSearch && (
-        <Table colls={["#", "INVOICE", "Outlet", "Total Pakaian", "Total Sku", "Total", "Metode Pembayaran", "Status Pembayaran", "Status Order", "Tanggal", "Aksi"]}
+        <Table colls={["#", "INVOICE", "Outlet", "Total Clothes", "Total Sku", "Total", "Payment Method", "Payment Status", "Order Status", "Date", "Action"]}
           currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
           {items.map((i, k) => (
             <tr

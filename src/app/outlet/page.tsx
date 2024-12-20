@@ -45,6 +45,7 @@ export default function OutletPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [areaModal, setAreaModal] = useState<boolean>(false)
   const [groupingModal, setGroupingModal] = useState<boolean>(false)
+  const [createOrUpdate, setCreateOrUpdate] = useState<boolean>(true)
   const CELLS = [
     "Name",
     // "Email",
@@ -318,7 +319,10 @@ export default function OutletPage() {
             Create Outlet
           </Link>
           <button
-            onClick={() => setAreaModal(true)}
+            onClick={() => {
+              setAreaModal(true)
+              setCreateOrUpdate(true)
+            }}
             className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
@@ -402,6 +406,7 @@ export default function OutletPage() {
                     formik.setFieldValue("name", i.name);
                     formik.setFieldValue("area_id", i.id);
                     setAreaModal(true);
+                    setCreateOrUpdate(false);
                   }}
                 >
                   <FiEdit size={23} />
@@ -430,7 +435,7 @@ export default function OutletPage() {
       </div>
 
       <Modal isOpen={areaModal}>
-        <div className="relative bg-white dark:bg-boxdark shadow rounded-md h-min w-[90%] md:w-[50%] p-4">
+        <div className="relative bg-white dark:bg-boxdark shadow rounded-md w-[90%] md:w-[50%] p-4">
           <div
             className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
             onClick={() => {
@@ -443,7 +448,7 @@ export default function OutletPage() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName={`Create Area`} />
+            <Breadcrumb pageName={createOrUpdate?`Create Area`:`Edit Area`} />
           </div>
 
           <div className="gap-y-6">

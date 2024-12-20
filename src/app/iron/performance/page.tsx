@@ -87,7 +87,12 @@ export default function IncidentPage() {
       }
     }
   };
-
+  function formatWorkDuration(totalMinutes: number) {
+    if (!totalMinutes || totalMinutes <= 0) return "0 m";
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours > 0 ? `${hours}h ` : ""}${minutes > 0 ? `${minutes}m` : ""}`.trim();
+  }
 
   return (
     <div className="min-h-screen">
@@ -118,13 +123,16 @@ export default function IncidentPage() {
       </div>
 
       <Table
-        colls={["Name", "Department", "Outlet", "Total Work Hour", "Total Item", "Total Job"]}
+        colls={["#", "Name", "Department", "Outlet", "Total Work", "Total Item", "Total Job"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
         {data.map((i, k) => (
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
+            <td className="px-6 py-4">
+              {k+1}
+            </td>
             <td className="px-6 py-4">
               {i.user.fullname}
               <p className="text-xs font-thin">{` ` + i.user.dial_code + '' + i.user.phone_number}</p>
@@ -137,13 +145,13 @@ export default function IncidentPage() {
               <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
             </td>
             <td className="px-6 py-4">
-              {(i.total_work_duration_minutes! / 60).toFixed(2)}
+              {formatWorkDuration(i.total_work_duration_minutes)}
             </td>
             <td className="px-6 py-4">
-              {i.total_item}
+              {i.total_item} pcs
             </td>
             <td className="px-6 py-4">
-              {i.total_job}
+              {i.total_job} sku
             </td>
           </tr>
         ))}

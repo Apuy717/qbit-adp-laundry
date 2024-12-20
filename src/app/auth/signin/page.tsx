@@ -1,7 +1,7 @@
 "use client";
 import { Input } from "@/components/Inputs/InputComponent";
 import reqApi from "@/libs/reqApi";
-import { iAuthRedux, setLogin } from "@/stores/authReducer";
+import { ERoles, iAuthRedux, setLogin } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import { useFormik } from "formik";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 // export const metadata: Metadata = {
@@ -67,6 +68,9 @@ const SignIn: React.FC = () => {
 
       if (res?.statusCode === 200) {
         const data = res.data as iAuthRedux;
+        if (data.role.name === ERoles.EMPLOYEE) {
+          toast.warn("Forbidden to signin, please try with other account")
+        } else {
         dispatch(
           setLogin({
             id: data.id,
@@ -80,10 +84,8 @@ const SignIn: React.FC = () => {
             auth: data.auth,
           }),
         );
-
         replace("/")
-
-      }
+      }}
     },
   });
   return (

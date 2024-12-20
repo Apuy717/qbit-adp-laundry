@@ -3,6 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { iDropdown, Input, InputDropdown, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GET, GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { CategoryType } from "@/types/category";
@@ -11,7 +12,7 @@ import { EStatusPRs, PRItemType } from "@/types/PRItemType";
 import { ERoles } from "@/types/Roles";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -35,6 +36,8 @@ const BasicChartPage: React.FC = () => {
   const [filterByOutlet, setFilterByOutlet] = useState<string[]>([])
   const router = useRouter()
   const [filterByStatus, setFilterByStatus] = useState<string>("all")
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
 
   useEffect(() => {
     async function GotAllOutlet() {
@@ -107,7 +110,7 @@ const BasicChartPage: React.FC = () => {
     GotPRItems()
 
 
-  }, [currentPage, fixValueSearch, refresh, credential.auth.access_token, filterByOutlet, filterByStatus])
+  }, [currentPage, fixValueSearch, refresh, credential.auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, filterByStatus])
 
 
   const handleSearch = async () => {
@@ -127,7 +130,7 @@ const BasicChartPage: React.FC = () => {
     }
   };
 
-  const [modal, setModal] = useState<boolean>(false)
+  const [modal1, setModal1] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
 
   const formik = useFormik({
@@ -193,7 +196,7 @@ const BasicChartPage: React.FC = () => {
             )
           );
         }
-        setModal(false);
+        setModal1(false);
         resetForm()
         toast.success("Berhasil menambahkan item");
       }
@@ -223,7 +226,7 @@ const BasicChartPage: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="min-h-screen">
       <Breadcrumb pageName="Purchase Request" />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
@@ -269,7 +272,7 @@ const BasicChartPage: React.FC = () => {
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={() => setModal(true)}
+            onClick={() => setModal1(true)}
           >
             Add Item
           </button>
@@ -321,7 +324,7 @@ const BasicChartPage: React.FC = () => {
                       console.log(i.category);
                       formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
                       formik.setFieldValue("description", i.description === null ? "" : i.description)
-                      setModal(true);
+                      setModal1(true);
                     }}
                   >
                     <FiEdit size={23} />
@@ -335,12 +338,12 @@ const BasicChartPage: React.FC = () => {
           ))}
         </Table>
       </div>
-      <Modal isOpen={modal}>
+      <Modal isOpen={modal1}>
         <div className="relative bg-white dark:bg-boxdark shadow rounded-md h-min w-[90%] md:w-[50%] p-4">
           <div
             className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
             onClick={() => {
-              setModal(false)
+              setModal1(false)
               resetForm()
             }}
           >
@@ -350,84 +353,87 @@ const BasicChartPage: React.FC = () => {
           <div className="flex flex-col space-y-8">
             <Breadcrumb pageName="Add Item" />
           </div>
-          <div className="flex flex-col space-y-8">
-            <Input label={"Name*"} name={"name"} id={"name"}
-              value={formik.values.name}
-              onChange={(v) => formik.setFieldValue("name", v)}
-              error={
-                formik.touched.name && formik.errors.name
-                  ? formik.errors.name
-                  : null
-              } />
 
-            <Input label={"Slug*"} name={"slug"} id={"slug"}
-              value={formik.values.slug}
-              onChange={(v) => formik.setFieldValue("slug", v)}
-              error={
-                formik.touched.slug && formik.errors.slug
-                  ? formik.errors.slug
-                  : null
-              } />
+          <div className="h-80 overflow-y-auto mt-4 p-2">
+            <div className="flex flex-col space-y-8">
+              <Input label={"Name*"} name={"name"} id={"name"}
+                value={formik.values.name}
+                onChange={(v) => formik.setFieldValue("name", v)}
+                error={
+                  formik.touched.name && formik.errors.name
+                    ? formik.errors.name
+                    : null
+                } />
 
-            <InputDropdown
-              label={"Category*"}
-              name={"category"}
-              id={"category"}
-              value={formik.values.category_id}
-              onChange={(v) => formik.setFieldValue("category_id", v)}
-              options={category}
-              error={
-                formik.touched.category_id && formik.errors.category_id
-                  ? formik.errors.category_id
-                  : null
-              }
-            />
+              <Input label={"Slug*"} name={"slug"} id={"slug"}
+                value={formik.values.slug}
+                onChange={(v) => formik.setFieldValue("slug", v)}
+                error={
+                  formik.touched.slug && formik.errors.slug
+                    ? formik.errors.slug
+                    : null
+                } />
 
-            <InputDropdown
-              label={"Status*"}
-              name={"status"}
-              id={"status"}
-              value={formik.values.status}
-              onChange={(v) => formik.setFieldValue("status", v)}
-              options={status}
-              error={
-                formik.touched.status && formik.errors.status
-                  ? formik.errors.status
-                  : null
-              }
-            />
+              <InputDropdown
+                label={"Category*"}
+                name={"category"}
+                id={"category"}
+                value={formik.values.category_id}
+                onChange={(v) => formik.setFieldValue("category_id", v)}
+                options={category}
+                error={
+                  formik.touched.category_id && formik.errors.category_id
+                    ? formik.errors.category_id
+                    : null
+                }
+              />
 
-            <InputDropdown
-              label={"Outlet*"}
-              name={"outlet_id"}
-              id={"outlet_id"}
-              value={formik.values.outlet_id}
-              onChange={(v) => formik.setFieldValue("outlet_id", v)}
-              options={outlets}
-              error={
-                formik.touched.outlet_id && formik.errors.outlet_id
-                  ? formik.errors.outlet_id
-                  : null
-              }
-            />
+              <InputDropdown
+                label={"Status*"}
+                name={"status"}
+                id={"status"}
+                value={formik.values.status}
+                onChange={(v) => formik.setFieldValue("status", v)}
+                options={status}
+                error={
+                  formik.touched.status && formik.errors.status
+                    ? formik.errors.status
+                    : null
+                }
+              />
 
-            <InputToggle
-              value={!formik.values.is_deleted}
-              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-              label={"Activated"} />
+              <InputDropdown
+                label={"Outlet*"}
+                name={"outlet_id"}
+                id={"outlet_id"}
+                value={formik.values.outlet_id}
+                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                options={outlets}
+                error={
+                  formik.touched.outlet_id && formik.errors.outlet_id
+                    ? formik.errors.outlet_id
+                    : null
+                }
+              />
 
-            <InputTextArea
-              label={"Description*"}
-              name={"description"}
-              id={"description"}
-              value={formik.values.description}
-              onChange={(v) => formik.setFieldValue("description", v)}
-              options={outlets}
-              error={
-                formik.touched.description && formik.errors.description
-                  ? formik.errors.description
-                  : null
-              } />
+              <InputToggle
+                value={!formik.values.is_deleted}
+                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                label={"Activated"} />
+
+              <InputTextArea
+                label={"Description*"}
+                name={"description"}
+                id={"description"}
+                value={formik.values.description}
+                onChange={(v) => formik.setFieldValue("description", v)}
+                options={outlets}
+                error={
+                  formik.touched.description && formik.errors.description
+                    ? formik.errors.description
+                    : null
+                } />
+            </div>
           </div>
 
           <button
@@ -486,7 +492,7 @@ const BasicChartPage: React.FC = () => {
           </Table>
         </div>
       </Modal> */}
-    </>
+    </div>
   );
 };
 

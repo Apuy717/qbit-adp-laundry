@@ -6,6 +6,7 @@ import { iDropdown, Input, InputDropdown, InputToggle } from "@/components/Input
 import Modal from "@/components/Modals/Modal";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -13,7 +14,7 @@ import { EMachineType, MachineType } from "@/types/machineType";
 import { Outlet } from "@/types/outlet";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FiEdit, FiEye } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -33,6 +34,8 @@ export default function PageMachine() {
   const [filterIsDeleted, setFilterIsDeleted] = useState<boolean | undefined>()
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
   const router = useRouter()
 
   const [outlets, setOutlets] = useState<iDropdown[]>([])
@@ -76,7 +79,9 @@ export default function PageMachine() {
         router: router,
         url: urlwithQuery,
         token: `${auth.access_token}`,
-        data: { outlet_ids: filterByOutlet, ...sttsFilter }
+        data: {
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map((o: any) => o.outlet_id) : defaultSelectedOutlet.map((o: any) => o.outlet_id),
+        }
       })
 
       if (res?.statusCode === 200) {
@@ -89,10 +94,11 @@ export default function PageMachine() {
         setLoadingSearch(false);
       }, 100);
     }
+    if (!modal)
+      GotPRItems()
 
-    GotPRItems()
-
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted,
+    selectedOutlets, defaultSelectedOutlet, modal])
 
 
   const handleSearch = async () => {
@@ -189,27 +195,39 @@ export default function PageMachine() {
 
   const [modalForm, setModalForm] = useState<boolean>(false)
   return (
-    <>
-      <Breadcrumb pageName={"Mesin"} />
-      <FilterComponent
-        search={search}
-        setSearch={(e) => setSearch(e)}
-        onClickFilterOutlet={() => setModalOutlet(true)}
-        handleSearch={handleSearch} >
-
-        <button
-          className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+    <div className="min-h-screen">
+      <Breadcrumb pageName={"Machine"} />
+      <div className="w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t">
+        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+          <div className="lg:w-90">
+            <Input
+              label={"Search"}
+              name={"search"}
+              id={"search"}
+              value={search}
+              onChange={(v) => setSearch(v)}
+              error={null}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400 hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          >
+            Search
+          </button>
+          <button
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          onClick={() => setModalForm(true)}
-        >
-          Tambah Mesin
-        </button>
-
-      </FilterComponent>
+            onClick={() => setModalForm(true)}
+          >
+            Add Machine
+          </button>
+        </div>
+      </div>
 
       <Table colls={role.name === ERoles.PROVIDER ? [
-        "#", "Nama", "Kode", "IP", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"] :
-        ["#", "Nama", "Kode", "Tipe", "Outlet", "Siklus Relay", "Siklus Mesin", "Status", "Aksi"]}
+        "#", "Name", "Code", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"] :
+        ["#", "Name", "Code", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"]}
         currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
 
         {items.map((i, k) => (
@@ -267,16 +285,6 @@ export default function PageMachine() {
 
       </Table >
 
-      <FilterByOutletTableModal modalOutlet={modalOutlet}
-        closeModal={(isOpen) => setModalOutlet(isOpen)}
-        setFilterByOutlet={(isChecked, value) => {
-          if (isChecked) {
-            setFilterByOutlet(old => [...old, value])
-          } else {
-            setFilterByOutlet(old => old.filter(f => f !== value))
-          }
-        }} />
-
       <Modal isOpen={modalForm}>
         <div className="relative bg-white dark:bg-gray-800 shadow rounded-md h-min 
         md:h-min w-[90%] md:w-[50%] p-4">
@@ -291,89 +299,92 @@ export default function PageMachine() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName="Mesin Relay" />
-          </div>
-          <div className="flex flex-col space-y-8">
-            <Input label={"Kode*"} name={"machine_id"} id={"machine_id"}
-              value={formik.values.machine_id}
-              onChange={(v) => formik.setFieldValue("machine_id", v)}
-              error={
-                formik.touched.machine_id && formik.errors.machine_id
-                  ? formik.errors.machine_id
-                  : null
-              } />
-
-            <Input label={"Nama*"} name={"name"} id={"name"}
-              value={formik.values.name}
-              onChange={(v) => formik.setFieldValue("name", v)}
-              error={
-                formik.touched.name && formik.errors.name
-                  ? formik.errors.name
-                  : null
-              } />
-
-            <Input label={"IP*"} name={"ip"} id={"ip"}
-              value={formik.values.ip}
-              onChange={(v) => formik.setFieldValue("ip", v)}
-              error={
-                formik.touched.ip && formik.errors.ip
-                  ? formik.errors.ip
-                  : null
-              } />
-
-            <Input label={"Durasi Default*"} type="number" name={"default_duration"} id={"default_duration"}
-              value={formik.values.default_duration}
-              onChange={(v) => formik.setFieldValue("default_duration", v)}
-              error={
-                formik.touched.default_duration && formik.errors.default_duration
-                  ? formik.errors.default_duration
-                  : null
-              } />
-
-            <InputDropdown
-              label={"Tipe Mesin*"}
-              name={"type"}
-              id={"type"}
-              value={formik.values.type}
-              onChange={(v) => formik.setFieldValue("type", v)}
-              options={Object.values(EMachineType).map(i => { return { label: i, value: i } })}
-              error={
-                formik.touched.type && formik.errors.type
-                  ? formik.errors.type
-                  : null
-              }
-            />
-
-            <InputDropdown
-              label={"Outlet*"}
-              name={"outlet_id"}
-              id={"outlet_id"}
-              value={formik.values.outlet_id}
-              onChange={(v) => formik.setFieldValue("outlet_id", v)}
-              options={outlets}
-              error={
-                formik.touched.outlet_id && formik.errors.outlet_id
-                  ? formik.errors.outlet_id
-                  : null
-              }
-            />
-
-            <InputToggle
-              value={!formik.values.is_deleted}
-              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-              label={"Status"} />
+            <Breadcrumb pageName="Relay Machine" />
           </div>
 
-          <button
-            className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
+          <div className="h-80 overflow-y-auto mt-4 p-2">
+            <div className="flex flex-col space-y-8">
+              <Input label={"Code*"} name={"machine_id"} id={"machine_id"}
+                value={formik.values.machine_id}
+                onChange={(v) => formik.setFieldValue("machine_id", v)}
+                error={
+                  formik.touched.machine_id && formik.errors.machine_id
+                    ? formik.errors.machine_id
+                    : null
+                } />
+
+              <Input label={"Name*"} name={"name"} id={"name"}
+                value={formik.values.name}
+                onChange={(v) => formik.setFieldValue("name", v)}
+                error={
+                  formik.touched.name && formik.errors.name
+                    ? formik.errors.name
+                    : null
+                } />
+
+              <Input label={"IP*"} name={"ip"} id={"ip"}
+                value={formik.values.ip}
+                onChange={(v) => formik.setFieldValue("ip", v)}
+                error={
+                  formik.touched.ip && formik.errors.ip
+                    ? formik.errors.ip
+                    : null
+                } />
+
+              <Input label={"Default Duration*"} type="number" name={"default_duration"} id={"default_duration"}
+                value={formik.values.default_duration}
+                onChange={(v) => formik.setFieldValue("default_duration", v)}
+                error={
+                  formik.touched.default_duration && formik.errors.default_duration
+                    ? formik.errors.default_duration
+                    : null
+                } />
+
+              <InputDropdown
+                label={"Machin Type*"}
+                name={"type"}
+                id={"type"}
+                value={formik.values.type}
+                onChange={(v) => formik.setFieldValue("type", v)}
+                options={Object.values(EMachineType).map(i => { return { label: i, value: i } })}
+                error={
+                  formik.touched.type && formik.errors.type
+                    ? formik.errors.type
+                    : null
+                }
+              />
+
+              <InputDropdown
+                label={"Outlet*"}
+                name={"outlet_id"}
+                id={"outlet_id"}
+                value={formik.values.outlet_id}
+                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                options={outlets}
+                error={
+                  formik.touched.outlet_id && formik.errors.outlet_id
+                    ? formik.errors.outlet_id
+                    : null
+                }
+              />
+
+              <InputToggle
+                value={!formik.values.is_deleted}
+                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                label={"Status"} />
+            </div>
+
+            <button
+              className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
             w-full mt-5 justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={formik.submitForm}
-          >
-            Submit
-          </button>
+              onClick={formik.submitForm}
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </Modal>
-    </>
+    </div>
   )
 }

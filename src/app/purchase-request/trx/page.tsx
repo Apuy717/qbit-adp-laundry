@@ -2,15 +2,16 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CardDataStats from "@/components/CardDataStats";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
-import { iDropdown } from "@/components/Inputs/InputComponent";
+import { iDropdown, InputDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { PRTrx } from "@/types/PRTrx";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
@@ -38,15 +39,18 @@ export default function PRTrxPage() {
   const [modalOutlet, setModalOutlet] = useState<boolean>(false);
   const [transaction, setTransaction] = useState<PRTrx[]>([])
   const [totalPengeluaran, setTotalPengeluaran] = useState<string>("Rp. 0")
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
 
   useEffect(() => {
     async function GotTransaction() {
       const res = await PostWithToken<iResponse<PRTrx[]>>({
         url: "/api/pr/transaction", router: router, token: `${auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet,
+          outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map((o: any) => o.outlet_id) : defaultSelectedOutlet.map((o: any) => o.outlet_id),
           started_at: startDate,
-          ended_at: endDate
+          ended_at: endDate,
+
         }
       })
 
@@ -59,9 +63,9 @@ export default function PRTrxPage() {
         setTransaction(res.data)
       }
     }
-
-    GotTransaction()
-  }, [startDate, filterByOutlet])
+    if (!modal)
+      GotTransaction()
+  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [viewDetailData, setIsViewDetailData] = useState<PRTrx | null>(null)
@@ -79,49 +83,55 @@ export default function PRTrxPage() {
     <>
       <Breadcrumb pageName="Pengeluaran" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
-        <CardDataStats title="Total Transaksi" total={`${transaction.length}`} rate="belanja" levelUp>
+        <CardDataStats title="Total Transaction" total={`${transaction.length}`} rate="purchase" levelUp>
           <TbShoppingBagPlus size={23} />
         </CardDataStats>
-        <CardDataStats title="Total Pengeluaran" total={`${totalPengeluaran}`} rate="uang keluar" levelDown >
+        <CardDataStats title="Total Expense" total={`${totalPengeluaran}`} rate="expense" levelDown >
           <RiMoneyCnyCircleLine size={23} />
         </CardDataStats>
       </div>
 
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
-          <DatePickerOne label={"Dari"} defaultDate={startDate} onChange={(val) => {
+        <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
+          <DatePickerOne label={"Start"} defaultDate={startDate} onChange={(val) => {
             setStartDate(val)
           }} />
-          <DatePickerOne label={"Sampai"} defaultDate={endDate} onChange={(val) => {
-            console.log(val);
+          <DatePickerOne label={"End"} defaultDate={new Date(endDate)} onChange={(val) => {
+            setEndDate(val)
           }} />
 
-          <div className="cursor-pointer w-full" onClick={() => setModalOutlet(true)}>
-            <div className="flex flex-row">
-              <div className="w-full p-3 border-2 rounded-md relative">
-                <label
-                  className={`text-md  transition-all duration-500`}
-                >
-                  Filter By Outlet
-                </label>
-              </div>
-            </div>
+          {/* <div className="w-full">
+            <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
+              options={[{ label: "all", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i, value: i }))]}
+              value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
+          </div>
+
+          <div className="w-full">
+            <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
+              options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
+              value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
           </div>
           <button
-            className={`inline-flex items-center w-1/4 justify-center rounded-md bg-black px-10 py-3 
-            text-center font-medium text-xs text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={DownloadXLXS}
+          >
+            {loadingDownload && <AiOutlineLoading3Quarters size={23} className="animate-spin" />}
+            {!loadingDownload && <HiDownload size={23} />}
+          </button> */}
+          <button
+            className={`w-auto justify-center rounded-md bg-black px-10 py-3 
+            text-center font-medium text-sm text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={() => {
               router.push("/purchase-request/trx/create-trx-pr")
             }}
           >
-            Tambah TRX PR
+            Add Expense
           </button>
         </div>
       </div>
 
-
-
-      <Table colls={["Outlet", "Tanggal Nota", "Dibuat Pada", "Total", "Total Item", "Aksi"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
+      <Table colls={["Outlet", "Date Note", "Created At", "Total", "Total Item", "Action"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
         throw new Error("Function not implemented.");
       }} >
         {transaction.map((i, k) => (
@@ -176,7 +186,7 @@ export default function PRTrxPage() {
         ))}
       </Table>
 
-      <div className={`w-min h-full fixed right-0 top-0 z-[999]
+      <div className={`w-[80%] lg:w-min h-full fixed right-0 top-0 z-[999]
         transition-all duration-500 shadow bg-white dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
@@ -189,13 +199,13 @@ export default function PRTrxPage() {
             Transaction Detail
           </h3>
           <div className="flex flex-row space-x-2">
-            <a className="w-35 h-35 bg-gray-500 relative" href={`/file/${viewDetailData?.note}`} target="blank">
+            <a className="w-35 h-35 bg-gray-500 relative" href={`/api/file/${viewDetailData?.note}`} target="blank">
               <Image
                 priority
                 className="h-auto max-w-full absolute object-contain"
                 fill
                 alt="nota"
-                src={`/file/${viewDetailData?.note}`}
+                src={`/api/file/${viewDetailData?.note}`}
                 sizes=""
               />
             </a>
@@ -209,7 +219,7 @@ export default function PRTrxPage() {
                 year: "numeric",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
+                // second: "2-digit",
               })}</p>
             </div>
           </div>
@@ -219,7 +229,7 @@ export default function PRTrxPage() {
           <p className="text-lg font-semibold text-black dark:text-white">
             Item
           </p>
-          <Table colls={["#", "Nama", "Harga", "Kuantitas", "Sub Total"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
+          <Table colls={["#", "Name", "Price", "Quantity", "Subtotal"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
             throw new Error("Function not implemented.");
           }}>
             {viewDetailData && viewDetailData.trx_pr_items.map((i, k) => (
