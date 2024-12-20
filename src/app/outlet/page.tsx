@@ -97,7 +97,7 @@ export default function OutletPage() {
 
     GotOutlets();
     GotAreas()
-  }, [currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token]);
+  }, [currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token,router]);
 
   useEffect(() => {
     const GotGroupingOutlets = async () => {
@@ -152,6 +152,7 @@ export default function OutletPage() {
     };
     GotGroupingOutlets();
     GotGroupingAreas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupingModal])
 
   const handleSearch = async () => {

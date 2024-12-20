@@ -50,7 +50,7 @@ export default function CreateProduct() {
 
   const router = useRouter();
   useEffect(() => {
-    
+
     const GotCategorys = async () => {
       let urlwithQuery = `/api/category`;
       const res = await GetWithToken<MyResponse>({
@@ -72,6 +72,8 @@ export default function CreateProduct() {
     };
 
     GotCategorys();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const formik = useFormik({

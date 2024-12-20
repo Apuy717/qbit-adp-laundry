@@ -112,8 +112,6 @@ export default function CreateEmployee() {
         token: `${auth.auth.access_token}`,
       });
 
-      // console.log(res);
-
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
@@ -135,6 +133,7 @@ export default function CreateEmployee() {
       formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roles])
 
   useEffect(() => {
@@ -197,6 +196,7 @@ export default function CreateEmployee() {
       ]);
       setCountrys((old) => [...old, { label: i.name, value: i.name }]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function GotCity(province_id: string) {

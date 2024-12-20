@@ -98,7 +98,7 @@ export default function ModalSelectOutlet(props: iProps) {
     }
 
     GotAllOutlet()
-  }, [])
+  }, [auth.access_token, router, props.defaultSelected])
 
   const [modal, setModal] = useState<boolean>(false)
   return (

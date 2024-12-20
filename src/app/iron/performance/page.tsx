@@ -1,5 +1,6 @@
 "use client"
 
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne"
 import { Input } from "@/components/Inputs/InputComponent"
 import Table from "@/components/Tables/Table"
@@ -52,7 +53,6 @@ export default function IncidentPage() {
           ended_at: endDate
         }
       })
-      console.log(res.data);
 
       if (res?.statusCode === 200) {
         if (res.data.length >= 1 && res.total)
@@ -69,7 +69,7 @@ export default function IncidentPage() {
 
     if (!modal)
       GotData()
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate, router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -96,6 +96,8 @@ export default function IncidentPage() {
 
   return (
     <div className="min-h-screen">
+      <Breadcrumb pageName={"Iron Performance"} />
+
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}
@@ -131,7 +133,7 @@ export default function IncidentPage() {
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
             <td className="px-6 py-4">
-              {k+1}
+              {k + 1}
             </td>
             <td className="px-6 py-4">
               {i.user.fullname}

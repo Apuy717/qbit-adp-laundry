@@ -149,7 +149,7 @@ const ChartThree: React.FC = () => {
 
     GotData()
 
-  }, [filterBy])
+  }, [filterBy,router, auth.access_token])
 
 
   return (

@@ -288,7 +288,7 @@ const ChartOne: React.FC = () => {
       GotGraph()
     }
 
-  }, [selectedFilter, selectedOutlets, defaultSelectedOutlet, modal])
+  }, [selectedFilter, selectedOutlets, defaultSelectedOutlet, modal,router, auth.access_token])
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">

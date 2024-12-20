@@ -65,7 +65,7 @@ export default function PRTrxPage() {
     }
     if (!modal)
       GotTransaction()
-  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal])
+  }, [startDate, endDate, selectedOutlets, defaultSelectedOutlet, modal, router, auth.access_token])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [viewDetailData, setIsViewDetailData] = useState<PRTrx | null>(null)
@@ -81,7 +81,7 @@ export default function PRTrxPage() {
 
   return (
     <>
-      <Breadcrumb pageName="Pengeluaran" />
+      <Breadcrumb pageName="Expense" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
         <CardDataStats title="Total Transaction" total={`${transaction.length}`} rate="purchase" levelUp>
           <TbShoppingBagPlus size={23} />

@@ -43,7 +43,7 @@ export const FilterByOutletTableModal = (props: iFilterByOutletTableModal) => {
     }
 
     GotAllOutlet()
-  }, [])
+  }, [auth.access_token, router])
 
   function filterOutlet() {
     if (searchOutlet.length >= 3)

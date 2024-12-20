@@ -63,6 +63,7 @@ export default function PageMachine() {
     }
 
     GotAllOutlet()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export default function PageMachine() {
     }
     if (!modal)
       GotPRItems()
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted,
     selectedOutlets, defaultSelectedOutlet, modal])
 

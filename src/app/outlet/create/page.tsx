@@ -152,6 +152,7 @@ export default function CreateOutlet() {
       ]);
       setCountrys((old) => [...old, { label: i.name, value: i.name }]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function GotCity(province_id: string) {

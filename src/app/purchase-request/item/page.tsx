@@ -78,6 +78,7 @@ const BasicChartPage: React.FC = () => {
     GotAllOutlet();
     const statusMaping = Object.values(EStatusPRs).map(i => { return { value: i, label: i } })
     setStatus(statusMaping)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -94,7 +95,7 @@ const BasicChartPage: React.FC = () => {
       const res = await PostWithToken<iResponse<PRItemType[]>>({
         router: router,
         url: urlwithQuery,
-        token: `${auth.access_token}`,
+        token: `${credential.auth.access_token}`,
         data: { outlet_ids: filterByOutlet, ...sttsFilter }
       })
 
@@ -109,7 +110,7 @@ const BasicChartPage: React.FC = () => {
     }
     GotPRItems()
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, fixValueSearch, refresh, credential.auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, filterByStatus])
 
 

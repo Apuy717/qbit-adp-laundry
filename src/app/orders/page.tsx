@@ -88,8 +88,8 @@ export default function Orders() {
     if (!modal)
       GotPRItems()
 
-  }, [currentPage, fixValueSearch, refresh, auth.access_token,
-    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate])
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, router,
+    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, endDate])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
