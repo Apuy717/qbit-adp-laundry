@@ -102,7 +102,13 @@ const TableOne = () => {
               <p className="text-black dark:text-white">
                 {i.outlet.name}
               </p>
-              <span className="text-sm">{i.outlet.city}</span>
+              <span className="text-sm">
+                {
+                  i.outlet.city.split("--").length >= 2 ?
+                    i.outlet.city.split("--")[1] :
+                    i.outlet.city
+                }
+              </span>
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
