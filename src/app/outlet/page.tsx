@@ -5,6 +5,7 @@ import { Input, InputDropdown, InputToggle } from "@/components/Inputs/InputComp
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
+import { Area } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
@@ -35,7 +36,7 @@ interface GroupingType {
 }
 
 export default function OutletPage() {
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  const [outlets, setOutlets] = useState<Area[]>([]);
   const [mapingGroupOutlet, setMapingGroupOutlet] = useState<GroupingType[]>([]);
   const [mapingGroupArea, setMapingGroupArea] = useState<GroupingType[]>([]);
   const [areas, setAreas] = useState<any[]>([])
@@ -63,27 +64,49 @@ export default function OutletPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const GotOutlets = async () => {
-      let urlwithQuery = `/api/outlet?page=${currentPage}&limit=${10}`;
-      if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/outlet?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
-      }
-      const res = await GetWithToken<MyResponse>({
+    const GotGroupingOutlets = async () => {
+      const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: urlwithQuery,
-        token: `${auth.auth.access_token}`,
-      });
+        url: "/api/outlet/got/forme",
+        token: `${auth.auth.access_token}`
+      })
 
       if (res?.statusCode === 200) {
-        setTotalOutlet(res.total);
-        setOutlets(res.data);
+        const maping: Area[] = []
+        for (const i of res.data) {
+          let areaId = null;
+          let areaName = "Without Area";
+          if (i.outlet_area_grouping) {
+            areaId = i.outlet_area_grouping.outlet_area.id
+            areaName = i.outlet_area_grouping.outlet_area.name
+          }
+
+          const city = i.city.split("--")
+          const checkArea = maping.findIndex(f => f.area_id === areaId)
+          const outlet = { outlet_id: i.id, name: i.name, phone: i.dial_code + i.phone_number, is_deleted: i.is_deleted }
+
+          const outletGrouping: any = {
+            area_id: areaId,
+            area: areaName,
+            outlets: [outlet]
+          }
+          if (checkArea <= -1) {
+            maping.push(outletGrouping);
+          } else {
+            Object.assign(maping[checkArea], {
+              ...maping[checkArea],
+              outlets: maping[checkArea].outlets.concat([outlet])
+            })
+          }
+        }
+        setOutlets(maping)
+        console.log(outlets);
+        console.log(res.data);
+
       }
-      setTimeout(() => {
-        setLoadingSearch(false);
-      }, 100);
-    };
+    }
     const GotAreas = async () => {
-      let urlwithQuery = `/api/outlet/area/get-areas?page=1&limit=10`;
+      let urlwithQuery = `/api/outlet/area/get-areas`;
       const res = await GetWithToken<MyResponse>({
         router: router,
         url: urlwithQuery,
@@ -95,9 +118,9 @@ export default function OutletPage() {
       }
     };
 
-    GotOutlets();
+    GotGroupingOutlets();
     GotAreas()
-  }, [currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token,router]);
+  }, [groupingModal, outlets, currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token, router]);
 
   useEffect(() => {
     const GotGroupingOutlets = async () => {
@@ -198,7 +221,7 @@ export default function OutletPage() {
         token: `${auth.auth.access_token}`
       })
       if (res?.statusCode === 200) {
-        toast.success("Berhasil menambahkan data!");
+        toast.success("Data changed success!");
         setAreaModal(false)
         formik.setFieldValue("name", "")
         formik.setFieldValue("area_id", "")
@@ -234,7 +257,7 @@ export default function OutletPage() {
         token: `${auth.auth.access_token}`
       })
       if (res?.statusCode === 200) {
-        toast.success("Berhasil menambahkan data!");
+        toast.success("Data changed success!");
         setAreaModal(false)
         // formik.setFieldValue("name", "")
         // formik.setFieldValue("area_id", "")
@@ -256,7 +279,7 @@ export default function OutletPage() {
       token: `${auth.auth.access_token}`
     })
     if (res?.statusCode === 200) {
-      toast.success("Berhasil menghapus data!");
+      toast.success("Data changed success!");
       formik.setFieldValue("name", "")
       formik.setFieldValue("area_id", "")
       setRefresh(true)
@@ -353,46 +376,56 @@ export default function OutletPage() {
             totalItem={totalOutlet}
           >
             {outlets.map((i, k) => (
-              <tr
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                key={k}
-              >
-                <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  {i.dial_code} {i.phone_number}
-                </td>
-                <td className="px-6 py-4">
-                  {i.is_deleted ? (
-                    <div className="px-2 bg-red-500 rounded-xl text-center">
-                      <p className="text-white">inactive</p>
-                    </div>
-                  ) : (
-                    <div className="px-2 bg-green-500 rounded-xl text-center">
-                      <p className="text-white">active</p>
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <div className=" relative group">
-                    <button
-                      onClick={() => {
-                        router.push(`/outlet/${i.id}`);
-                      }}
-                      className="flex items-center"
-                    >
-                      <FiEdit size={23} />
-                    </button>
-                    <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                      Edit Outlet
-                    </div>
-                  </div>
-                </td>
-              </tr>
+              <>
+                <tr className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
+                   dark:hover:bg-gray-600">
+                  <td colSpan={5} className="font-bold whitespace-nowrap px-6 py-4">{i.area}</td>
+                </tr>
+                {i.outlets.map((o: any, key) => {
+                  return (
+                    <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+                  dark:bg-gray-800 dark:hover:bg-gray-600"
+                      key={key}>
+                      <td className="whitespace-nowrap px-6 py-4">{o.name}</td>
+                      <td className="whitespace-nowrap px-6 py-4">{o.phone}</td>
+                      <td className="px-6 py-4">
+                        {o.is_deleted ? (
+                          <div className="px-2 bg-red-500 rounded-xl text-center">
+                            <p className="text-white">inactive</p>
+                          </div>
+                        ) : (
+                          <div className="px-2 bg-green-500 rounded-xl text-center">
+                            <p className="text-white">active</p>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className=" relative group">
+                          <button
+                            onClick={() => {
+                              router.push(`/outlet/${o.id}`);
+                            }}
+                            className="flex items-center"
+                          >
+                            <FiEdit size={23} />
+                          </button>
+                          <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                            Edit Outlet
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </>
+
+
             ))}
+
           </Table>
         </div>
 
-        <div className="bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit dark:bg-boxdark">
+        <div className="mt-4 bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit dark:bg-boxdark">
           <div className="w-full p-4 bg-gray-50 text-sm font-medium text-black-2 dark:bg-gray-700 rounded-t-lg dark:text-gray-400">
             AREA
           </div>
@@ -449,7 +482,7 @@ export default function OutletPage() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName={createOrUpdate?`Create Area`:`Edit Area`} />
+            <Breadcrumb pageName={createOrUpdate ? `Create Area` : `Edit Area`} />
           </div>
 
           <div className="gap-y-6">

@@ -34,14 +34,13 @@ export default function IncidentPage() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const router = useRouter()
   const { auth } = useSelector((s: RootState) => s.auth)
-  const [totalData, setTotalData] = useState<number>(0)
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
 
   useEffect(() => {
     async function GotData() {
-      let urlwithQuery = `/api/iron/performance-of-employee?page=${currentPage}&limit=${10}`;
+      let urlwithQuery = `/api/iron/performance-of-employee`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/iron/performance-of-employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
+        urlwithQuery = `/api/iron/performance-of-employee?search=${fixValueSearch}`;
       }
       const res = await PostWithToken<iResponse<any[]>>({
         url: urlwithQuery,
@@ -55,11 +54,6 @@ export default function IncidentPage() {
       })
 
       if (res?.statusCode === 200) {
-        if (res.data.length >= 1 && res.total)
-          setTotalData(res.total)
-        else
-          setTotalData(0)
-
         setData(res.data);
       }
       setTimeout(() => {
@@ -69,7 +63,7 @@ export default function IncidentPage() {
 
     if (!modal)
       GotData()
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate, router])
+  }, [fixValueSearch, refresh, auth.access_token, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate, router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -126,9 +120,9 @@ export default function IncidentPage() {
 
       <Table
         colls={["#", "Name", "Department", "Outlet", "Total Work", "Total Item", "Total Job"]}
-        onPaginate={(page) => setCurrentPage(page)}
-        currentPage={currentPage}
-        totalItem={totalData}>
+        onPaginate={(page) => null}
+        currentPage={0}
+        totalItem={0}>
         {data.map((i, k) => (
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">

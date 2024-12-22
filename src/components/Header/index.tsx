@@ -45,7 +45,7 @@ const Header = (props: {
 
         <div className="hidden md:block border-[1.5px] dark:border-form-strokedark rounded-md px-4 py-2 relative cursor-pointer flex-1" onClick={() => setModal(!modal)}>
           {selectedOutlets.length >= 1 ? <p>Selected {" "} {selectedOutlets.length} Outlet</p> : <p>All Area</p>}
-          <div className="absolute top-0 right-0 h-full flex w-min items-center justify-center">
+          <div className="absolute top-0 right-2 h-full flex w-min items-center justify-center">
             <IoIosArrowDown size={23} />
           </div>
         </div>

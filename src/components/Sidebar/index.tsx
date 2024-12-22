@@ -2,13 +2,14 @@
 
 import ClickOutside from "@/components/ClickOutside";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import { CiSettings } from "react-icons/ci";
 import {
@@ -16,6 +17,7 @@ import {
   FaUsers
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
+import { IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
 import { TbIroningSteam, TbShoppingBagPlus } from "react-icons/tb";
@@ -30,6 +32,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
   const { role } = useSelector((s: RootState) => s.auth)
+  const { setModal, modal, selectedOutlets } = useContext(FilterByOutletContext)
 
   const menuGroups = [
     {
@@ -148,14 +151,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               style={{ height: "auto", width: "auto" }}
             />
           </Link>
-
+          
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-controls="sidebar"
-            className="block lg:hidden"
+            className="absolute right-2 ml-4 rounded-full bg-blue-600 p-2 lg:hidden"
           >
             <svg
-              className="fill-current"
+              className="fill-current text-white"
               width="20"
               height="18"
               viewBox="0 0 20 18"
@@ -173,7 +176,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
         <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
           {/* <!-- Sidebar Menu --> */}
-          <nav className="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
+          <div className="md:hidden block border-[1.5px] dark:border-form-strokedark rounded-md mx-4 px-4 py-2 relative cursor-pointer flex-1" onClick={() => setModal(!modal)}>
+            {selectedOutlets.length >= 1 ? <p>Selected {" "} {selectedOutlets.length} Outlet</p> : <p>All Area</p>}
+            <div className="absolute top-0 right-2 h-full flex w-min items-center justify-center">
+              <IoIosArrowDown size={23} />
+            </div>
+          </div>
+          <nav className=" px-4 py-4 lg:mt-9 lg:px-6">
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className={`mb-4 ml-4 text-sm font-semibold text-bodydark2 
