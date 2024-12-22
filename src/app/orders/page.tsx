@@ -128,7 +128,7 @@ export default function Orders() {
     })
 
     if (res.statusCode === 200) {
-      const url = `${window.location.origin}/file/${res.data.filename}`;
+      const url = `${window.location.origin}/download/${res.data.filename}`;
       window.open(url, '_blank');
     }
 
