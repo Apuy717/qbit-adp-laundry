@@ -29,16 +29,6 @@ const DropdownUser = () => {
 
         <span className="h-12 w-12 rounded-full flex items-center justify-center border-2">
           <FaRegUser size={22} />
-          {/* <Image
-            width={112}
-            height={112}
-            src={"/images/user/user-01.png"}
-            style={{
-              width: "auto",
-              height: "auto",
-            }}
-            alt="User"
-          /> */}
         </span>
 
         <svg

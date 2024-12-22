@@ -137,9 +137,9 @@ export default function PageEmployee() {
   return (
     <>
       <Breadcrumb pageName="Employee" />
-      <div className="w-full bg-white dark:bg-black p-4 mb-4 rounded-t">
-        <div className="flex flex-row items-center space-x-2">
-          <div className="w-90">
+      <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-lg">
+        <div className="lg:flex lg:flex-row items-center lg:space-x-2 lg:space-y-0 space-y-2">
+          <div className="lg:w-90">
             <Input
               label={"Search Employee"}
               name={"search"}
@@ -151,7 +151,7 @@ export default function PageEmployee() {
           </div>
           <button
             onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            className={`lg:w-auto w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
@@ -159,7 +159,7 @@ export default function PageEmployee() {
           <Link
             href={"/employee/create"}
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white lg:w-auto w-full
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Add Employee
