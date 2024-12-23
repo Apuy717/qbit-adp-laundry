@@ -108,10 +108,8 @@ export default function IncidentPage() {
   }
 
   return (
-    
-    <div>
+    <div className="min-h-screen">
       <Breadcrumb pageName={"Incident"} />
-
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}
@@ -150,16 +148,25 @@ export default function IncidentPage() {
 
             <td className="px-6 py-4 whitespace-nowrap flex flex-col">
               {i.outlet.name}
-              <span className="text-xs font-thin">{i.outlet.city}</span>
+              <span className="text-xs font-thin">
+                {
+                  i.outlet.city.split("--").length >= 2 ?
+                    i.outlet.city.split("--")[1] :
+                    i.outlet.city
+                }
+              </span>
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.incident_reports[0].order_item_stage.order_item.order.invoice_id}
             </td>
             <td className="px-6 py-4">
+              <span className="text-xs font-thin">{i.type}</span>
               <div className={`${i.approved ? "bg-green-500" : "bg-red"} flex items-center justify-center
-                 p-2 rounded text-white`}>
-                {i.token}
+                 p-2 rounded text-white flex-col`}>
+                {i.token.substring(0, 8).toUpperCase()}
+
               </div>
+
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               {i.incident_type.name}
