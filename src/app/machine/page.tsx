@@ -1,10 +1,8 @@
 'use client'
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { FilterComponent } from "@/components/Filters/FilterComponent";
 import { iDropdown, Input, InputDropdown, InputToggle } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
-import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
@@ -15,7 +13,7 @@ import { Outlet } from "@/types/outlet";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { FiEdit, FiEye } from "react-icons/fi";
+import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -217,7 +215,7 @@ export default function PageMachine() {
             Search
           </button>
           <button
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            className={`${role.name !== ERoles.PROVIDER && "hidden"} inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={() => setModalForm(true)}
           >
