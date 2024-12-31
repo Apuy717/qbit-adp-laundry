@@ -118,7 +118,7 @@ export default function Vouchers() {
     };
     GotVoucher()
 
-  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher,router])
+  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher, router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -428,7 +428,7 @@ export default function Vouchers() {
               <button
                 onClick={formik.submitForm}
                 className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Save
+                Submit
               </button>
             </div>
           </div>

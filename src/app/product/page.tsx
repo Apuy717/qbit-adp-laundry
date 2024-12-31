@@ -811,7 +811,7 @@ export default function Product() {
               <button
                 onClick={formik.submitForm}
                 className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Save
+                Submit
               </button>
             </div>
           </div>
@@ -964,7 +964,7 @@ export default function Product() {
               <button
                 onClick={formik.submitForm}
                 className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Save
+                Submit
               </button>
             </div>
           </div>
@@ -1095,7 +1095,7 @@ export default function Product() {
             <button
               onClick={formik.submitForm}
               className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Save
+              Submit
             </button>
           </div>
         </div>
