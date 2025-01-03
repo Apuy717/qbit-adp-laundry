@@ -199,7 +199,7 @@ export default function Product() {
       id: "",
       outlet_id: "",
       name: "",
-      slug: "",
+      // slug: "",
       picture: "",
       description: "",
       is_deleted: "",
@@ -223,7 +223,7 @@ export default function Product() {
     validationSchema: Yup.object({
       outlet_id: Yup.string(),
       name: Yup.string().max(100, "Max 225 char!"),
-      slug: Yup.string().max(100, "Max 225 char!"),
+      // slug: Yup.string().max(100, "Max 225 char!"),
       description: Yup.string().max(100, "Max 255 char!").optional(),
       category_id: Yup.string(),
       variants: Yup.array().of(
@@ -269,7 +269,7 @@ export default function Product() {
             outlet_id: values.outlet_id,
             name: values.name,
             picture: values.picture,
-            slug: values.slug,
+            // slug: values.slug,
             description: values.description,
             is_deleted: values.is_deleted,
             category_id: values.category_id
@@ -497,7 +497,7 @@ export default function Product() {
                         formik.setFieldValue("id", prod.id)
                         // formik.setFieldValue("outlet_id", prod.outlet.id)
                         formik.setFieldValue("name", prod.name)
-                        formik.setFieldValue("slug", prod.slug)
+                        // formik.setFieldValue("slug", prod.slug)
                         formik.setFieldValue("description", prod.description == null ? `` : prod.description)
                         formik.setFieldValue("category_id", prod.category.id)
                         formik.setFieldValue("is_deleted", prod.is_deleted)
@@ -766,7 +766,7 @@ export default function Product() {
                       : null
                   }
                 />
-                <Input
+                {/* <Input
                   label={"Slug"}
                   name={"slug"}
                   id={"slug"}
@@ -777,7 +777,7 @@ export default function Product() {
                       ? formik.errors.slug
                       : null
                   }
-                />
+                /> */}
                 <InputDropdown
                   label={"Category*"}
                   name={"category_id"}

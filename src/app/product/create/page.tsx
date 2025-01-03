@@ -79,7 +79,7 @@ export default function CreateProduct() {
   const formik = useFormik({
     initialValues: {
       name: "",
-      slug: "",
+      // slug: "",
       picture: "",
       description: "",
       is_deleted: false,
@@ -104,7 +104,7 @@ export default function CreateProduct() {
     },
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
-      slug: Yup.string(),
+      // slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
       category_id: Yup.string().required('Harus pilih category'),
       variants: Yup.array().of(
@@ -243,7 +243,7 @@ export default function CreateProduct() {
                   : null
               }
             />
-            <Input
+            {/* <Input
               label={"Slug"}
               name={"slug"}
               id={"slug"}
@@ -254,7 +254,7 @@ export default function CreateProduct() {
                   ? formik.errors.slug
                   : null
               }
-            />
+            /> */}
 
             <InputFile
               label={"Picture"}

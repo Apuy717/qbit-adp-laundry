@@ -138,7 +138,7 @@ const BasicChartPage: React.FC = () => {
     initialValues: {
       id: null,
       name: "",
-      slug: "",
+      // slug: "",
       is_deleted: false,
       outlet_id: "All",
       status: EStatusPRs.ACCEPTED,
@@ -147,7 +147,7 @@ const BasicChartPage: React.FC = () => {
     },
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 100 karakter!").required("Nama diperlukan!"),
-      slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
+      // slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
       outlet_id: Yup.string().required("Outlet diperlukan!"),
       is_deleted: Yup.boolean().required("Status diperlukan!"),
       status: Yup.string().required("Status diperlukan!"),
@@ -170,7 +170,7 @@ const BasicChartPage: React.FC = () => {
         data: {
           ...idUpdate,
           name: values.name,
-          slug: values.slug,
+          // slug: values.slug,
           is_deleted: values.is_deleted,
           ...withOutletId,
           status: values.status,
@@ -318,7 +318,7 @@ const BasicChartPage: React.FC = () => {
                     onClick={() => {
                       formik.setFieldValue("id", i.id)
                       formik.setFieldValue("name", i.name)
-                      formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
+                      // formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
                       formik.setFieldValue("is_deleted", i.is_deleted)
                       formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
                       formik.setFieldValue("status", i.status)
