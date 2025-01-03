@@ -228,7 +228,7 @@ const BasicChartPage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <Breadcrumb pageName="Purchase Request" />
+      <Breadcrumb pageName="Chart of Accounts" />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
@@ -280,7 +280,7 @@ const BasicChartPage: React.FC = () => {
         </div>
       </div>
       <div>
-        <Table colls={["Name", "Slug", "Outlet", "Status", "Req By", "Acc", "Action"]}
+        <Table colls={["Name", "Outlet", "Status", "Req By", "Acc", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalItem}>
@@ -291,9 +291,9 @@ const BasicChartPage: React.FC = () => {
               <td className="whitespace-nowrap px-6 py-4">
                 {i.name}
               </td>
-              <td className="whitespace-nowrap px-6 py-4">
+              {/* <td className="whitespace-nowrap px-6 py-4">
                 {i.slug && i.slug.length >= 1 ? i.slug : "-"}
-              </td>
+              </td> */}
               <td className="whitespace-nowrap px-6 py-4">
                 {/* {i.outlet?.name}
                 <span className="font-light">
@@ -366,14 +366,14 @@ const BasicChartPage: React.FC = () => {
                     : null
                 } />
 
-              <Input label={"Slug*"} name={"slug"} id={"slug"}
+              {/* <Input label={"Slug*"} name={"slug"} id={"slug"}
                 value={formik.values.slug}
                 onChange={(v) => formik.setFieldValue("slug", v)}
                 error={
                   formik.touched.slug && formik.errors.slug
                     ? formik.errors.slug
                     : null
-                } />
+                } /> */}
 
               <InputDropdown
                 label={"Category*"}

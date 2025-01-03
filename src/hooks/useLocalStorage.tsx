@@ -33,7 +33,7 @@ function useLocalStorage<T>(
         typeof storedValue === "function"
           ? storedValue(storedValue)
           : storedValue;
-      // Save state
+      // Submit state
       if (typeof window !== "undefined") {
         // browser code
         window.localStorage.setItem(key, JSON.stringify(valueToStore));

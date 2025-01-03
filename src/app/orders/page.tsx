@@ -128,7 +128,7 @@ export default function Orders() {
     })
 
     if (res.statusCode === 200) {
-      const url = `${window.location.origin}/file/${res.data.filename}`;
+      const url = `${window.location.origin}/download/${res.data.filename}`;
       window.open(url, '_blank');
     }
 
@@ -170,7 +170,7 @@ export default function Orders() {
       </div>
 
       {!loadingSearch && (
-        <Table colls={["#", "INVOICE", "Outlet", "Total Clothes", "Total Sku", "Total", "Payment Method", "Payment Status", "Order Status", "Date", "Action"]}
+        <Table colls={["Date", "Invoice", "Outlet", "Customer Name", "Total Sku", "Total Clothes", "Total Billing", "Payment Method", "Payment Status", "Order Status", "Action"]}
           currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
           {items.map((i, k) => (
             <tr
@@ -178,11 +178,37 @@ export default function Orders() {
             dark:bg-gray-800 dark:hover:bg-gray-600"
               key={k}
             >
-              <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
+              <td className="whitespace-nowrap px-6 py-4">{
+                new Date(i.created_at).toLocaleDateString("id", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              }
+              </td>
               <td className="whitespace-nowrap px-6 py-4 uppercase">{i.invoice_id}</td>
-              <td className="px-6 py-4">{i.outlet.name}</td>
-              <td className="px-6 py-4">{i.total_item !== null ? i.total_item : "-"}</td>
+              <td className="whitespace-nowrap px-6 py-4">
+                <div className="flex flex-col">
+                  {i.outlet?.name}
+                  <span className="font-light">
+                    {" "} ({i.outlet && i.outlet.city.split("--").length >= 2 ? i.outlet.city.split("--")[1] : i.outlet?.city})
+                  </span>
+                </div>
+              </td>
+
+              <td className="whitespace-nowrap px-6 py-4">
+                <div className="flex flex-col">
+                  {i.customer.fullname}
+                  <span className="font-light">
+                    {" "} {i.customer.dial_code} {i.customer.phone_number}
+                  </span>
+                </div>
+              </td>
               <td className="px-6 py-4">{i.items.length}</td>
+              <td className="px-6 py-4">{i.total_item !== null ? i.total_item : "-"}</td>
               <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.total))}</td>
               <td className="px-6 py-4">{i.payment_method?.name}</td>
               <td className="px-6 py-4">
@@ -199,16 +225,7 @@ export default function Orders() {
                 ${i.status === EStatusOrder.COMPLETED && "bg-green-500"}
               `}>{i.status}</p>
               </td>
-              <td className="whitespace-nowrap px-6 py-4">{
-                new Date(i.created_at).toLocaleDateString("id", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-              }</td>
+
               <td className="px-6 py-4">
                 <button onClick={() => {
                   setDetail(() => {

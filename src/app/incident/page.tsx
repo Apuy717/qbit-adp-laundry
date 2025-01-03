@@ -104,14 +104,11 @@ export default function IncidentPage() {
     if (res.statusCode === 200) {
       toast.success("Sucess update data!");
     }
-
   }
 
   return (
-    
-    <div>
+    <div className="min-h-screen">
       <Breadcrumb pageName={"Incident"} />
-
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <DatePickerOne label={"Start"} defaultDate={new Date(startDate)}
@@ -140,27 +137,42 @@ export default function IncidentPage() {
 
 
       <Table
-        colls={["Outlet", "Invoice", "Token", "Incident", "Requested", "Approved", "Created At", "Note", "Action"]}
+        colls={["ID", "Date", "Outlet", "Invoice", "Reason", "Requested", "Approved", "Token", "Action"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
         {data.map((i, k) => (
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
+            <td className="px-6 py-4 whitespace-nowrap">
+              {i.id}
+            </td>
 
-            <td className="px-6 py-4 whitespace-nowrap flex flex-col">
+            <td className="px-6 py-4 whitespace-nowrap">
+              {new Date(i.created_at).toLocaleDateString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </td>
+
+            <td className="whitespace-nowrap px-6 py-4 flex flex-col">
               {i.outlet.name}
-              <span className="text-xs font-thin">{i.outlet.city}</span>
+              <span className="text-xs font-thin">
+                {
+                  i.outlet.city.split("--").length >= 2 ?
+                    i.outlet.city.split("--")[1] :
+                    i.outlet.city
+                }
+              </span>
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.incident_reports[0].order_item_stage.order_item.order.invoice_id}
             </td>
-            <td className="px-6 py-4">
-              <div className={`${i.approved ? "bg-green-500" : "bg-red"} flex items-center justify-center
-                 p-2 rounded text-white`}>
-                {i.token}
-              </div>
-            </td>
+
             <td className="px-6 py-4 whitespace-nowrap">
               {i.incident_type.name}
             </td>
@@ -172,34 +184,32 @@ export default function IncidentPage() {
             <td className="px-6 py-4 whitespace-nowrap">
               {i.accepted_by?.fullname}
             </td>
-            <td className="px-6 py-4">
-              {new Date(i.created_at).toLocaleDateString("id", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </td>
-            <td className="px-6 py-4">
-              {i.note === null ? "-" : i.note}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap flex flex-row gap-1 items-center justify-center">
-              {!i.approved && (
-                <button className="bg-green-500 flex items-center justify-center p-1 rounded"
-                  onClick={() => approveToken(i.id)}>
-                  <IoCheckmark size={20} color="white" />
-                </button>
-              )}
-              <button className="bg-gray-500 flex items-center justify-center p-1 rounded"
-                onClick={() => {
-                  setDetail(i)
-                  setViewDetail(true)
 
-                }}>
-                <FiEye size={20} color="white" />
-              </button>
+            <td className="px-6 py-4">
+              <span className="text-xs font-thin">{i.type}</span>
+              <div className={`${i.approved ? "bg-green-500" : "bg-red"} flex items-center justify-center
+                 p-2 rounded text-white flex-col`}>
+                {i.token.substring(0, 8).toUpperCase()}
+              </div>
+
+            </td>
+            <td>
+              <div className="w-full h-full flex items-center justify-center">
+                {!i.approved && (
+                  <button className="bg-green-500 flex items-center justify-center p-1 rounded"
+                    onClick={() => approveToken(i.id)}>
+                    <IoCheckmark size={20} color="white" />
+                  </button>
+                )}
+                <button className="bg-gray-500 flex items-center justify-center p-1 rounded"
+                  onClick={() => {
+                    setDetail(i)
+                    setViewDetail(true)
+
+                  }}>
+                  <FiEye size={20} color="white" />
+                </button>
+              </div>
             </td>
           </tr>
         ))}
@@ -251,6 +261,10 @@ export default function IncidentPage() {
               </h4>
               <div className="py-3 flex flex-col space-y-1">
                 <div className="flex flex-row justify-between">
+                  <p>ID</p>
+                  <p>{detail?.id}</p>
+                </div>
+                <div className="flex flex-row justify-between">
                   <p>Token</p>
                   <p>{detail?.token}</p>
                 </div>
@@ -269,6 +283,10 @@ export default function IncidentPage() {
                   ) : (
                     <div className="bg-red-500 flex items-center justify-center px-2 text-white rounded text-sm">false</div>
                   )}
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Note</p>
+                  <p>{detail && detail.note === null ? detail.note : " - "}</p>
                 </div>
                 <div className="flex flex-row justify-between">
                   <p>Created At</p>

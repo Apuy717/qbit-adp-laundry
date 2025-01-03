@@ -6,18 +6,16 @@ import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { Outlet } from "@/types/outlet";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
-import { FaArrowLeft, FaRegPlusSquare, FaTrash } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-
 
 interface MyResponse {
   statusCode: number;
@@ -28,7 +26,7 @@ interface MyResponse {
 }
 const CELLS = [
   "Name",
-  "Description",
+  "Category",
   "Total SKU",
   "Created at",
   "Status",
@@ -61,6 +59,8 @@ export default function Product() {
 
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter()
+
+  const [filterByCategory, setFilterByCategory] = useState<string>("all")
 
   const serviceType = [{
     label: "services",
@@ -105,7 +105,8 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet
+          outlet_ids: filterByOutlet,
+          category_id: "",
         }
       });
       if (res?.statusCode === 200) {
@@ -134,17 +135,14 @@ export default function Product() {
       if (mapingCategory.length >= 1) formik.setFieldValue("category_id", mapingCategory[0].value)
 
       setCategorys(mapingCategory)
-      console.log(categorys);
     };
     GotProduct()
     GotCategorys()
-    console.log(products);
     // console.log(products[skusIdx].skus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
 
   useEffect(() => {
-    console.log("skuId " + skuId);
     if (skuId != "") {
       const GotPriceSku = async () => {
         let urlwithQuery = `/api/product/get-prices/${skuId}?page=${currentPage}&limit=${10}`;
@@ -161,14 +159,12 @@ export default function Product() {
           else setTotalProduct(0)
           setSkuPrices(res.data);
         }
-        console.log("url " + urlwithQuery);
 
         setTimeout(() => {
           setLoadingSearch(false);
         }, 100);
       };
       GotPriceSku()
-      console.log(skuPrices);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skuId, addpriceSku, auth.auth.access_token])
@@ -340,11 +336,7 @@ export default function Product() {
           data: { values: dataprice },
           token: `${auth.auth.access_token}`,
         });
-        console.log(dataprice);
-
       }
-      console.log(res.data);
-
 
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
@@ -384,7 +376,6 @@ export default function Product() {
     } else {
       callBack(undefined, "");
     }
-    console.log(file);
   };
 
   const rupiah = (number: number) => {
@@ -396,6 +387,7 @@ export default function Product() {
     return `Rp. ${result}`
   }
 
+  const [productId, setProductId] = useState<string | null>(null)
 
   return (
     <>
@@ -403,6 +395,12 @@ export default function Product() {
 
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
+          <InputDropdown
+            label={"Filter By Category"}
+            name={"filterByCategory"} id={"filterByCategory"} value={filterByCategory}
+            onChange={(e) => setFilterByCategory(e)} error={null}
+            options={[{ label: "All", value: "all" }].concat(categorys)}
+          />
           <div className="w-full md:w-96">
             <Input
               label={"Search"}
@@ -447,7 +445,7 @@ export default function Product() {
                 {prod.name}
               </td>
               <td className="px-6 py-4">
-                {prod.description}
+                {prod.category.name}
               </td>
               <td className="px-6 py-4">
                 {prod.skus.length + " SKU"}
@@ -461,7 +459,7 @@ export default function Product() {
               </td>
               <td className="px-6 py-4">
                 {prod.is_deleted ? (
-                  <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center w-auto">
+                  <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center">
                     <p className="text-white">inactive</p>
                   </div>
                 ) : (
@@ -476,9 +474,11 @@ export default function Product() {
                     <button
                       className="cursor-pointer"
                       onClick={() => {
+                        setProductId(prod.id)
                         setIsViewDetail(true)
                         const filter = products.filter((f: any) => f.id == prod.id)
                         setfilterSkus(filter[0].skus);
+
                       }}
                     >
                       <FiEye size={18} />
@@ -510,7 +510,7 @@ export default function Product() {
                       Edit Product
                     </div>
                   </div>
-                  <div className="relative group">
+                  {/* <div className="relative group">
                     <button
                       onClick={() => {
                         formik.setFieldValue("product_id", prod.id)
@@ -538,7 +538,7 @@ export default function Product() {
                     <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
                       Add SKU
                     </div>
-                  </div>
+                  </div> */}
 
                 </div>
               </td>
@@ -551,7 +551,10 @@ export default function Product() {
         transition-all duration-500 shadow bg-white dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"}`}>
         <div className="p-4 bg-white dark:bg-boxdark shadow">
-          <button onClick={() => setIsViewDetail(false)}>
+          <button onClick={() => {
+            setIsViewDetail(false);
+            setProductId(null);
+          }}>
             <FaArrowLeft size={20} className="rotate-180" />
           </button>
         </div>
@@ -559,13 +562,39 @@ export default function Product() {
           <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
             Product SKU
           </h3>
+          <button className="py-2 px-10 bg-blue-500 text-white rounded-md"
+            onClick={() => {
+              if (productId !== null) {
+                formik.setFieldValue("product_id", productId)
+                formik.setFieldValue("code", "")
+                formik.setFieldValue("name", "")
+                formik.setFieldValue("description", "")
+                formik.setFieldValue("capital_price", "")
+                formik.setFieldValue("price", "")
+                formik.setFieldValue("type", "services")
+                formik.setFieldValue("stock", "")
+                formik.setFieldValue("unit", "")
+                formik.setFieldValue("machine_washer", false)
+                formik.setFieldValue("washer_duration", 0)
+                formik.setFieldValue("machine_dryer", false)
+                formik.setFieldValue("dryer_duration", 0)
+                formik.setFieldValue("machine_iron", false)
+                formik.setFieldValue("iron_duration", 0)
+                formik.setFieldValue("is_deleted", false)
+                setProductOrSku(false)
+                setUpdateOrAddSku(false)
+                setUpdateModal(true)
+              } else {
+                toast.warn("Product not selected!")
+              }
+            }}>Add Sku</button>
         </div>
 
         <div className="px-2">
           <p className="text-lg font-semibold text-black dark:text-white">
             Detail Item
           </p>
-          <Table colls={["#", "Code", "Name", "Price", "Quantity", "Washer", "Dryer", "Iron", "Description", "Action"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
+          <Table colls={["#", "Code", "Name", "Price", "Stock", "Washer", "Dryer", "Iron", "Description", "Action"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
             throw new Error("Function not implemented.");
           }}>
             {filterSkus.map((i: any, k: any) => (
@@ -583,7 +612,7 @@ export default function Product() {
                   {rupiah(i.price)}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  {i.stock ? i.stock + ' ' + i.unit : ''}
+                  {i.stock ? `${i.stock} ${i.unit}` : '-'}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.machine_washer ? (
@@ -628,7 +657,6 @@ export default function Product() {
                       onClick={() => {
                         setIsViewSkuPrices(true)
                         setSkuId(i.id)
-                        console.log(skuId);
                         formik.setFieldValue("sku_id", i.id)
                         setAddpriceSku(true)
                       }}
@@ -783,7 +811,7 @@ export default function Product() {
               <button
                 onClick={formik.submitForm}
                 className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Save
+                Submit
               </button>
             </div>
           </div>
@@ -936,7 +964,7 @@ export default function Product() {
               <button
                 onClick={formik.submitForm}
                 className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Save
+                Submit
               </button>
             </div>
           </div>
@@ -1067,7 +1095,7 @@ export default function Product() {
             <button
               onClick={formik.submitForm}
               className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Save
+              Submit
             </button>
           </div>
         </div>

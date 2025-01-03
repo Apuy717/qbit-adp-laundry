@@ -9,18 +9,16 @@ import { RootState } from "@/stores/store";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
-import { CiSettings } from "react-icons/ci";
 import {
-  FaLayerGroup,
   FaUsers
 } from "react-icons/fa";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosArrowDown } from "react-icons/io";
-import { MdOutlineDashboard, MdOutlineReportGmailerrorred } from "react-icons/md";
+import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { TbIroningSteam, TbShoppingBagPlus } from "react-icons/tb";
+import { TbIroningSteam } from "react-icons/tb";
 import { useSelector } from "react-redux";
 
 interface SidebarProps {
@@ -52,7 +50,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
           children: [
             { label: "Outlet", route: "/outlet" },
-            { label: "Product", route: "/product" }
+            { label: "Category", route: "/category" },
+            { label: "Product", route: "/product" },
+            { label: "Chart of Accounts", route: "/purchase-request/item" },
           ],
         },
         {
@@ -60,43 +60,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Employee",
           route: "/employee",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
-        },
-        {
-          icon: <BiSolidDiscount size={22} />,
-          label: "Voucher",
-          route: "/voucher",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
-        },
-        {
-          icon: <FaLayerGroup size={22} />,
-          label: "Category",
-          route: "/category",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
-        },
-        {
-          icon: <TbIroningSteam size={24} />,
-          label: "Iron",
-          route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
-          children: [
-            { label: "Detail", route: "/iron" },
-            { label: "Performance", route: "/iron/performance" },
-          ],
-        },
-        {
-          icon: <MdOutlineReportGmailerrorred size={24} />,
-          label: "Incident",
-          route: "/incident",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.SUPER_ADMIN],
-        },
-        {
-          icon: <TbShoppingBagPlus size={23} />,
-          label: "Purchase Request",
-          route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
-          children: [
-            { label: "Item", route: "/purchase-request/item" },
-          ],
         },
         {
           icon: <RiMoneyCnyCircleLine size={23} />,
@@ -109,13 +72,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           ],
         },
         {
-          icon: <CiSettings size={30} />,
-          label: "Settings",
+          icon: <TbIroningSteam size={24} />,
+          label: "Iron",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
           children: [
-            { label: "Payment Metod", route: "/payment-method" },
-          ]
+            { label: "Detail", route: "/iron" },
+            { label: "Performance", route: "/iron/performance" },
+          ],
+        },
+        {
+          icon: <MdOutlineReportGmailerrorred size={24} />,
+          label: "Incident",
+          route: "/incident",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
         },
       ],
     },
@@ -124,11 +94,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
       menuItems: [
         {
+          icon: <BiSolidDiscount size={22} />,
+          label: "Voucher",
+          route: "/voucher",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+        },
+        {
           icon: <BiSolidWasher size={23} />,
           label: "Machine",
           route: "/machine",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
         },
+        {
+          icon: <MdPayment size={22} />,
+          label: "Payment Method",
+          route: "/payment-method",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+
       ],
     },
   ];
@@ -151,7 +134,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               style={{ height: "auto", width: "auto" }}
             />
           </Link>
-          
+
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-controls="sidebar"

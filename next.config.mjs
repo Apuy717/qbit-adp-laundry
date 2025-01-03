@@ -19,6 +19,10 @@ const nextConfig = {
         source: "/file/:path*",
         destination: "http://101.255.104.213:4000/file/:path*",
       },
+      {
+        source: "/download/:path*",
+        destination: "http://101.255.104.213:3000/download/:path*",
+      },
     ];
   },
 };
