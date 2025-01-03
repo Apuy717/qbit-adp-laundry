@@ -1058,7 +1058,7 @@ export default function Product() {
               colls={["#", "Outlet", "City", "Price"]}
               onPaginate={(page) => setCurrentPage(page)}
               currentPage={currentPage}
-              totalItem={totalProduct}>
+              totalItem={skuPrices.length}>
               {skuPrices.map((i, k) => (
                 <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                   <td className="px-6 py-4">
