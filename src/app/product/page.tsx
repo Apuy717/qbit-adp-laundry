@@ -563,21 +563,22 @@ export default function Product() {
           </button>
         </div>
         <div className="mt-4 p-4">
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm lg:text-base">
+          <h3 className="text-2xl font-semibold text-black dark:text-white">
+            {productName}
+          </h3>
             <nav>
               <ol className="flex items-center gap-2">
                 <li>
-                  <Link className="font-medium" href="/">
-                    Dashboard /
+                  <Link className="" href="/">
+                    Dashboard / Product / 
                   </Link>
                 </li>
-                <li className="font-medium text-primary">Product Detail</li>
+                <li className=" text-primary">Product Detail</li>
               </ol>
             </nav>
           </div>
-          <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-            {productName}
-          </h3>
+          
           <button className="py-2 px-10 bg-blue-500 text-white rounded-md"
             onClick={() => {
               if (productId !== null) {
@@ -1008,7 +1009,7 @@ export default function Product() {
                 <ol className="flex items-center gap-2">
                   <li>
                     <Link className="font-medium" href="/">
-                      Dashboard /
+                      Dashboard / Product /
                     </Link>
                   </li>
                   <li className="font-medium text-primary">SKU Price Detail</li>
