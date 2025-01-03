@@ -8,6 +8,7 @@ import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
@@ -53,6 +54,8 @@ export default function Product() {
   const [productOrSku, setProductOrSku] = useState<boolean>(false)
   const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false)
   const [outlets, setOutlets] = useState<iDropdown[]>([])
+  const [productName, setProductName] = useState<string>("")
+  const [skuName, setskuName] = useState<string>("")
 
   const [skuId, setSkuId] = useState<string>("")
   const [skuPrices, setSkuPrices] = useState<any[]>([])
@@ -474,6 +477,7 @@ export default function Product() {
                     <button
                       className="cursor-pointer"
                       onClick={() => {
+                        setProductName(prod.name)
                         setProductId(prod.id)
                         setIsViewDetail(true)
                         const filter = products.filter((f: any) => f.id == prod.id)
@@ -559,8 +563,20 @@ export default function Product() {
           </button>
         </div>
         <div className="mt-4 p-4">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <nav>
+              <ol className="flex items-center gap-2">
+                <li>
+                  <Link className="font-medium" href="/">
+                    Dashboard /
+                  </Link>
+                </li>
+                <li className="font-medium text-primary">Product Detail</li>
+              </ol>
+            </nav>
+          </div>
           <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-            Product SKU
+            {productName}
           </h3>
           <button className="py-2 px-10 bg-blue-500 text-white rounded-md"
             onClick={() => {
@@ -590,7 +606,7 @@ export default function Product() {
             }}>Add Sku</button>
         </div>
 
-        <div className="px-2">
+        <div className="px-4 space-y-2">
           <p className="text-lg font-semibold text-black dark:text-white">
             Detail Item
           </p>
@@ -655,6 +671,7 @@ export default function Product() {
                     <button
                       className="cursor-pointer"
                       onClick={() => {
+                        setskuName(i.name)
                         setIsViewSkuPrices(true)
                         setSkuId(i.id)
                         formik.setFieldValue("sku_id", i.id)
@@ -983,7 +1000,22 @@ export default function Product() {
           </div>
 
           <div className="">
-            <Breadcrumb pageName={`SKU Price Detail`} />
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                {skuName}
+              </h2>
+              <nav>
+                <ol className="flex items-center gap-2">
+                  <li>
+                    <Link className="font-medium" href="/">
+                      Dashboard /
+                    </Link>
+                  </li>
+                  <li className="font-medium text-primary">SKU Price Detail</li>
+                </ol>
+              </nav>
+            </div>
+            {/* <Breadcrumb pageName={`SKU Price Detail`} /> */}
             <div className="lg:flex bg-white dark:bg-gray-700 p-4 rounded-lg lg:space-x-4 lg:space-y-0 space-y-4">
               <InputDropdown
                 label={"Outlets*"}
