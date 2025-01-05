@@ -136,7 +136,7 @@ export default function Orders() {
   }
 
   return (
-    <>
+    <div className="min-h-screen">
       <Breadcrumb pageName={"Order"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
@@ -252,104 +252,106 @@ export default function Orders() {
             <FaArrowLeft className="rotate-180" size={20} />
           </button>
         </div>
-        <div className="w-full h-full">
-          <div className="mt-4 px-6">
-            <h4 className="font-semibold text-black dark:text-white">
-              Detail Pelanggan
-            </h4>
-            <div className="py-3 flex flex-col space-y-1">
-              <div className="flex flex-row justify-between">
-                <p>Nama Lengkap</p>
-                <p>{detail?.customer.fullname}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>No.Hp</p>
-                <p>{detail?.customer.dial_code} {detail?.customer.phone_number}</p>
+        {detail && (
+          <div className="w-full h-full">
+            <div className="mt-4 px-6">
+              <h4 className="font-semibold text-black dark:text-white">
+                Detail Pelanggan
+              </h4>
+              <div className="py-3 flex flex-col space-y-1">
+                <div className="flex flex-row justify-between">
+                  <p>Nama Lengkap</p>
+                  <p>{detail?.customer.fullname}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>No.Hp</p>
+                  <p>{detail?.customer.dial_code} {detail?.customer.phone_number}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-4 px-6">
-            <h4 className="font-semibold text-black dark:text-white">
-              Detail Admin
-            </h4>
-            <div className="py-3 flex flex-col space-y-1">
-              <div className="flex flex-row justify-between">
-                <p>Nama Lengkap</p>
-                <p>{detail?.admin.fullname}</p>
+            <div className="mt-4 px-6">
+              <h4 className="font-semibold text-black dark:text-white">
+                Detail Admin
+              </h4>
+              <div className="py-3 flex flex-col space-y-1">
+                <div className="flex flex-row justify-between">
+                  <p>Nama Lengkap</p>
+                  <p>{detail?.admin.fullname}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-4 px-6">
-            <h4 className="font-semibold text-black dark:text-white">
-              Detail Transaksi
-            </h4>
-            <div className="py-3 flex flex-col space-y-1">
-              <div className="flex flex-row justify-between">
-                <p>ID</p>
-                <p>{detail?.id}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Invoice</p>
-                <p>{detail?.invoice_id}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Staus Order</p>
-                <p>{detail?.status}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Methode Pembayaran</p>
-                <p>{detail?.payment_method?.name}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Staus Pembayaran</p>
-                <p>{detail?.payment_status}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Tanggal</p>
-                <p>22 Nov 2024, 11.00.00</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Total Item</p>
-                <p>{detail?.items.length}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Voucher</p>
-                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { name: string }).name : '-'}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Discount</p>
-                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { discount: string }).discount : '-'}</p>
-              </div>
-              <div className="flex flex-row justify-between">
-                <p>Total Pembayaran</p>
-                <p>{detail && rupiah(parseInt(detail.total))}</p>
+            <div className="mt-4 px-6">
+              <h4 className="font-semibold text-black dark:text-white">
+                Detail Transaksi
+              </h4>
+              <div className="py-3 flex flex-col space-y-1">
+                <div className="flex flex-row justify-between">
+                  <p>ID</p>
+                  <p>{detail?.id}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Invoice</p>
+                  <p>{detail?.invoice_id}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Staus Order</p>
+                  <p>{detail?.status}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Methode Pembayaran</p>
+                  <p>{detail?.payment_method?.name}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Staus Pembayaran</p>
+                  <p>{detail?.payment_status}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Tanggal</p>
+                  <p>22 Nov 2024, 11.00.00</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Total Item</p>
+                  <p>{detail?.items.length}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Voucher</p>
+                  <p>{detail?.voucher !== null ? (detail?.voucher as { name: string }).name : '-'}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Discount</p>
+                  <p>{detail?.voucher !== null ? (detail?.voucher as { discount: string }).discount : '-'}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>Total Pembayaran</p>
+                  <p>{detail && rupiah(parseInt(detail.total))}</p>
+                </div>
               </div>
             </div>
+            <div className="mt-4 px-6">
+              <h4 className="font-semibold text-black dark:text-white">
+                Detail Item
+              </h4>
+              <Table colls={["#", "Nama", "Harga", "Kuantitas", "Total"]}
+                currentPage={0} totalItem={0}
+                onPaginate={() => null}>
+                {detail && detail.items.map((i, k) => (
+                  <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                    key={k}
+                  >
+                    <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
+                    <td className="whitespace-nowrap px-6 py-4">{i.product_sku_name}</td>
+                    <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.price))}</td>
+                    <td className="px-6 py-4">{i.quantity}</td>
+                    <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.sub_total))}</td>
+                  </tr>
+                ))}
+              </Table>
+            </div>
           </div>
-          <div className="mt-4 px-6">
-            <h4 className="font-semibold text-black dark:text-white">
-              Detail Item
-            </h4>
-            <Table colls={["#", "Nama", "Harga", "Kuantitas", "Total"]}
-              currentPage={0} totalItem={0}
-              onPaginate={() => null}>
-              {detail && detail.items.map((i, k) => (
-                <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                  key={k}
-                >
-                  <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
-                  <td className="whitespace-nowrap px-6 py-4">{i.product_sku_name}</td>
-                  <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.price))}</td>
-                  <td className="px-6 py-4">{i.quantity}</td>
-                  <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.sub_total))}</td>
-                </tr>
-              ))}
-            </Table>
-          </div>
-        </div>
+        )}
       </div >
-    </>
+    </div>
   )
 }
