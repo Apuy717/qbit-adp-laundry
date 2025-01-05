@@ -72,12 +72,11 @@ export default function DetailEmployee({ params }: { params: { id: string } }) {
                     <p>{employee && employee.is_deleted ? <span className="text-red-500">non-active</span> : <span className="text-green-500">active</span>} </p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>Phone</p>
-                    <p>Jabatan</p>
+                    <p>Role</p>
                     <p>{employee?.department !== null && employee?.department} / {employee?.role !== null && employee?.role.name}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <p>No. Hp</p>
+                    <p>Phone</p>
                     <p>{employee?.dial_code} {employee?.phone_number}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">

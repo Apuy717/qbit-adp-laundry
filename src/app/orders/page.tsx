@@ -28,7 +28,7 @@ export default function Orders() {
   endOfMonth.setHours(6, 59, 59, 0)
   const offsetInMinutes = 7 * 60
   startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-  // endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
@@ -313,6 +313,14 @@ export default function Orders() {
               <div className="flex flex-row justify-between">
                 <p>Total Item</p>
                 <p>{detail?.items.length}</p>
+              </div>
+              <div className="flex flex-row justify-between">
+                <p>Voucher</p>
+                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { name: string }).name : '-'}</p>
+              </div>
+              <div className="flex flex-row justify-between">
+                <p>Discount</p>
+                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { discount: string }).discount : '-'}</p>
               </div>
               <div className="flex flex-row justify-between">
                 <p>Total Pembayaran</p>

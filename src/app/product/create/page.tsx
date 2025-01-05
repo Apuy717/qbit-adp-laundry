@@ -106,7 +106,7 @@ export default function CreateProduct() {
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
       // slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
-      category_id: Yup.string().required('Harus pilih category'),
+      // category_id: Yup.string().required('Harus pilih category'),
       variants: Yup.array().of(
         Yup.object({
           code: Yup.string().max(100, "Maksimal 100 karakter!"),
@@ -318,12 +318,12 @@ export default function CreateProduct() {
               <hr className="my-8 border-b-2 border-apps-primary dark:bg-gray-2"></hr>
               <div className="mb-5 mt-2" >
                 <button className={index == 0 ? `hidden` : `bg-red-700 p-2 text-sm rounded text-white`} onClick={() => removeVariant(index)}>
-                  Hapus SKU
+                  Delete Item
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                 <Input
-                  label={"SKU Code"}
+                  label={"Item Code"}
                   name={`code ${index}`}
                   id={`code ${index}`}
                   value={formik.values.variants[index].code}
@@ -336,7 +336,7 @@ export default function CreateProduct() {
                   }
                 />
                 <Input
-                  label={"SKU Name*"}
+                  label={"Item Name*"}
                   name={`name ${index}`}
                   id={`name ${index}`}
                   value={formik.values.variants[index].name}
@@ -408,7 +408,7 @@ export default function CreateProduct() {
               </div>
               <div className="pt-6">
                 <InputTextArea
-                  label={"SKU Description"}
+                  label={"Item Description"}
                   name={`description ${index}`}
                   id={`description ${index}`}
                   value={formik.values.variants[index].description}
@@ -493,7 +493,7 @@ export default function CreateProduct() {
             <button
               onClick={addVariant}
               className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-              Add SKU
+              Add Item
             </button>
           </div>
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1 pt-6">

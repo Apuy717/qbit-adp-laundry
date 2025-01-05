@@ -186,12 +186,11 @@ export default function IncidentPage() {
             </td>
 
             <td className="px-6 py-4">
-              <span className="text-xs font-thin">{i.type}</span>
+              <span className="text-xs font-thin">{i.type === "multiple" ? "Incident" : "Request Extra"}</span>
               <div className={`${i.approved ? "bg-green-500" : "bg-red"} flex items-center justify-center
                  p-2 rounded text-white flex-col`}>
                 {i.token.substring(0, 8).toUpperCase()}
               </div>
-
             </td>
             <td>
               <div className="w-full h-full flex items-center justify-center">
