@@ -99,13 +99,13 @@ const CategoryPage: React.FC = () => {
     initialValues: {
       id: null,
       name: "",
-      slug: "",
+      // slug: "",
       is_deleted: false,
       outlet_id: "null"
     },
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 100 karakter!").required("Nama diperlukan!"),
-      slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
+      // slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
       outlet_id: Yup.string().optional(),
       is_deleted: Yup.boolean().required("Status diperlukan!")
     }),
@@ -120,7 +120,7 @@ const CategoryPage: React.FC = () => {
         data: {
           ...updateId,
           name: values.name,
-          slug: values.slug.length >= 1 ? values.slug : null,
+          // slug: values.slug.length >= 1 ? values.slug : null,
           is_deleted: values.is_deleted,
           outlet_id: values.outlet_id === "null" ? null : values.outlet_id
         },
@@ -191,7 +191,7 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
       <div>
-        <Table colls={["Name", "Slug", "Outlet", "Status", "Action"]}
+        <Table colls={["Name",  "Outlet", "Status", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalCategory}>
@@ -202,9 +202,9 @@ const CategoryPage: React.FC = () => {
               <td className="whitespace-nowrap px-6 py-4">
                 {i.name}
               </td>
-              <td className="whitespace-nowrap px-6 py-4">
+              {/* <td className="whitespace-nowrap px-6 py-4">
                 {i.slug && i.slug.length >= 1 ? i.slug : "-"}
-              </td>
+              </td> */}
               <td className="whitespace-nowrap px-6 py-4">
                 {i.outlet_id && i.outlet_id.length >= 1 ? outlets.find(f => f.value === i.outlet_id)?.label : "general"}
               </td>
@@ -227,7 +227,7 @@ const CategoryPage: React.FC = () => {
                     onClick={() => {
                       formikCategory.setFieldValue("id", i.id)
                       formikCategory.setFieldValue("name", i.name)
-                      formikCategory.setFieldValue("slug", i.slug === null ? "" : i.slug)
+                      // formikCategory.setFieldValue("slug", i.slug === null ? "" : i.slug)
                       formikCategory.setFieldValue("is_deleted", i.is_deleted)
                       formikCategory.setFieldValue("outlet_id", i.outlet_id === null ? "null" : i.outlet_id)
                       setCreateOrUpdate(false)
@@ -271,14 +271,14 @@ const CategoryPage: React.FC = () => {
                   : null
               } />
 
-            <Input label={"Slug*"} name={"slug"} id={"slug"}
+            {/* <Input label={"Slug*"} name={"slug"} id={"slug"}
               value={formikCategory.values.slug}
               onChange={(v) => formikCategory.setFieldValue("slug", v)}
               error={
                 formikCategory.touched.slug && formikCategory.errors.slug
                   ? formikCategory.errors.slug
                   : null
-              } />
+              } /> */}
 
             <InputDropdown
               label={"Outlet*"}

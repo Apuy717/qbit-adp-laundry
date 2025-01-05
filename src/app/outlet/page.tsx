@@ -63,6 +63,37 @@ export default function OutletPage() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const router = useRouter();
 
+  function findOutletByNameSubstring(nameSubstring: string): Area[] {
+    const results: Area[] = [];
+
+    for (const area of outlets) {
+      for (const outlet of area.outlets) {
+        if (outlet.name.toLowerCase().includes(nameSubstring.toLowerCase())) {
+          const checkArea = results.findIndex(f => f.area_id === area.area_id)
+          if (checkArea <= -1) {
+            results.push({
+              area_id: area.area_id,
+              area: area.area,
+              outlets: [outlet],
+            });
+          } else {
+            Object.assign(results[checkArea], {
+              ...results[checkArea],
+              outlets: results[checkArea].outlets.concat([outlet])
+            })
+          }
+        }
+      }
+    }
+
+    return results;
+  }
+  function filterOutlet() {
+    if (search.length >= 3)
+      return findOutletByNameSubstring(search);
+    return outlets
+  }
+
   useEffect(() => {
     const GotGroupingOutlets = async () => {
       const res = await GetWithToken<iResponse<Outlet[]>>({
@@ -100,8 +131,8 @@ export default function OutletPage() {
           }
         }
         setOutlets(maping)
-        console.log(outlets);
-        console.log(res.data);
+        // console.log(outlets);
+        // console.log(res.data);
 
       }
     }
@@ -249,6 +280,12 @@ export default function OutletPage() {
     onSubmit: async (values) => {
       console.log(values);
 
+
+      const checkDuplicate = hasDuplicateOutletId(values.groupings)
+      console.log(checkDuplicate);
+
+      if (checkDuplicate) return toast.warning("Forbidden to grouping same outlet, check your form and retry to submit")
+
       let url = "api/outlet/gouping-outlet"
       const res = await PostWithToken<MyResponse>({
         router: router,
@@ -267,6 +304,10 @@ export default function OutletPage() {
     },
   })
   const deleteArea = async (id: any) => {
+    const userConfirmed = window.confirm("Are you sure you want to delete this Area?");
+    if (!userConfirmed) {
+      return;
+    }
     const data = {
       area_id: id
     }
@@ -286,10 +327,13 @@ export default function OutletPage() {
     }
 
   }
+  const hasDuplicateOutletId = (groupings: any) => {
+    const outletIds = groupings.map((item: any) => item.outlet_id);
+    return new Set(outletIds).size !== outletIds.length;
+  };
 
   const addVariantGroup = (index: any) => {
     if (index <= mapingGroupOutlet.length) {
-
       formikGrouping.setFieldValue('groupings', [
         ...formikGrouping.values.groupings,
         {
@@ -372,10 +416,10 @@ export default function OutletPage() {
           <Table
             colls={CELLS}
             onPaginate={(page) => setCurrentPage(page)}
-            currentPage={currentPage}
-            totalItem={totalOutlet}
+            currentPage={0}
+            totalItem={0}
           >
-            {outlets.map((i, k) => (
+            {filterOutlet().map((i, k) => (
               <>
                 <tr className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
                    dark:hover:bg-gray-600">
@@ -403,7 +447,7 @@ export default function OutletPage() {
                         <div className=" relative group">
                           <button
                             onClick={() => {
-                              router.push(`/outlet/${o.id}`);
+                              router.push(`/outlet/${o.outlet_id}`);
                             }}
                             className="flex items-center"
                           >
@@ -418,8 +462,6 @@ export default function OutletPage() {
                   )
                 })}
               </>
-
-
             ))}
 
           </Table>
@@ -572,16 +614,18 @@ export default function OutletPage() {
                 </div>
               ))}
             </div>
-            <div className="flex space-x-4">
-              <button
-                onClick={formikGrouping.submitForm}
-                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 mt-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-                Submit
-              </button>
+            <div className="">
               <button
                 onClick={() => { addVariantGroup(formikGrouping.values.groupings.length) }}
-                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 mt-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                className="inline-flex items-center justify-center rounded-md bg-primary px-10 py-2 mt-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
                 Add form
+              </button>
+            </div>
+            <div className="w-full">
+              <button
+                onClick={formikGrouping.submitForm}
+                className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 mt-6 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                Submit
               </button>
             </div>
 

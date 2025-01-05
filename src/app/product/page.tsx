@@ -8,6 +8,7 @@ import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
@@ -52,7 +53,10 @@ export default function Product() {
   const [addpriceSku, setAddpriceSku] = useState<boolean>(false)
   const [productOrSku, setProductOrSku] = useState<boolean>(false)
   const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false)
+  const [addSkuModal, setaddSkuModal] = useState<boolean>(false)
   const [outlets, setOutlets] = useState<iDropdown[]>([])
+  const [productName, setProductName] = useState<string>("")
+  const [skuName, setskuName] = useState<string>("")
 
   const [skuId, setSkuId] = useState<string>("")
   const [skuPrices, setSkuPrices] = useState<any[]>([])
@@ -196,7 +200,7 @@ export default function Product() {
       id: "",
       outlet_id: "",
       name: "",
-      slug: "",
+      // slug: "",
       picture: "",
       description: "",
       is_deleted: "",
@@ -220,7 +224,7 @@ export default function Product() {
     validationSchema: Yup.object({
       outlet_id: Yup.string(),
       name: Yup.string().max(100, "Max 225 char!"),
-      slug: Yup.string().max(100, "Max 225 char!"),
+      // slug: Yup.string().max(100, "Max 225 char!"),
       description: Yup.string().max(100, "Max 255 char!").optional(),
       category_id: Yup.string(),
       variants: Yup.array().of(
@@ -266,7 +270,7 @@ export default function Product() {
             outlet_id: values.outlet_id,
             name: values.name,
             picture: values.picture,
-            slug: values.slug,
+            // slug: values.slug,
             description: values.description,
             is_deleted: values.is_deleted,
             category_id: values.category_id
@@ -356,6 +360,7 @@ export default function Product() {
           setIsViewDetail(false)
           setUpdateModal(false)
           setAddpriceSku(false)
+          setaddSkuModal(false)
         }
       }
       setLoading(false);
@@ -391,7 +396,7 @@ export default function Product() {
 
   return (
     <>
-      <Breadcrumb pageName="Product" />
+      <Breadcrumb pageName="Product Group" />
 
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
@@ -445,7 +450,7 @@ export default function Product() {
                 {prod.name}
               </td>
               <td className="px-6 py-4">
-                {prod.category.name}
+                {prod.category!==null?prod.category.name:''}
               </td>
               <td className="px-6 py-4">
                 {prod.skus.length + " SKU"}
@@ -474,6 +479,7 @@ export default function Product() {
                     <button
                       className="cursor-pointer"
                       onClick={() => {
+                        setProductName(prod.name)
                         setProductId(prod.id)
                         setIsViewDetail(true)
                         const filter = products.filter((f: any) => f.id == prod.id)
@@ -493,7 +499,7 @@ export default function Product() {
                         formik.setFieldValue("id", prod.id)
                         // formik.setFieldValue("outlet_id", prod.outlet.id)
                         formik.setFieldValue("name", prod.name)
-                        formik.setFieldValue("slug", prod.slug)
+                        // formik.setFieldValue("slug", prod.slug)
                         formik.setFieldValue("description", prod.description == null ? `` : prod.description)
                         formik.setFieldValue("category_id", prod.category.id)
                         formik.setFieldValue("is_deleted", prod.is_deleted)
@@ -559,9 +565,22 @@ export default function Product() {
           </button>
         </div>
         <div className="mt-4 p-4">
-          <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-            Product SKU
-          </h3>
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm lg:text-base">
+            <h3 className="text-2xl font-semibold text-black dark:text-white">
+              {productName}
+            </h3>
+            <nav>
+              <ol className="flex items-center gap-2">
+                <li>
+                  <Link className="" href="/">
+                    Dashboard / Product /
+                  </Link>
+                </li>
+                <li className=" text-primary">Product Detail</li>
+              </ol>
+            </nav>
+          </div>
+
           <button className="py-2 px-10 bg-blue-500 text-white rounded-md"
             onClick={() => {
               if (productId !== null) {
@@ -583,14 +602,14 @@ export default function Product() {
                 formik.setFieldValue("is_deleted", false)
                 setProductOrSku(false)
                 setUpdateOrAddSku(false)
-                setUpdateModal(true)
+                setaddSkuModal(true)
               } else {
                 toast.warn("Product not selected!")
               }
-            }}>Add Sku</button>
+            }}>Add Item</button>
         </div>
 
-        <div className="px-2">
+        <div className="px-4 space-y-2">
           <p className="text-lg font-semibold text-black dark:text-white">
             Detail Item
           </p>
@@ -655,6 +674,7 @@ export default function Product() {
                     <button
                       className="cursor-pointer"
                       onClick={() => {
+                        setskuName(i.name)
                         setIsViewSkuPrices(true)
                         setSkuId(i.id)
                         formik.setFieldValue("sku_id", i.id)
@@ -697,7 +717,7 @@ export default function Product() {
                       <FiEdit size={18} />
                     </button>
                     <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                      Edit SKU
+                      Edit Item
                     </div>
                   </div>
 
@@ -716,6 +736,162 @@ export default function Product() {
         </div>
       </div >
 
+      <Modal isOpen={addSkuModal}>
+        <div className="relative bg-white dark:bg-boxdark shadow rounded-md  w-[90%] md:w-[50%] p-4 ">
+          <div
+            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+            onClick={() => {
+              setUpdateModal(false)
+              setaddSkuModal(false)
+            }}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="flex flex-col space-y-8">
+            <Breadcrumb pageName={`Add Item`} />
+          </div>
+          <div className=" overflow-y-scroll h-96 py-2">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
+              <Input
+                label={"Code*"}
+                name={"code"}
+                id={"code"}
+                value={formik.values.code}
+                onChange={(v) => formik.setFieldValue(`code`, v)}
+                error={formik.touched.code &&
+                  (typeof formik.errors.code === 'object' && formik.errors.code)
+                  ? formik.errors.code
+                  : null} />
+              <Input
+                label={"Name*"}
+                name={"name"}
+                id={"name"}
+                value={formik.values.name}
+                onChange={(v) => formik.setFieldValue(`name`, v)}
+                error={formik.touched.name &&
+                  (typeof formik.errors.name === 'object' && formik.errors.name)
+                  ? formik.errors.name
+                  : null} />
+
+              <Input
+                label={"Price*"}
+                name={"price"}
+                id={"price"}
+                value={formik.values.price ? formik.values.price : ''}
+                onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
+                error={formik.touched.price &&
+                  (typeof formik.errors.price === 'object' && formik.errors.price)
+                  ? formik.errors.price
+                  : null} />
+
+              <InputDropdown
+                label={"Type*"}
+                name={"type"}
+                id={"type"}
+                value={formik.values.type}
+                onChange={(v) => formik.setFieldValue(`type`, v)}
+                options={serviceType}
+                error={formik.touched.type &&
+                  (typeof formik.errors.type === 'object' && formik.errors.type)
+                  ? formik.errors.type
+                  : null} />
+              <Input
+                className={formik.values.type === "services" ? `hidden` : ``}
+                label={"Stock*"}
+                name={"stock"}
+                id={"stock"}
+                value={formik.values.stock ? formik.values.stock : ''}
+                onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
+                error={formik.touched.stock &&
+                  (typeof formik.errors.stock === 'object' && formik.errors.stock)
+                  ? formik.errors.stock
+                  : null} />
+              <Input
+                className={formik.values.type === "services" ? `hidden` : ``}
+                label={"Unit*"}
+                name={"unit"}
+                id={"unit"}
+                value={formik.values.unit ? formik.values.unit : ''}
+                onChange={(v) => formik.setFieldValue(`unit`, v)}
+                error={formik.touched.unit &&
+                  (typeof formik.errors.unit === 'object' && formik.errors.unit)
+                  ? formik.errors.unit
+                  : null} />
+            </div><div className="pt-6">
+              <InputTextArea
+                label={"Description"}
+                name={"description"}
+                id={"description"}
+                value={formik.values.description}
+                onChange={(v) => formik.setFieldValue(`description`, v)}
+                error={formik.touched.description &&
+                  (typeof formik.errors.description === 'object' && formik.errors.description)
+                  ? formik.errors.description
+                  : null} />
+            </div><div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2 pt-4">
+              <InputToggle
+                value={formik.values.machine_washer}
+                onClick={(v) => {
+                  formik.setFieldValue(`machine_washer`, v);
+                }}
+                label={"Washer machine"} />
+              <Input
+                className={formik.values.machine_washer ? `` : `opacity-0 w-1`}
+                label={formik.values.machine_washer ? "Time in minutes" : ""}
+                name={"washer_duration"}
+                id={"washer_duration"}
+                value={`${formik.values.washer_duration ? formik.values.washer_duration : ""}`}
+                onChange={(v) => formik.setFieldValue(`washer_duration`, parseInt(v))}
+                error={formik.touched.washer_duration &&
+                  (typeof formik.errors.washer_duration === 'object' && formik.errors.washer_duration)
+                  ? formik.errors.washer_duration
+                  : null} />
+              <InputToggle
+                value={formik.values.machine_dryer}
+                onClick={(v) => {
+                  formik.setFieldValue(`machine_dryer`, v);
+                }}
+                label={"Dryer Machine"} />
+              <Input
+                className={formik.values.machine_dryer ? `` : `opacity-0 w-1`}
+                label={formik.values.machine_dryer ? "Time in minutes" : ""}
+                name={"dryer_duration"}
+                id={"dryer_duration"}
+                value={formik.values.dryer_duration ? formik.values.dryer_duration : ``}
+                onChange={(v) => formik.setFieldValue(`dryer_duration`, parseInt(v))}
+                error={formik.touched.dryer_duration &&
+                  (typeof formik.errors.dryer_duration === 'object' && formik.errors.dryer_duration)
+                  ? formik.errors.dryer_duration
+                  : null} />
+              <InputToggle
+                value={formik.values.machine_iron}
+                onClick={(v) => {
+                  formik.setFieldValue(`machine_iron`, v);
+                }}
+                label={"Iron Machine"} />
+              <Input
+                className={formik.values.machine_iron ? `` : `opacity-0 w-1`}
+                label={formik.values.machine_iron ? "Time in minutes" : ""}
+                name={"iron_duration"}
+                id={"iron_duration"}
+                value={formik.values.iron_duration ? formik.values.iron_duration : ''}
+                onChange={(v) => formik.setFieldValue(`iron_duration`, parseInt(v))}
+                error={formik.touched.iron_duration &&
+                  (typeof formik.errors.iron_duration === 'object' && formik.errors.iron_duration)
+                  ? formik.errors.iron_duration
+                  : null} />
+
+            </div>
+            <button
+              onClick={formik.submitForm}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+              Submit
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal isOpen={updateModal}>
         {productOrSku ? (
           <div className="relative bg-white dark:bg-boxdark shadow rounded-md w-[90%] md:w-[50%] p-4">
@@ -731,7 +907,7 @@ export default function Product() {
             </div>
 
             <div className="flex flex-col space-y-8 pt-6">
-              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update SKU`} />
+              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update Item`} />
             </div>
 
             <div className=" overflow-y-scroll h-96 py-2">
@@ -748,7 +924,7 @@ export default function Product() {
                       : null
                   }
                 />
-                <Input
+                {/* <Input
                   label={"Slug"}
                   name={"slug"}
                   id={"slug"}
@@ -759,7 +935,7 @@ export default function Product() {
                       ? formik.errors.slug
                       : null
                   }
-                />
+                /> */}
                 <InputDropdown
                   label={"Category*"}
                   name={"category_id"}
@@ -827,7 +1003,7 @@ export default function Product() {
             </div>
 
             <div className="flex flex-col space-y-8">
-              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update SKU`} />
+              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update Item`} />
             </div>
             <div className=" overflow-y-scroll h-96 py-2">
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
@@ -983,7 +1159,22 @@ export default function Product() {
           </div>
 
           <div className="">
-            <Breadcrumb pageName={`SKU Price Detail`} />
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                {skuName}
+              </h2>
+              <nav>
+                <ol className="flex items-center gap-2">
+                  <li>
+                    <Link className="font-medium" href="/">
+                      Dashboard / Product /
+                    </Link>
+                  </li>
+                  <li className="font-medium text-primary">Item Price Detail</li>
+                </ol>
+              </nav>
+            </div>
+            {/* <Breadcrumb pageName={`SKU Price Detail`} /> */}
             <div className="lg:flex bg-white dark:bg-gray-700 p-4 rounded-lg lg:space-x-4 lg:space-y-0 space-y-4">
               <InputDropdown
                 label={"Outlets*"}
@@ -1025,7 +1216,7 @@ export default function Product() {
               colls={["#", "Outlet", "City", "Price"]}
               onPaginate={(page) => setCurrentPage(page)}
               currentPage={currentPage}
-              totalItem={totalProduct}>
+              totalItem={skuPrices.length}>
               {skuPrices.map((i, k) => (
                 <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                   <td className="px-6 py-4">
