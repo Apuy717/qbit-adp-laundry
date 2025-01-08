@@ -92,7 +92,7 @@ export default function Orders() {
     startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, endDate])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
-  const [detail, setDetail] = useState<OrderType | undefined>()
+  const [detail, setDetail] = useState<any | undefined>()
 
   function rupiah(number: number) {
     const result = new Intl.NumberFormat("id-ID", {
@@ -149,13 +149,13 @@ export default function Orders() {
 
           <div className="w-full">
             <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
-              options={[{ label: "all", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i, value: i }))]}
+              options={[{ label: "ALL", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i.toUpperCase(), value: i }))]}
               value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
           </div>
 
           <div className="w-full">
             <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
-              options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
+              options={[{ label: "ALL", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i.toUpperCase(), value: i }))]}
               value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
           </div>
           <button
@@ -316,11 +316,11 @@ export default function Orders() {
               </div>
               <div className="flex flex-row justify-between">
                 <p>Voucher</p>
-                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { name: string }).name : '-'}</p>
+                <p>{detail?.voucher !== null ? detail?.voucher.name : '-'}</p>
               </div>
               <div className="flex flex-row justify-between">
                 <p>Discount</p>
-                <p>{detail?.voucher !== null ? (detail?.voucher as unknown as { discount: string }).discount : '-'}</p>
+                <p>{detail?.voucher !== null ? detail?.voucher.discount : '-'}</p>
               </div>
               <div className="flex flex-row justify-between">
                 <p>Total Pembayaran</p>
@@ -335,7 +335,7 @@ export default function Orders() {
             <Table colls={["#", "Nama", "Harga", "Kuantitas", "Total"]}
               currentPage={0} totalItem={0}
               onPaginate={() => null}>
-              {detail && detail.items.map((i, k) => (
+              {detail && detail.items.map((i:any, k:any) => (
                 <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                   key={k}
                 >

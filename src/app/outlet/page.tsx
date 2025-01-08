@@ -579,7 +579,7 @@ export default function OutletPage() {
                     <IoCloseOutline color="white" size={20} />
                   </div>
                   <InputDropdown
-                    label={"outlet_id"}
+                    label={"Outlet"}
                     name={"outlet_id"}
                     id={"outlet_id"}
                     value={formikGrouping.values.groupings[index].outlet_id}
@@ -598,7 +598,7 @@ export default function OutletPage() {
                     }
                   />
                   <InputDropdown
-                    label={"outlet_area_id"}
+                    label={"Area"}
                     name={"outlet_area_id"}
                     id={"outlet_area_id"}
                     value={formikGrouping.values.groupings[index].outlet_area_id}
