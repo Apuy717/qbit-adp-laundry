@@ -103,6 +103,7 @@ export default function IncidentPage() {
 
     if (res.statusCode === 200) {
       toast.success("Sucess update data!");
+      handleSearch()
     }
   }
 
@@ -185,10 +186,9 @@ export default function IncidentPage() {
               {i.accepted_by?.fullname}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-6 py-4 whitespace-nowrap">
               <span className="text-xs font-thin">{i.type === "multiple" ? "Incident" : "Request Extra"}</span>
-              <div className={`${i.approved ? "bg-green-500" : "bg-red"} flex items-center justify-center
-                 p-2 rounded text-white flex-col`}>
+              <div className={`flex items-center justify-centerp-2 rounded ${!i.approved && "text-red-500"} ${i.approved && !i.is_used && "text-blue-500"} ${i.approved && i.is_used && "text-green-500"} font-semibold flex-col`}>
                 {i.token.substring(0, 8).toUpperCase()}
               </div>
             </td>
@@ -200,7 +200,7 @@ export default function IncidentPage() {
                     <IoCheckmark size={20} color="white" />
                   </button>
                 )}
-                <button className="bg-gray-500 flex items-center justify-center p-1 rounded"
+                <button className="bg-gray-500 ml-2 flex items-center justify-center p-1 rounded"
                   onClick={() => {
                     setDetail(i)
                     setViewDetail(true)

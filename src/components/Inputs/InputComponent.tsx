@@ -16,6 +16,7 @@ export interface iInput {
   info?: string;
   placeholder?: string;
   options?: iDropdown[] | any[];
+  rows?: number
 }
 
 export interface iInputFile {
@@ -162,7 +163,7 @@ export const InputTextArea: FC<iInput> = (props) => {
       </label>
       <textarea
         value={props.value}
-        rows={2}
+        rows={props.rows ? props.rows : 2}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         id={props.id}

@@ -60,21 +60,6 @@ const BasicChartPage: React.FC = () => {
       }
     }
 
-    async function GotAllCategory() {
-      const res = await GET<iResponse<CategoryType[]>>({ url: "/api/category" })
-      if (res?.statusCode === 200) {
-        const categoryDropdown = res?.data.map(i => { return { value: i.id, label: i.name } })
-        setCategory(categoryDropdown);
-        if (categoryDropdown.length >= 1)
-          formik.setFieldValue("category_id", categoryDropdown[0].value)
-      }
-      setTimeout(() => {
-        setLoadingSearch(false);
-      }, 100);
-    }
-
-
-    GotAllCategory();
     GotAllOutlet();
     const statusMaping = Object.values(EStatusPRs).map(i => { return { value: i, label: i } })
     setStatus(statusMaping)
@@ -91,7 +76,7 @@ const BasicChartPage: React.FC = () => {
       let sttsFilter = {}
       if (filterByStatus !== "all") sttsFilter = { status: filterByStatus }
 
-      console.log({ outlet_ids: filterByOutlet, ...sttsFilter });
+
       const res = await PostWithToken<iResponse<PRItemType[]>>({
         router: router,
         url: urlwithQuery,
@@ -138,11 +123,10 @@ const BasicChartPage: React.FC = () => {
     initialValues: {
       id: null,
       name: "",
-      // slug: "",
+      slug: "",
       is_deleted: false,
       outlet_id: "All",
       status: EStatusPRs.ACCEPTED,
-      category_id: "",
       description: "",
     },
     validationSchema: Yup.object({
@@ -150,13 +134,10 @@ const BasicChartPage: React.FC = () => {
       // slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
       // outlet_id: Yup.string().required("Outlet diperlukan!"),
       is_deleted: Yup.boolean().required("Status diperlukan!"),
-      // status: Yup.string().required("Status diperlukan!"),
-      category_id: Yup.string().required("kategori diperlukan!"),
+      status: Yup.string().required("Status diperlukan!"),
       description: Yup.string().optional().max(255, "Maksimal 225 karakter!"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
-      
       if (loading) return
       setLoading(true)
       let idUpdate = {}
@@ -171,11 +152,10 @@ const BasicChartPage: React.FC = () => {
         data: {
           ...idUpdate,
           name: values.name,
-          // slug: values.slug,
+          slug: values.slug,
           is_deleted: values.is_deleted,
           ...withOutletId,
           status: values.status,
-          category_id: values.category_id,
           description: values.description,
         },
         token: `${auth.access_token}`
@@ -202,34 +182,20 @@ const BasicChartPage: React.FC = () => {
         resetForm()
         toast.success("Berhasil menambahkan item");
       }
-
-      setTimeout(() => setLoading(false), 1000)
+      setLoading(false)
     }
   })
 
 
   function resetForm() {
     formik.resetForm();
-    if (category.length >= 1)
-      formik.setFieldValue("category_id", category[0].value)
-
     if (outlets.length >= 1)
       formik.setFieldValue("outlet_id", outlets[0].value)
-
-  }
-
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false)
-  const [searchOutlet, setSearchOutlet] = useState<string>("")
-  function filterOutlet() {
-    if (searchOutlet.length >= 3)
-      return outlets.filter(f => f.label.toLowerCase().includes(searchOutlet.toLowerCase()))
-    return outlets
-
   }
 
   return (
     <div className="min-h-screen">
-      <Breadcrumb pageName="Chart of Accounts" />
+      <Breadcrumb pageName="Master Expense" />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-90">
@@ -314,17 +280,15 @@ const BasicChartPage: React.FC = () => {
               </td> */}
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
                 <div className="relative group">
-
                   <button
                     onClick={() => {
                       formik.setFieldValue("id", i.id)
                       formik.setFieldValue("name", i.name)
-                      // formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
-                      // formik.setFieldValue("is_deleted", i.is_deleted)
-                      // formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
-                      // formik.setFieldValue("status", i.status)
+                      formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
+                      formik.setFieldValue("is_deleted", i.is_deleted)
+                      formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "All")
+                      formik.setFieldValue("status", i.status)
                       formik.setFieldValue("status", 'accepted')
-                      console.log(i.category);
                       formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
                       formik.setFieldValue("description", i.description === null ? "" : i.description)
                       setModal1(true);
@@ -377,7 +341,7 @@ const BasicChartPage: React.FC = () => {
                     : null
                 } /> */}
 
-              <InputDropdown
+              {/* <InputDropdown
                 label={"Category*"}
                 name={"category"}
                 id={"category"}
@@ -389,7 +353,7 @@ const BasicChartPage: React.FC = () => {
                     ? formik.errors.category_id
                     : null
                 }
-              />
+              /> */}
 
               {/* <InputDropdown
                 label={"Status*"}
@@ -418,13 +382,8 @@ const BasicChartPage: React.FC = () => {
                     : null
                 }
               /> */}
-
-              <InputToggle
-                value={!formik.values.is_deleted}
-                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-                label={"Activated"} />
-
               <InputTextArea
+                rows={3}
                 label={"Description*"}
                 name={"description"}
                 id={"description"}
@@ -436,6 +395,10 @@ const BasicChartPage: React.FC = () => {
                     ? formik.errors.description
                     : null
                 } />
+              <InputToggle
+                value={!formik.values.is_deleted}
+                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                label={"Activated"} />
             </div>
           </div>
 

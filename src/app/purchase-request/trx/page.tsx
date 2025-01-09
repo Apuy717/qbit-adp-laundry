@@ -80,7 +80,7 @@ export default function PRTrxPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen">
       <Breadcrumb pageName="Expense" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
         <CardDataStats title="Total Transaction" total={`${transaction.length}`} rate="purchase" levelUp>
@@ -267,6 +267,6 @@ export default function PRTrxPage() {
             setFilterByOutlet(old => old.filter(f => f !== value))
           }
         }} />
-    </>
+    </div>
   )
 }

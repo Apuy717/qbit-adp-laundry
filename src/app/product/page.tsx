@@ -27,7 +27,6 @@ interface MyResponse {
 }
 const CELLS = [
   "Name",
-  "Category",
   "Total SKU",
   "Created at",
   "Status",
@@ -450,9 +449,6 @@ export default function Product() {
                 {prod.name}
               </td>
               <td className="px-6 py-4">
-                {prod.category!==null?prod.category.name:''}
-              </td>
-              <td className="px-6 py-4">
                 {prod.skus.length + " SKU"}
               </td>
               <td className="px-6 py-4">
@@ -501,7 +497,7 @@ export default function Product() {
                         formik.setFieldValue("name", prod.name)
                         // formik.setFieldValue("slug", prod.slug)
                         formik.setFieldValue("description", prod.description == null ? `` : prod.description)
-                        formik.setFieldValue("category_id", prod.category.id)
+                        // formik.setFieldValue("category_id", prod.category.id)
                         formik.setFieldValue("is_deleted", prod.is_deleted)
                         setUpdateModal(true)
                         setProductOrSku(true)
@@ -936,7 +932,7 @@ export default function Product() {
                       : null
                   }
                 /> */}
-                <InputDropdown
+                {/* <InputDropdown
                   label={"Category*"}
                   name={"category_id"}
                   id={"category_id"}
@@ -948,7 +944,7 @@ export default function Product() {
                       ? formik.errors.category_id
                       : null
                   }
-                />
+                /> */}
 
                 <InputFile
                   label={"Picture"}
@@ -962,15 +958,10 @@ export default function Product() {
                     ? formik.errors.picture
                     : null}>
                 </InputFile>
-
-                <InputToggle
-                  value={!formik.values.is_deleted}
-                  onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-                  label={"Status"}
-                />
               </div>
               <div className="pt-6">
                 <InputTextArea
+                  rows={5}
                   label={"Description"}
                   name={"description"}
                   id={"description"}
@@ -982,11 +973,19 @@ export default function Product() {
                       : null
                   }
                 />
+
+                <div className="mt-6">
+                  <InputToggle
+                    value={!formik.values.is_deleted}
+                    onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                    label={"Status"}
+                  />
+                </div>
               </div>
 
               <button
                 onClick={formik.submitForm}
-                className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                className="w-full mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
                 Submit
               </button>
             </div>

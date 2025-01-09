@@ -50,9 +50,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
           children: [
             { label: "Outlet", route: "/outlet" },
-            { label: "Category", route: "/category" },
             { label: "Product Group", route: "/product" },
-            { label: "Chart of Accounts", route: "/purchase-request/item" },
+            { label: "Master", route: "/purchase-request/item" },
           ],
         },
         {

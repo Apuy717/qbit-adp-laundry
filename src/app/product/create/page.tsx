@@ -34,7 +34,6 @@ const dropdown = [
 export default function CreateProduct() {
   const [loading, setLoading] = useState<boolean>(false);
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown)
-  const [categorys, setCategorys] = useState<iDropdown[]>(dropdown)
   const [showImage, setShowImage] = useState<string>("")
 
   const auth = useSelector((s: RootState) => s.auth);
@@ -49,32 +48,6 @@ export default function CreateProduct() {
   ]
 
   const router = useRouter();
-  useEffect(() => {
-
-    const GotCategorys = async () => {
-      let urlwithQuery = `/api/category`;
-      const res = await GetWithToken<MyResponse>({
-        router: router,
-        url: urlwithQuery,
-        token: `${auth.auth.access_token}`,
-      });
-      const mapingCategory = (res.data).map((i: any) => {
-        return {
-          label: i.name,
-          value: i.id,
-        };
-      }) as iDropdown[]
-
-      if (mapingCategory.length >= 1) formik.setFieldValue("category_id", mapingCategory[0].value)
-
-      setCategorys(mapingCategory)
-      // console.log(categorys);
-    };
-
-    GotCategorys();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const formik = useFormik({
     initialValues: {
@@ -83,7 +56,6 @@ export default function CreateProduct() {
       picture: "",
       description: "",
       is_deleted: false,
-      category_id: "",
       variants: [
         {
           code: "",
@@ -104,9 +76,7 @@ export default function CreateProduct() {
     },
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 225 karakter!").required('Harus diisi'),
-      // slug: Yup.string(),
       description: Yup.string().max(100, "Maksimal 255 karakter!").optional(),
-      // category_id: Yup.string().required('Harus pilih category'),
       variants: Yup.array().of(
         Yup.object({
           code: Yup.string().max(100, "Maksimal 100 karakter!"),
@@ -124,23 +94,6 @@ export default function CreateProduct() {
 
     }),
     onSubmit: async (values) => {
-      console.log(values);
-      const data = values.variants.map((i) => {
-        if (i.type == "services") {
-          Object.assign(i, { stock: null, unit: null })
-        }
-        if (!i.machine_washer) {
-          Object.assign(i, { washer_duration: null })
-        }
-        if (!i.machine_dryer) {
-          Object.assign(i, { dryer_duration: null })
-        }
-        if (!i.machine_iron) {
-          Object.assign(i, { iron_duration: null })
-        }
-      })
-      console.log(values);
-
       if (loading) return;
       setLoading(true);
       const res = await PostWithToken<MyResponse>({
@@ -149,10 +102,6 @@ export default function CreateProduct() {
         data: values,
         token: `${auth.auth.access_token}`,
       });
-
-      console.log(res.err);
-
-
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
@@ -164,9 +113,6 @@ export default function CreateProduct() {
         toast.success("Success create product!");
         router.push("/product");
       }
-      console.log(res.data);
-
-
       setLoading(false);
     },
   });
@@ -190,8 +136,6 @@ export default function CreateProduct() {
         iron_duration: 0,
       },
     ]);
-    console.log(formik.values);
-
   };
 
   const removeVariant = (index: any) => {
@@ -215,9 +159,8 @@ export default function CreateProduct() {
     } else {
       callBack(undefined, "");
     }
-    console.log(file);
-    console.log(formik.values.picture);
   };
+
   return (
     <>
       <Breadcrumb pageName="Product" />
@@ -270,7 +213,7 @@ export default function CreateProduct() {
                 : null}>
             </InputFile>
 
-            <InputDropdown
+            {/* <InputDropdown
               label={"Category*"}
               name={"category_id"}
               id={"category_id"}
@@ -282,12 +225,7 @@ export default function CreateProduct() {
                   ? formik.errors.category_id
                   : null
               }
-            />
-            <InputToggle
-              value={!formik.values.is_deleted}
-              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-              label={"Status"}
-            />
+            /> */}
           </div>
           <div className="pt-6">
             <InputTextArea
@@ -302,6 +240,14 @@ export default function CreateProduct() {
                   : null
               }
             />
+            <div className="mt-6">
+              <InputToggle
+                value={!formik.values.is_deleted}
+                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                label={"Status"}
+              />
+            </div>
+
           </div>
           <div className={formik.values.picture ? `mt-6 py-4 bg-sky-100 rounded-lg` : `hidden`}>
             <div className="relative aspect-square h-48 flex justify-center w-full">
