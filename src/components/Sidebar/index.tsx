@@ -51,7 +51,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Category", route: "/category" },
-            { label: "Product", route: "/product" },
+            { label: "Product Group", route: "/product" },
             { label: "Chart of Accounts", route: "/purchase-request/item" },
           ],
         },

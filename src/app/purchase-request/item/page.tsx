@@ -148,14 +148,15 @@ const BasicChartPage: React.FC = () => {
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 100 karakter!").required("Nama diperlukan!"),
       // slug: Yup.string().optional().max(100, "Maksimal 100 karakater!"),
-      outlet_id: Yup.string().required("Outlet diperlukan!"),
+      // outlet_id: Yup.string().required("Outlet diperlukan!"),
       is_deleted: Yup.boolean().required("Status diperlukan!"),
-      status: Yup.string().required("Status diperlukan!"),
+      // status: Yup.string().required("Status diperlukan!"),
       category_id: Yup.string().required("kategori diperlukan!"),
       description: Yup.string().optional().max(255, "Maksimal 225 karakter!"),
     }),
     onSubmit: async (values) => {
-
+      console.log(values);
+      
       if (loading) return
       setLoading(true)
       let idUpdate = {}
@@ -241,7 +242,7 @@ const BasicChartPage: React.FC = () => {
               error={null}
             />
           </div>
-          <InputDropdown
+          {/* <InputDropdown
             label={"Status"}
             name={"status"}
             id={"status"}
@@ -249,7 +250,7 @@ const BasicChartPage: React.FC = () => {
             onChange={(v) => setFilterByStatus(v)}
             options={[...status, { label: "all", value: "all" }]}
             error={null}
-          />
+          /> */}
 
           {/* <div className="flex-1 cursor-pointer" onClick={() => setModalOutlet(true)}>
             <div className="flex flex-row">
@@ -280,7 +281,7 @@ const BasicChartPage: React.FC = () => {
         </div>
       </div>
       <div>
-        <Table colls={["Name", "Outlet", "Status", "Req By", "Acc", "Action"]}
+        <Table colls={["Name", "Outlet", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalItem}>
@@ -302,7 +303,7 @@ const BasicChartPage: React.FC = () => {
                 All
               </td>
 
-              <td className="whitespace-nowrap px-6 py-4">
+              {/* <td className="whitespace-nowrap px-6 py-4">
                 {i.status}
               </td>
               <td className="whitespace-nowrap px-6 py-4">
@@ -310,7 +311,7 @@ const BasicChartPage: React.FC = () => {
               </td>
               <td className="whitespace-nowrap px-6 py-4">
                 {i.accept_by}
-              </td>
+              </td> */}
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
                 <div className="relative group">
 
@@ -319,9 +320,10 @@ const BasicChartPage: React.FC = () => {
                       formik.setFieldValue("id", i.id)
                       formik.setFieldValue("name", i.name)
                       // formik.setFieldValue("slug", i.slug === null ? "" : i.slug)
-                      formik.setFieldValue("is_deleted", i.is_deleted)
-                      formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
-                      formik.setFieldValue("status", i.status)
+                      // formik.setFieldValue("is_deleted", i.is_deleted)
+                      // formik.setFieldValue("outlet_id", i.outlet && i.outlet.id !== null ? i.outlet.id : "null")
+                      // formik.setFieldValue("status", i.status)
+                      formik.setFieldValue("status", 'accepted')
                       console.log(i.category);
                       formik.setFieldValue("category_id", i.category && i.category.id !== null ? i.category.id : "")
                       formik.setFieldValue("description", i.description === null ? "" : i.description)
@@ -389,7 +391,7 @@ const BasicChartPage: React.FC = () => {
                 }
               />
 
-              <InputDropdown
+              {/* <InputDropdown
                 label={"Status*"}
                 name={"status"}
                 id={"status"}
@@ -401,9 +403,9 @@ const BasicChartPage: React.FC = () => {
                     ? formik.errors.status
                     : null
                 }
-              />
+              /> */}
 
-              <InputDropdown
+              {/* <InputDropdown
                 label={"Outlet*"}
                 name={"outlet_id"}
                 id={"outlet_id"}
@@ -415,7 +417,7 @@ const BasicChartPage: React.FC = () => {
                     ? formik.errors.outlet_id
                     : null
                 }
-              />
+              /> */}
 
               <InputToggle
                 value={!formik.values.is_deleted}
