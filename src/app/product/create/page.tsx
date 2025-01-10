@@ -84,7 +84,7 @@ export default function CreateProduct() {
           description: Yup.string().max(100, "Maksimal 225 karakter!").optional(),
           price: Yup.number().min(0).required('Harus diisi'),
           type: Yup.string().max(100, "Maksimal 100 karakter!"),
-          stock: Yup.number().max(100, "Maksimal 100 karakter!"),
+          stock: Yup.number(),
           unit: Yup.string().max(100, "Maksimal 100 karakter!"),
           washer_duration: Yup.number().min(0),
           dryer_duration: Yup.number().min(0),
