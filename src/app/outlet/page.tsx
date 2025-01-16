@@ -98,7 +98,7 @@ export default function OutletPage() {
     const GotGroupingOutlets = async () => {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: "/api/outlet/got/forme",
+        url: "/api/outlet/got/forme?is_deleted=true",
         token: `${auth.auth.access_token}`
       })
 
@@ -157,7 +157,7 @@ export default function OutletPage() {
     const GotGroupingOutlets = async () => {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: "/api/outlet/got/forme",
+        url: "/api/outlet/got/forme?is_deleted=true",
         token: `${auth.auth.access_token}`
       })
 
@@ -179,7 +179,7 @@ export default function OutletPage() {
             formikGrouping.setFieldValue(`groupings[${0}].outlet_id`, mapingOutlet[0].value)
           }
         }
-        // console.log(mapingOutlet);
+        console.log(mapingOutlet);
         setMapingGroupOutlet(mapingOutlet)
       }
     }
@@ -235,8 +235,11 @@ export default function OutletPage() {
       name: Yup.string().required("Area name shouldn't empty"),
     }),
     onSubmit: async (values) => {
+
       let data: any = values
       let url = "api/outlet/create-or-update-area"
+      console.log(url);
+      console.log(values);
 
       if (values.area_id != "" && values.name != "") {
         data = {
@@ -251,6 +254,8 @@ export default function OutletPage() {
         data: data,
         token: `${auth.auth.access_token}`
       })
+      console.log(res.data);
+
       if (res?.statusCode === 200) {
         toast.success("Data changed success!");
         setAreaModal(false)
@@ -386,129 +391,57 @@ export default function OutletPage() {
           >
             Create Outlet
           </Link>
-          <button
-            onClick={() => {
-              setAreaModal(true)
-              setCreateOrUpdate(true)
-            }}
-            className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          >
-            Create Area
-          </button>
-          <button
-            onClick={() => {
-              setGroupingModal(true)
-              // console.log(mapingGroupOutlet);
-            }}
-            className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          >
-            Grouping Outlet
-          </button>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 md:gap-4 grid-cols-1 lg:space-y-0 min-h-screen">
-        <div className="col-span-2">
-          <Table
-            colls={CELLS}
-            onPaginate={(page) => setCurrentPage(page)}
-            currentPage={0}
-            totalItem={0}
-          >
-            {filterOutlet().map((i, k) => (
-              <>
-                <tr className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
+
+      <Table
+        colls={CELLS}
+        onPaginate={(page) => setCurrentPage(page)}
+        currentPage={0}
+        totalItem={0}
+      >
+        {filterOutlet().map((i, k) => (
+          <>
+            <tr className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
                    dark:hover:bg-gray-600">
-                  <td colSpan={5} className="font-bold whitespace-nowrap px-6 py-4">{i.area}</td>
-                </tr>
-                {i.outlets.map((o: any, key) => {
-                  return (
-                    <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+              <td colSpan={5} className="font-bold whitespace-nowrap px-6 py-4">{i.area}</td>
+            </tr>
+            {i.outlets.map((o: any, key) => {
+              return (
+                <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
                   dark:bg-gray-800 dark:hover:bg-gray-600"
-                      key={key}>
-                      <td className="whitespace-nowrap px-6 py-4">{o.name}</td>
-                      <td className="whitespace-nowrap px-6 py-4">{o.phone}</td>
-                      <td className="px-6 py-4">
-                        {o.is_deleted ? (
-                          <div className="px-2 bg-red-500 rounded-xl text-center">
-                            <p className="text-white">inactive</p>
-                          </div>
-                        ) : (
-                          <div className="px-2 bg-green-500 rounded-xl text-center">
-                            <p className="text-white">active</p>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className=" relative group">
-                          <button
-                            onClick={() => {
-                              router.push(`/outlet/${o.outlet_id}`);
-                            }}
-                            className="flex items-center"
-                          >
-                            <FiEdit size={23} />
-                          </button>
-                          <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                            Edit Outlet
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </>
-            ))}
-
-          </Table>
-        </div>
-
-        <div className="mt-4 bg-white rounded-md shadow-3 space-y-4 pb-4 h-fit dark:bg-boxdark">
-          <div className="w-full p-4 bg-gray-50 text-sm font-medium text-black-2 dark:bg-gray-700 rounded-t-lg dark:text-gray-400">
-            AREA
-          </div>
-          {areas.map((i, k) => (
-            <div key={k} className="flex space-x-4 items-center mx-4">
-              <FaLocationDot size={28} color="teal" />
-              <p className="w-3/5">{i.name}</p>
-
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    formik.setFieldValue("name", i.name);
-                    formik.setFieldValue("area_id", i.id);
-                    setAreaModal(true);
-                    setCreateOrUpdate(false);
-                  }}
-                >
-                  <FiEdit size={23} />
-                </button>
-                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                  Edit Area
-                </div>
-              </div>
-
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    deleteArea(i.id);
-                    setRefresh(!refresh);
-                  }}
-                >
-                  <FiTrash size={23} />
-                </button>
-                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                  Delete Area
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+                  key={key}>
+                  <td className="whitespace-nowrap px-6 py-4">{o.name}</td>
+                  <td className="whitespace-nowrap px-6 py-4">{o.phone}</td>
+                  <td className="px-6 py-4">
+                    {o.is_deleted ? (
+                      <p className="text-red uppercase font-bold">Inactive</p>
+                    ) : (
+                      <p className="text-green uppercase font-bold">Active</p>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className=" relative group">
+                      <button
+                        onClick={() => {
+                          router.push(`/outlet/${o.outlet_id}`);
+                        }}
+                        className="flex items-center"
+                      >
+                        <FiEdit size={23} />
+                      </button>
+                      <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                        Edit Outlet
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </>
+        ))}
+      </Table>
 
       <Modal isOpen={areaModal}>
         <div className="relative bg-white dark:bg-boxdark shadow rounded-md w-[90%] md:w-[50%] p-4">
