@@ -10,6 +10,7 @@ import { RootState } from "@/stores/store";
 import { useRouter } from "next/navigation";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { GraphType } from "@/types/graph";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -21,12 +22,7 @@ interface iSeries {
   data: number[],
 }
 
-interface iProps {
-  startedAt: string | Date
-  endedAt: string | Date
-}
-
-const ChartTwo: React.FC<iProps> = (props) => {
+const ChartOrder: React.FC = () => {
   const [options, setOptions] = useState<ApexOptions>({
     colors: ["#3C50E0", "#80CAEE"],
     chart: {
@@ -67,7 +63,20 @@ const ChartTwo: React.FC<iProps> = (props) => {
       enabled: false,
     },
     xaxis: {
-      categories: [],
+      categories: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ]
     },
     yaxis: {
       labels: {
@@ -99,29 +108,69 @@ const ChartTwo: React.FC<iProps> = (props) => {
   const [seriesSales, setSeriesSales] = useState<iSeries>({ name: "Sales", data: [] })
   const [seriesOrderSales, setSeriesOrderSales] = useState<iSeries>({ name: "Count Orders", data: [] })
   const [filterByDate, setFilterByDate] = useState<string>("year")
+  const [selectedFilter, setSelectedFilter] = useState<string>("day")
 
   useEffect(() => {
+    let now = new Date()
+    let startedAt: Date = new Date()
+    let endedAt: Date = new Date()
+    if (filterByDate === "day") {
+      startedAt = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
+      endedAt = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
+    }
+
+    if (filterByDate === "week") {
+      const currentDay = now.getDay();
+      // Tanggal awal minggu (Senin)
+      startedAt = new Date(now);
+      startedAt.setDate(now.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+      startedAt.setHours(0, 0, 0, 0);
+
+      // Tanggal akhir minggu (Minggu)
+      endedAt = new Date(now);
+      endedAt.setDate(now.getDate() + (currentDay === 0 ? 0 : 7 - currentDay));
+      endedAt.setHours(23, 59, 59, 999);
+    }
+
+    if (filterByDate === "month") {
+      startedAt = new Date(now.getFullYear(), now.getMonth(), 1);
+      endedAt = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    }
+
+    if (filterByDate === "year") {
+      startedAt = new Date(now.getFullYear(), 0, 1);
+      endedAt = new Date(now.getFullYear(), 11, 31);
+    }
+
+    startedAt.setHours(0, 0, 0, 0)
+    endedAt.setHours(23, 59, 59, 0)
+    const offsetInMinutes = 7 * 60;
+    startedAt = new Date(startedAt.getTime() + offsetInMinutes * 60 * 1000);
+    endedAt = new Date(endedAt.getTime() + offsetInMinutes * 60 * 1000);
+
+
     async function GotTopPerformanceOutlet() {
       setLoading(true);
-      const res = await PostWithToken<iResponse<TopPerformanceOutlet[]>>({
+      const res = await PostWithToken<iResponse<GraphType[]>>({
+        url: `/api/order/transaction-graph?filter=${selectedFilter}`,
         router: router,
-        url: "/api/order/top-outlet?with_order_by=false",
         token: `${auth.access_token}`,
         data: {
           outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
-          started_at: props.startedAt,
-          ended_at: props.endedAt
         }
       })
+
+      console.log(res);
+
 
       if (res?.statusCode === 200) {
         let _salesSeries: number[] = []
         let _orderCount: number[] = []
         let _categories: string[] = []
         for (const itm of res.data) {
-          _salesSeries.push(parseInt(itm.total_sum))
-          _orderCount.push(parseInt(itm.order_count))
-          _categories.push(itm.outlet.name)
+          _salesSeries.push(parseInt(itm.total_revenue))
+          _orderCount.push(parseInt(itm.total_revenue))
+          _categories.push(`${itm.week_in_month}`)
         }
 
         setSeriesSales((old) => {
@@ -153,7 +202,7 @@ const ChartTwo: React.FC<iProps> = (props) => {
     if (!modal)
       GotTopPerformanceOutlet()
 
-  }, [selectedOutlets, defaultSelectedOutlet, props.startedAt, props.endedAt, modal, router, auth.access_token])
+  }, [selectedOutlets, defaultSelectedOutlet, filterByDate, modal, router, auth.access_token])
 
 
 
@@ -230,4 +279,4 @@ const ChartTwo: React.FC<iProps> = (props) => {
   );
 };
 
-export default ChartTwo;
+export default ChartOrder;

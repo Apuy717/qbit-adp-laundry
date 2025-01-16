@@ -23,7 +23,7 @@ const Table: React.FC<iTable> = (props) => {
         <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             {props.colls.map((i, k) => (
-              <th key={k} scope="col" className="px-6 py-3">
+              <th key={k} scope="col" className={`px-6 py-3`}>
                 {i}
               </th>
             ))}

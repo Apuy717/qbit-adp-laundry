@@ -19,6 +19,7 @@ export type MachineType = {
   relay_time_used: string | null;
   cyles_machine: string;
   runtime: string;
+  api_key: string;
 
   outlet: {
     id: string;

@@ -48,13 +48,6 @@ interface ChartOneState {
 }
 
 const ChartOne: React.FC = () => {
-  // const series = [
-  //   {
-  //     name: "Sales",
-  //     data: [1000000],
-  //   },
-  // ]
-
   const router = useRouter()
   const { auth } = useSelector((s: RootState) => s.auth)
   const [series, setSeries] = useState<{ name: string, data: number[] }>({ name: "Sales", data: [] })
@@ -288,7 +281,7 @@ const ChartOne: React.FC = () => {
       GotGraph()
     }
 
-  }, [selectedFilter, selectedOutlets, defaultSelectedOutlet, modal,router, auth.access_token])
+  }, [selectedFilter, selectedOutlets, defaultSelectedOutlet, modal, router, auth.access_token])
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pb-5 pt-7.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">

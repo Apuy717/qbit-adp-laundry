@@ -51,7 +51,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
-            { label: "Master Expense", route: "/purchase-request/item" },
           ],
         },
         {
@@ -67,7 +66,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
           children: [
             { label: "Sales", route: "/orders" },
-            { label: "Expense", route: "/purchase-request/trx" }
+            { label: "Master Expense", route: "/purchase-request/item" },
+            { label: "Expense", route: "/purchase-request/trx" },
+
           ],
         },
         {

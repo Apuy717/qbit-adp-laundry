@@ -1,8 +1,7 @@
 'use client'
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import CardDataStats from "@/components/CardDataStats";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
-import { iDropdown, InputDropdown } from "@/components/Inputs/InputComponent";
+import { iDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
@@ -14,8 +13,6 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
-import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { TbShoppingBagPlus } from "react-icons/tb";
 import { useSelector } from "react-redux";
 
 export default function PRTrxPage() {
@@ -33,7 +30,6 @@ export default function PRTrxPage() {
 
   const router = useRouter();
   const { auth } = useSelector((s: RootState) => s.auth);
-  const [outlets, setOutlets] = useState<iDropdown[]>([]);
 
   const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
   const [modalOutlet, setModalOutlet] = useState<boolean>(false);
@@ -82,14 +78,14 @@ export default function PRTrxPage() {
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName="Expense" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
+      {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-1 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 bg-white dark:bg-boxdark mb-4 p-4">
         <CardDataStats title="Total Transaction" total={`${transaction.length}`} rate="purchase" levelUp>
           <TbShoppingBagPlus size={23} />
         </CardDataStats>
         <CardDataStats title="Total Expense" total={`${totalPengeluaran}`} rate="expense" levelDown >
           <RiMoneyCnyCircleLine size={23} />
         </CardDataStats>
-      </div>
+      </div> */}
 
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
@@ -100,25 +96,6 @@ export default function PRTrxPage() {
             setEndDate(val)
           }} />
 
-          {/* <div className="w-full">
-            <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
-              options={[{ label: "all", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i, value: i }))]}
-              value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
-          </div>
-
-          <div className="w-full">
-            <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
-              options={[{ label: "all", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i, value: i }))]}
-              value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
-          </div>
-          <button
-            className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
-            text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={DownloadXLXS}
-          >
-            {loadingDownload && <AiOutlineLoading3Quarters size={23} className="animate-spin" />}
-            {!loadingDownload && <HiDownload size={23} />}
-          </button> */}
           <button
             className={`w-auto justify-center rounded-md bg-black px-10 py-3 
             text-center font-medium text-sm text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
@@ -131,7 +108,7 @@ export default function PRTrxPage() {
         </div>
       </div>
 
-      <Table colls={["Outlet", "Date Note", "Created At", "Total", "Total Item", "Action"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
+      <Table colls={["Transaction Date", "TRX ID", "Outlet", "Name", "Total", "Created By"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
         throw new Error("Function not implemented.");
       }} >
         {transaction.map((i, k) => (
@@ -139,48 +116,39 @@ export default function PRTrxPage() {
         dark:bg-gray-800 dark:hover:bg-gray-600"
             key={k}>
             <td className="whitespace-nowrap px-6 py-4">
+              {new Date(i.trx_date).toLocaleDateString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              })}
+            </td>
+
+            <td className="whitespace-nowrap px-6 py-4 uppercase">
+              <p className="cursor-pointer hover:text-blue-400 text-blue-500" onClick={() => {
+                setIsViewDetail(true)
+                setIsViewDetailData(i)
+              }}>
+                {i.invoice_id}
+              </p>
+            </td>
+
+            <td className="whitespace-nowrap px-6 py-4">
               {i.outlet?.name}
               <span className="font-light">
                 {" "} ({i.outlet && i.outlet.city.split("--").length >= 2 ? i.outlet.city.split("--")[1] : i.outlet?.city})
               </span>
             </td>
-            <td className="whitespace-nowrap px-6 py-4">
-              {new Date(i.trx_date).toLocaleDateString("id", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4">
-              {new Date(i.created_at).toLocaleDateString("id", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
+            <td className="whitespace-nowrap px-6 py-4 cursor-pointer" onClick={() => {
+              setIsViewDetail(true)
+              setIsViewDetailData(i)
+            }}>
+              {i.trx_pr_items[0].name.substring(0, 10)} ...
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {rupiah(parseInt(i.total))}
             </td>
             <td className="whitespace-nowrap px-6 py-4">
-              {i.trx_pr_items.length}
-            </td>
-
-            <td className="px-6 py-4 whitespace-nowrap space-x-4">
-              <button
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsViewDetail(true)
-                  setIsViewDetailData(i)
-                }}
-              >
-                <FiEye size={23} />
-              </button>
+              {i.user.fullname}
             </td>
           </tr>
         ))}
@@ -196,7 +164,7 @@ export default function PRTrxPage() {
         </div>
         <div className="mt-4 p-4">
           <h3 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-            Transaction Detail
+            Transaction Details
           </h3>
           <div className="flex flex-row space-x-2">
             <a className="w-35 h-35 bg-gray-500 relative" href={`/api/file/${viewDetailData?.note}`} target="blank">
