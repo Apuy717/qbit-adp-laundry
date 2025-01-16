@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
+import { TbPlugConnectedX } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -136,7 +137,7 @@ export default function PageMachine() {
       ip: "",
       default_duration: "50",
       type: EMachineType.WASHER,
-      is_deleted: false
+      is_deleted: true
     },
     validationSchema: Yup.object({
       name: Yup.string().max(100, "Maksimal 100 karakter").required("Tidak boleh kosong!"),
@@ -150,7 +151,8 @@ export default function PageMachine() {
       if (loading) return
       setLoading(true)
       let idUpdate = {}
-      if (values.id !== null) idUpdate = { id: values.id }
+      if (values.id !== null)
+        idUpdate = { id: values.id }
 
       const res = await PostWithToken<iResponse<any>>({
         router: router,
@@ -189,10 +191,87 @@ export default function PageMachine() {
     formik.resetForm();
     if (outlets.length >= 1)
       formik.setFieldValue("outlet_id", outlets[0].value)
-
+    setMachineDetail(null)
   }
 
   const [modalForm, setModalForm] = useState<boolean>(false)
+  const [modalPairingMachine, setModalPairingMachine] = useState<boolean>(false)
+  const [pairingDomain, setPairingDomain] = useState<string>("101.255.104.213:3000")
+  const [machineDetail, setMachineDetail] = useState<MachineType | null>(null)
+
+  async function UpdateSttsMachine() {
+    const values = formik.values
+    let idUpdate = {}
+    if (values.id !== null)
+      idUpdate = { id: values.id }
+
+    const res = await PostWithToken<iResponse<any>>({
+      router: router,
+      url: "/api/machine/create-update",
+      token: `${auth.access_token}`,
+      data: {
+        ...idUpdate,
+        outlet_id: values.outlet_id,
+        machine_id: values.machine_id,
+        name: values.name,
+        ip: values.ip,
+        default_duration: parseInt(values.default_duration),
+        type: values.type,
+        is_deleted: values.is_deleted
+      },
+    })
+
+    if (res.statusCode === 200) {
+      handleSearch()
+      resetForm()
+      toast("Berhasil mengaktifkan machine");
+    }
+    setTimeout(() => setLoading(false), 1000)
+  }
+
+  async function PairingAndSetCallbackMachine() {
+    if (loading) return;
+    if (machineDetail === null) {
+      setModalPairingMachine(false)
+      return;
+    }
+
+    setLoading(true);
+
+    const commands = [
+      `Rule1 ON Power1#State=0 DO WebSend [${pairingDomain}] /api/callback/sonoff-turn-off?esp_id=${machineDetail.machine_id}&api_key=${machineDetail.api_key} ENDON`,
+      `Rule1 1`,
+      `IPAddress1 ${machineDetail.ip}`
+    ]
+
+    let idx = 0
+    for (let cmd of commands) {
+
+      const encodedCallback = encodeURIComponent(cmd);
+      fetch(`http://${machineDetail.ip}/cm?cmnd=${encodedCallback}`)
+        .then(res => res.json())
+        .then(res => {
+          let key = cmd.split(" ")
+          if (key.length >= 1) {
+            toast.success(`Response from IOT ${key[0]}: ${res[key[0]]}`)
+            setTimeout(() => setLoading(false), 1000)
+            setModalPairingMachine(false)
+            idx++
+            console.log(idx, commands.length);
+            if (idx === commands.length) {
+              UpdateSttsMachine()
+            }
+
+          }
+        })
+        .catch(err => {
+          toast.error(`Machine not connected!`)
+          setTimeout(() => setLoading(false), 1000)
+        })
+
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName={"Machine"} />
@@ -263,6 +342,7 @@ export default function PageMachine() {
             </td>
             <td className="px-6 py-4 whitespace-nowrap space-x-4">
               <button
+                className="bg-blue-500 p-2 rounded"
                 onClick={() => {
                   formik.setFieldValue("id", i.id)
                   formik.setFieldValue("name", i.name)
@@ -276,7 +356,22 @@ export default function PageMachine() {
                   setModalForm(true);
                 }}
               >
-                <FiEdit size={23} />
+                <FiEdit size={18} color="white" />
+              </button>
+              <button className="bg-green-500 p-2 rounded" onClick={() => {
+                formik.setFieldValue("id", i.id)
+                formik.setFieldValue("name", i.name)
+                formik.setFieldValue("ip", i.ip)
+                formik.setFieldValue("is_deleted", false)
+                formik.setFieldValue("outlet_id", i.outlet_id === null ? "null" : i.outlet_id)
+                formik.setFieldValue("default_duration", `${i.default_duration}`)
+                formik.setFieldValue("type", i.type)
+                formik.setFieldValue("machine_id", i.machine_id)
+                setMachineDetail(i);
+                setModalPairingMachine(true)
+              }
+              }>
+                <TbPlugConnectedX size={18} color="white" />
               </button>
             </td>
           </tr>
@@ -382,6 +477,34 @@ export default function PageMachine() {
               Submit
             </button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={modalPairingMachine}>
+        <div className="relative bg-white dark:bg-gray-800 shadow rounded-md h-min 
+        md:h-min w-[90%] md:w-[50%] p-4">
+          <div
+            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+            onClick={() => {
+              setModalPairingMachine(false);
+            }}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="flex flex-col space-y-8">
+            <Breadcrumb pageName="Pairing Machine" />
+          </div>
+
+          <Input label={"Domain*"} type="text" name={"domain"} id={"domain"}
+            value={pairingDomain}
+            onChange={(v) => setPairingDomain(v)}
+            error={null} />
+
+          <button onClick={PairingAndSetCallbackMachine} className="mt-4 bg-black p-2 rounded text-white">
+            {loading ? "Loading..." : "Pairing Machine"}
+          </button>
+
         </div>
       </Modal>
     </div>

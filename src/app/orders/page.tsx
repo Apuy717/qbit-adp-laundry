@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 
 export default function Orders() {
   let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
   let endOfMonth = new Date(
     `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
       new Date().getFullYear(),
@@ -28,9 +29,9 @@ export default function Orders() {
   endOfMonth.setHours(6, 59, 59, 0)
   const offsetInMinutes = 7 * 60
   startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  // endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
-  const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
+  const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
 
   const { auth } = useSelector((s: RootState) => s.auth)
@@ -44,6 +45,14 @@ export default function Orders() {
   const [paymentStatus, setPaymentStatus] = useState<string>("all")
   const [orderStatus, setOrderStatus] = useState<string>("all")
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+
+  enum TabActive {
+    ALL = "ALL",
+    B2C = "B2C",
+    B2B = "B2B"
+  }
+
+  const [tabActive, setTabActive] = useState<TabActive>(TabActive.ALL)
 
   useEffect(() => {
     async function GotPRItems() {
@@ -59,6 +68,8 @@ export default function Orders() {
       let orderStts = {}
       if (orderStatus !== "all") orderStts = { status_order: orderStatus }
 
+      let tabActiveQuery = {}
+      if (tabActive !== TabActive.ALL) tabActiveQuery = { tab_active: tabActive }
 
       const res = await PostWithToken<iResponse<OrderType[]>>({
         router: router,
@@ -68,7 +79,8 @@ export default function Orders() {
           outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
           started_at: startDate,
           ended_at: endDate,
-          ...paymentStts,
+          // ...paymentStts,
+          ...tabActiveQuery,
           ...orderStts
         }
       })
@@ -88,8 +100,9 @@ export default function Orders() {
     if (!modal)
       GotPRItems()
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, fixValueSearch, refresh, auth.access_token, router,
-    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, endDate])
+    startDate, paymentStatus, orderStatus, selectedOutlets, defaultSelectedOutlet, modal, endDate, tabActive])
 
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false)
   const [detail, setDetail] = useState<OrderType | undefined>()
@@ -114,6 +127,9 @@ export default function Orders() {
     let orderStts = {}
     if (orderStatus !== "all") orderStts = { status_order: orderStatus }
 
+    let tabActiveQuery = {}
+    if (tabActive !== TabActive.ALL) tabActiveQuery = { tab_active: tabActive }
+
     const res = await PostWithToken<iResponse<{ filename: string }>>({
       router: router,
       url: "/api/order/download",
@@ -122,7 +138,8 @@ export default function Orders() {
         outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
         started_at: startDate,
         ended_at: endDate,
-        ...paymentStts,
+        // ...paymentStts,
+        tabActiveQuery,
         ...orderStts
       }
     })
@@ -137,7 +154,7 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen">
-      <Breadcrumb pageName={"Order"} />
+      <Breadcrumb pageName={"Sales"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
           <DatePickerOne label={"Start"} defaultDate={startDate} onChange={(val) => {
@@ -147,11 +164,11 @@ export default function Orders() {
             setEndDate(val)
           }} />
 
-          <div className="w-full">
+          {/* <div className="w-full">
             <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
               options={[{ label: "ALL", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i.toUpperCase(), value: i }))]}
               value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
-          </div>
+          </div> */}
 
           <div className="w-full">
             <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
@@ -168,7 +185,43 @@ export default function Orders() {
           </button>
         </div>
       </div>
-
+      <div className="bg-gray-50 dark:bg-gray-800 w-full pt-4 px-4 mb-4 rounded-md">
+        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+          <li className="me-2" role="presentation">
+            <button className={`inline-block p-4 border-b-2 rounded-t-lg 
+              ${tabActive === TabActive.ALL ?
+                "border-blue-500 text-blue-500"
+                : "dark:border-form-strokedark"
+              }
+              `}
+              onClick={() => setTabActive(TabActive.ALL)}>
+              {TabActive.ALL}
+            </button>
+          </li>
+          <li className="me-2" role="presentation">
+            <button className={`inline-block p-4 border-b-2 rounded-t-lg 
+              ${tabActive === TabActive.B2C ?
+                "border-blue-500 text-blue-500"
+                : "dark:border-form-strokedark"
+              }
+              `}
+              onClick={() => setTabActive(TabActive.B2C)}>
+              {TabActive.B2C}
+            </button>
+          </li>
+          <li className="me-2" role="presentation">
+            <button className={`inline-block p-4 border-b-2 rounded-t-lg 
+              ${tabActive === TabActive.B2B ?
+                "border-blue-500 text-blue-500"
+                : "dark:border-form-strokedark"
+              }
+              `}
+              onClick={() => setTabActive(TabActive.B2B)}>
+              {TabActive.B2B}
+            </button>
+          </li>
+        </ul>
+      </div>
       {!loadingSearch && (
         <Table colls={["Date", "Invoice", "Outlet", "Customer Name", "Total Sku", "Total Clothes", "Total Billing", "Payment Method", "Payment Status", "Order Status"]}
           currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
@@ -219,14 +272,14 @@ export default function Orders() {
               <td className="px-6 py-4">{i.items.length}</td>
               <td className="px-6 py-4">{i.total_item !== null ? i.total_item : "-"}</td>
               <td className="whitespace-nowrap px-6 py-4">{rupiah(parseInt(i.total))}</td>
-              <td className="px-6 py-4">{i.payment_method?.name}</td>
+              <td className="px-6 py-4 text-center">{i.payment_method ? i.payment_method.name : "-"}</td>
               <td className="px-6 py-4 uppercase">
                 <p className={`px-2 py-1 text-center w-min rounded 
                 ${i.payment_status === EPaymentStatus.PAID && "text-green-500"}
               `}>{i.payment_status}</p>
               </td>
               <td className="px-6 py-4">
-                <p className={`px-2 py-1 text-center w-min rounded`}>{i.status}</p>
+                <p className={`px-2 py-1 text-center w-min rounded`}>{i.status.toUpperCase()}</p>
               </td>
             </tr>
           ))}
@@ -276,13 +329,13 @@ export default function Orders() {
 
             <div className="mt-4 px-6">
               <h4 className="font-semibold text-black dark:text-white">
-                Detail Transaksi
+                Transaction Detail
               </h4>
               <div className="py-3 flex flex-col space-y-3 text-sm">
-                <div className="flex flex-row justify-between">
+                {/* <div className="flex flex-row justify-between">
                   <p>ID</p>
                   <p>{detail?.id}</p>
-                </div>
+                </div> */}
                 <div className="flex flex-row justify-between">
                   <p>Date</p>
                   <p>{
@@ -307,6 +360,13 @@ export default function Orders() {
                   </div>
                 </div>
                 <div className="flex flex-row justify-between items-center">
+                  <p>Cashier</p>
+                  <div>
+                    <p>{detail?.admin.fullname}</p>
+                    <span className="text-xs">({detail?.customer.dial_code} {detail?.customer.phone_number})</span>
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between items-center">
                   <p>Customer</p>
                   <div>
                     <p>{detail?.customer.fullname}</p>
@@ -314,12 +374,12 @@ export default function Orders() {
                   </div>
                 </div>
                 <div className="flex flex-row justify-between">
-                  <p>Total Items</p>
-                  <p>{detail?.items.length} <span className="text-xs">items</span></p>
+                  <p>Total Sku</p>
+                  <p>{detail?.items.length}</p>
                 </div>
                 <div className="flex flex-row justify-between">
                   <p>Total Clothes</p>
-                  <p>{detail?.total_item} <span className="text-xs">Clothes</span></p>
+                  <p>{detail?.total_item}</p>
                 </div>
 
                 <div className="flex flex-row justify-between">
@@ -337,12 +397,12 @@ export default function Orders() {
                   <p>{detail?.payment_method?.name}</p>
                 </div>
                 <div className="flex flex-row justify-between">
-                  <p>Staus Pembayaran</p>
+                  <p>Status Pembayaran</p>
                   <p className={`uppercase ${detail?.payment_status === EPaymentStatus.PAID && "text-green-500"}`}>{detail?.payment_status}</p>
                 </div>
 
                 <div className="flex flex-row justify-between">
-                  <p>Staus Order</p>
+                  <p>Status Order</p>
                   <p className="uppercase" >{detail?.status}</p>
                 </div>
               </div>
@@ -351,7 +411,7 @@ export default function Orders() {
               <h4 className="font-semibold text-black dark:text-white">
                 Detail Item
               </h4>
-              <Table colls={["#", "Nama", "Harga", "Kuantitas", "Total"]}
+              <Table colls={["#", "Name", "Price", "Qty", "Total"]}
                 currentPage={0} totalItem={0}
                 onPaginate={() => null}>
                 {detail && detail.items.map((i: any, k: any) => (

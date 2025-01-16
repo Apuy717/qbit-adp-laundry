@@ -193,6 +193,7 @@ const BasicChartPage: React.FC = () => {
       formik.setFieldValue("outlet_id", outlets[0].value)
   }
 
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName="Master Expense" />
@@ -247,7 +248,7 @@ const BasicChartPage: React.FC = () => {
         </div>
       </div>
       <div>
-        <Table colls={["Name", "Outlet", "Action"]}
+        <Table colls={["Name", "Outlet", "Last Update", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalItem}>
@@ -278,6 +279,14 @@ const BasicChartPage: React.FC = () => {
               <td className="whitespace-nowrap px-6 py-4">
                 {i.accept_by}
               </td> */}
+
+              <td className="whitespace-nowrap px-6 py-4">
+                {new Date().toLocaleDateString("id", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric"
+                })}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
                 <div className="relative group">
                   <button
@@ -369,8 +378,8 @@ const BasicChartPage: React.FC = () => {
                 }
               /> */}
 
-              {/* <InputDropdown
-                label={"Outlet*"}
+              <InputDropdown
+                label={"Applied At*"}
                 name={"outlet_id"}
                 id={"outlet_id"}
                 value={formik.values.outlet_id}
@@ -381,7 +390,7 @@ const BasicChartPage: React.FC = () => {
                     ? formik.errors.outlet_id
                     : null
                 }
-              /> */}
+              />
               <InputTextArea
                 rows={3}
                 label={"Description*"}

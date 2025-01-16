@@ -13,11 +13,9 @@ import { MdOutlineSpeed } from "react-icons/md";
 import { useSelector } from "react-redux";
 import CardDataStats from "../CardDataStats";
 import ChartOne from "../Charts/ChartOne";
+import ChartProductAnalytics from "../Charts/ChartProductAnalytics";
 import ChartTwo from "../Charts/ChartTwo";
-import ChatCard from "../Chat/ChatCard";
 import DatePickerOne from "../FormElements/DatePicker/DatePickerOne";
-import MapOne from "../Maps/MapOne";
-import TableOne from "../Tables/TableOne";
 
 
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
@@ -95,7 +93,7 @@ const ECommerce: React.FC = () => {
   function countSales() {
     if (profitAndLos === null) return "-"
     if (profitAndLos.count_sales === null) return "-"
-    return `${FormatDecimal(profitAndLos.count_sales)} inv`
+    return `${FormatDecimal(profitAndLos.count_sales)}`
   }
 
   function totalProfit(): string {
@@ -136,26 +134,28 @@ const ECommerce: React.FC = () => {
         <CardDataStats title="Total Sales" total={totalSales()} rate={countSales()} levelUp>
           <FiShoppingCart size={23} className="text-primary" />
         </CardDataStats>
-        <CardDataStats title="Total Profit" total={totalProfit()} rate="">
+        <CardDataStats title="Total Order" total={countSales()} rate="">
           <CgShoppingBag size={23} className="text-primary" />
         </CardDataStats>
         <CardDataStats title="Total Expense" total={totalExpense()} rate={countExpense()} levelDown>
           <FaMoneyBillTransfer size={23} className="text-primary" />
         </CardDataStats>
-        <CardDataStats title="Average Sales" total={totalAvg()} rate="">
+        <CardDataStats title="Selected Outlet" total={`${selectedOutlets.length >= 1 ? selectedOutlets.length : defaultSelectedOutlet.length}`} rate="">
           <MdOutlineSpeed size={23} className="text-primary" />
         </CardDataStats>
       </div>
 
-      <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-        <ChartOne />
-        <ChartTwo />
-        <ChartThree />
-        <MapOne started_at={startDate} ended_at={endDate} />
+      <div className="mt-4 space-y-7">
+        {/* <ChartOne /> */}
+        {/* <ChartOrder /> */}
+        <ChartTwo startedAt={startDate} endedAt={endDate} />
+        {/* <ChartThree /> */}
+        <ChartProductAnalytics startedAt={startDate} endedAt={endDate} />
+        {/* <MapOne started_at={startDate} ended_at={endDate} />
         <div className="col-span-12 xl:col-span-8">
           <TableOne />
         </div>
-        <ChatCard />
+        <ChatCard /> */}
       </div>
 
     </>

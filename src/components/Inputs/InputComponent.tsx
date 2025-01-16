@@ -49,7 +49,7 @@ export const InputDropdown: FC<iInput> = (props) => {
         id={props.id}
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
-        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        className="focus:border-apps-primary w-full rounded-md border-2 dark:border-form-strokedark bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
       >
         {props.options &&
           props.options.map((i, k) => (
