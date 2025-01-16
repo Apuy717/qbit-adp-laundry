@@ -418,7 +418,7 @@ export default function OutletPage() {
                     {o.is_deleted ? (
                       <p className="text-red uppercase font-bold">Inactive</p>
                     ) : (
-                      <p className="text-green uppercase font-bold">Active</p>
+                      <p className="text-green-500 uppercase font-bold">Active</p>
                     )}
                   </td>
                   <td className="px-6 py-4">
