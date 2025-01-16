@@ -98,7 +98,7 @@ export default function OutletPage() {
     const GotGroupingOutlets = async () => {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: "/api/outlet/got/forme?is_deleted=true",
+        url: "/api/outlet/got/forme",
         token: `${auth.auth.access_token}`
       })
 
@@ -157,7 +157,7 @@ export default function OutletPage() {
     const GotGroupingOutlets = async () => {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: "/api/outlet/got/forme?is_deleted=true",
+        url: "/api/outlet/got/forme",
         token: `${auth.auth.access_token}`
       })
 
