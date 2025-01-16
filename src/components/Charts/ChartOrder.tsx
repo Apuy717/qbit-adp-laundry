@@ -160,9 +160,6 @@ const ChartOrder: React.FC = () => {
         }
       })
 
-      console.log(res);
-
-
       if (res?.statusCode === 200) {
         let _salesSeries: number[] = []
         let _orderCount: number[] = []
@@ -202,7 +199,7 @@ const ChartOrder: React.FC = () => {
     if (!modal)
       GotTopPerformanceOutlet()
 
-  }, [selectedOutlets, defaultSelectedOutlet, filterByDate, modal, router, auth.access_token])
+  }, [selectedOutlets, selectedFilter, defaultSelectedOutlet, filterByDate, modal, router, auth.access_token])
 
 
 
