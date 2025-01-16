@@ -85,7 +85,17 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       formik.setFieldValue("email", res.data.email)
       // formik.setFieldValue("latitude", res.data.latitude)
       // formik.setFieldValue("longitude", res.data.longitude)
-      // formik.setFieldValue("is_deleted", res.data.is_deleted)
+      formik.setFieldValue("is_deleted", res.data.is_deleted)
+      console.log(res.data);
+      
+      function findNameById() {
+        const item = mapingGroupArea.findIndex((i:any) => i.id === res.data.outlet_area_grouping);
+        console.log(item);
+        console.log(mapingGroupArea);
+        
+        return item ? formik.setFieldValue("area_id", mapingGroupArea[item].value) : formik.setFieldValue("area_id", "");
+      }
+      findNameById()
 
       if (res.data.province && res.data.province.split("--").length >= 2)
         GotCity(res.data.province.split("--")[0], isupdate)
@@ -134,7 +144,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
 
     GotProvince(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mapingGroupArea])
 
   useEffect(() => {
     const GotAreas = async () => {
@@ -165,7 +175,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       })
 
       if (mapingArea.length >= 1) {
-        formik.setFieldValue(`area_id`, mapingArea[0].value)
+        // formik.setFieldValue(`area_id`, mapingArea[0].value)
         setMapingGroupArea(mapingArea)
         // console.log(mapingArea);
       }
@@ -233,7 +243,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         .max(100, "Max 100 character!")
         .optional()
         .email("invalid email!"),
-      is_deleted: Yup.boolean().required("Must be filled!"),
+      // is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -323,29 +333,29 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
   }
 
   const deleteArea = async (id: any) => {
-      const userConfirmed = window.confirm("Are you sure you want to delete this Area?");
-      if (!userConfirmed) {
-        return;
-      }
-      const data = {
-        area_id: id
-      }
-      console.log(data);
-  
-      const res = await PostWithToken<MyResponse>({
-        router: router,
-        url: "/api/outlet/remove-area",
-        data: data,
-        token: `${credential.auth.access_token}`
-      })
-      if (res?.statusCode === 200) {
-        toast.success("Data changed success!");
-        formik.setFieldValue("name", "")
-        formik.setFieldValue("area_id", "")
-        setRefresh(true)
-      }
-  
+    const userConfirmed = window.confirm("Are you sure you want to delete this Area?");
+    if (!userConfirmed) {
+      return;
     }
+    const data = {
+      area_id: id
+    }
+    console.log(data);
+
+    const res = await PostWithToken<MyResponse>({
+      router: router,
+      url: "/api/outlet/remove-area",
+      data: data,
+      token: `${credential.auth.access_token}`
+    })
+    if (res?.statusCode === 200) {
+      toast.success("Data changed success!");
+      formik.setFieldValue("name", "")
+      formik.setFieldValue("area_id", "")
+      setRefresh(true)
+    }
+
+  }
 
   return (
     <>
@@ -563,11 +573,11 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
                 : null
             }
           />
-          {/* <InputToggle
+          <InputToggle
             value={!formik.values.is_deleted}
             onClick={(v) => formik.setFieldValue("is_deleted", !v)}
             label={"Status"}
-          /> */}
+          />
           <button
             onClick={formik.submitForm}
             className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
