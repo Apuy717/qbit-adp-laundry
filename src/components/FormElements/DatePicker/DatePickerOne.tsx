@@ -19,7 +19,7 @@ const DatePickerOne = (props: iDatePickerInput) => {
       time_24hr: true,
       static: true,
       monthSelectorType: "static",
-      dateFormat: "d-m-Y",
+      dateFormat: "d M Y",
       defaultHour: 23,
       defaultMinute: 59,
       defaultSeconds: 59,
