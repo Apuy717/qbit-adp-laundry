@@ -87,15 +87,8 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       // formik.setFieldValue("longitude", res.data.longitude)
       formik.setFieldValue("is_deleted", res.data.is_deleted)
       console.log(res.data);
-      
-      function findNameById() {
-        const item = mapingGroupArea.findIndex((i:any) => i.id === res.data.outlet_area_grouping);
-        console.log(item);
-        console.log(mapingGroupArea);
-        
-        return item ? formik.setFieldValue("area_id", mapingGroupArea[item].value) : formik.setFieldValue("area_id", "");
-      }
-      findNameById()
+      setOutlet(res.data)
+
 
       if (res.data.province && res.data.province.split("--").length >= 2)
         GotCity(res.data.province.split("--")[0], isupdate)
@@ -144,7 +137,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
 
     GotProvince(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapingGroupArea])
+  }, [])
 
   useEffect(() => {
     const GotAreas = async () => {
@@ -175,14 +168,16 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       })
 
       if (mapingArea.length >= 1) {
-        // formik.setFieldValue(`area_id`, mapingArea[0].value)
         setMapingGroupArea(mapingArea)
-        // console.log(mapingArea);
+        if (formik.values.area_id === "" && outlet !== null) {
+          const item = mapingGroupArea.findIndex((i: any) => i.value === outlet?.outlet_area_grouping.outlet_area.id);
+          formik.setFieldValue("area_id", mapingGroupArea[item].value)
+        }
       }
     };
     GotGroupingAreas();
     GotAreas()
-  }, [credential.auth.access_token, router, areaModal]);
+  }, [credential.auth.access_token, router, areaModal, outlet]);
 
   const formikArea = useFormik({
     initialValues: {
