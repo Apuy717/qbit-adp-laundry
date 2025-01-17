@@ -41,6 +41,7 @@ export default function Product() {
   const [products, setProducts] = useState<TypeProduct[]>([])
   const [categorys, setCategorys] = useState<iDropdown[]>([])
   const [filterSkus, setfilterSkus] = useState<any>([])
+  const [totalSkus, setTotalSkus] = useState<any>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [fixValueSearch, setFixValueSearch] = useState("")
   const [totalProduct, setTotalProduct] = useState<number>(0);
@@ -64,6 +65,12 @@ export default function Product() {
   const router = useRouter()
 
   const [filterByCategory, setFilterByCategory] = useState<string>("all")
+  enum TabActive {
+    PRODUCT = "PRODUCT",
+    SKU = "SKU",
+  }
+
+  const [tabActive, setTabActive] = useState<TabActive>(TabActive.PRODUCT)
 
   const serviceType = [{
     label: "services",
@@ -116,6 +123,9 @@ export default function Product() {
         if (res.total) setTotalProduct(res.total)
         else setTotalProduct(0)
         setProducts(res.data);
+        const mapSku = products.flatMap(item => item.skus.map(skuItem => skuItem));
+        setTotalSkus(mapSku)
+        console.log(mapSku);
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -143,7 +153,7 @@ export default function Product() {
     GotCategorys()
     // console.log(products[skusIdx].skus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail])
+  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, isViewDetail, tabActive])
 
   useEffect(() => {
     if (skuId != "") {
@@ -355,7 +365,7 @@ export default function Product() {
           setAddpriceSku(false)
         } else {
           router.push("/product");
-
+          setTabActive(TabActive.PRODUCT)
           setIsViewDetail(false)
           setUpdateModal(false)
           setAddpriceSku(false)
@@ -435,7 +445,34 @@ export default function Product() {
         </div>
       </div>
 
-      <div className=" dark:min-h-screen">
+      <div className="bg-gray-50 dark:bg-gray-800 w-full pt-4 px-4 mb-4 rounded-md">
+        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+          <li className="me-2" role="presentation">
+            <button className={`inline-block p-4 border-b-2 rounded-t-lg 
+              ${tabActive === TabActive.PRODUCT ?
+                "border-blue-500 text-blue-500"
+                : "dark:border-form-strokedark"
+              }
+              `}
+              onClick={() => setTabActive(TabActive.PRODUCT)}>
+              {TabActive.PRODUCT}
+            </button>
+          </li>
+          <li className="me-2" role="presentation">
+            <button className={`inline-block p-4 border-b-2 rounded-t-lg 
+              ${tabActive === TabActive.SKU ?
+                "border-blue-500 text-blue-500"
+                : "dark:border-form-strokedark"
+              }
+              `}
+              onClick={() => setTabActive(TabActive.SKU)}>
+              {TabActive.SKU}
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div className={tabActive == TabActive.PRODUCT ? `dark:min-h-screen` : `hidden`}>
         <Table
           colls={CELLS}
           onPaginate={(page) => setCurrentPage(page)}
@@ -460,13 +497,9 @@ export default function Product() {
               </td>
               <td className="px-6 py-4">
                 {prod.is_deleted ? (
-                  <div className="px-2 bg-red-500 rounded-xl text-center w-auto flex justify-center">
-                    <p className="text-white">inactive</p>
-                  </div>
+                  <p className="text-red uppercase font-bold">inactive</p>
                 ) : (
-                  <div className="px-2 bg-green-500 rounded-xl text-center w-auto">
-                    <p className="text-white">active</p>
-                  </div>
+                  <p className="text-green-500 uppercase font-bold">active</p>
                 )}
               </td>
               <td className="px-6 py-4">
@@ -480,6 +513,7 @@ export default function Product() {
                         setIsViewDetail(true)
                         const filter = products.filter((f: any) => f.id == prod.id)
                         setfilterSkus(filter[0].skus);
+                        console.log(filter);
 
                       }}
                     >
@@ -549,6 +583,121 @@ export default function Product() {
         </Table>
       </div>
 
+      <div className={tabActive == TabActive.SKU ? `dark:min-h-screen` : `hidden`}>
+        <Table colls={["#", "Code", "Name", "Price", "Stock", "Washer", "Dryer", "Iron", "Description", "Action"]}
+          currentPage={0}
+          totalItem={0}
+          onPaginate={function (page: number): void {
+            throw new Error("Function not implemented.");
+          }}>
+          {totalSkus.map((i: any, k: any) => (
+            <tr key={k}>
+              <td className="px-6 py-4">
+                {k + 1}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.code}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.name}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {rupiah(i.price)}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.stock ? `${i.stock} ${i.unit}` : '-'}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.machine_washer ? (
+                  <p className="text-green-500 uppercase font-bold">{`${i.washer_duration}`} Mnt</p>
+                ) : (
+                  <p className="text-red uppercase font-bold">none</p>
+                )}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.machine_dryer ? (
+                 <p className="text-green-500 uppercase font-bold">{`${i.dryer_duration}`} Mnt</p>
+                ) : (
+                  <p className="text-red uppercase font-bold">none</p>
+                )}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.machine_iron ? (
+                  <p className="text-green-500 uppercase font-bold">{`${i.iron_duration}`} Mnt</p>
+                ) : (
+                  <p className="text-red uppercase font-bold">none</p>
+                )}
+              </td>
+              <td className="px-6 py-4">
+                {i.description}
+              </td>
+              <td className="whitespace-nowrap px-6 py-4 flex justify-center space-x-2">
+                <div className="relative group">
+                  <button
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setskuName(i.name)
+                      setIsViewSkuPrices(true)
+                      setSkuId(i.id)
+                      formik.setFieldValue("sku_id", i.id)
+                      setAddpriceSku(true)
+                    }}
+                  >
+                    <FiEye size={18} />
+                  </button>
+                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                    View detail
+                  </div>
+                </div>
+
+                <div className="relative group">
+                  <button
+                    className="cursor-pointer"
+                    onClick={() => {
+                      formik.setFieldValue("id", i.id)
+                      formik.setFieldValue("code", i.code)
+                      formik.setFieldValue("name", i.name)
+                      formik.setFieldValue("description", i.description == null ? `` : i.description)
+                      formik.setFieldValue("capital_price", i.capital_price)
+                      formik.setFieldValue("price", i.price)
+                      formik.setFieldValue("type", i.type)
+                      formik.setFieldValue("stock", i.stock)
+                      formik.setFieldValue("unit", i.unit)
+                      formik.setFieldValue("machine_washer", i.machine_washer)
+                      formik.setFieldValue("washer_duration", parseInt(i.washer_duration))
+                      formik.setFieldValue("machine_dryer", i.machine_dryer)
+                      formik.setFieldValue("dryer_duration", parseInt(i.dryer_duration))
+                      formik.setFieldValue("machine_iron", i.machine_iron)
+                      formik.setFieldValue("iron_duration", parseInt(i.iron_duration))
+
+                      formik.setFieldValue("is_deleted", i.is_deleted)
+                      setUpdateModal(true)
+                      setUpdateOrAddSku(true)
+                      setProductOrSku(false)
+                    }}
+                  >
+                    <FiEdit size={18} />
+                  </button>
+                  <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                    Edit SKU
+                  </div>
+                </div>
+
+                {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
+                    formik.setFieldValue("sku_id", i.id)
+                    setAddpriceSku(true)
+                    console.log(i.id);
+                  }}>
+                    <p className="text-white">add price</p>
+                  </button> */}
+              </td>
+            </tr>
+          ))}
+
+        </Table>
+      </div>
+
+      {/* SKU Slide2 */}
       <div className={`w-[80%] h-full fixed right-0 top-0 z-[9999] overflow-y-auto overflow-x-auto
         transition-all duration-500 shadow bg-white dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"}`}>
@@ -602,12 +751,12 @@ export default function Product() {
               } else {
                 toast.warn("Product not selected!")
               }
-            }}>Add Item</button>
+            }}>Add SKU</button>
         </div>
 
         <div className="px-4 space-y-2">
           <p className="text-lg font-semibold text-black dark:text-white">
-            Detail Item
+            Detail SKU
           </p>
           <Table colls={["#", "Code", "Name", "Price", "Stock", "Washer", "Dryer", "Iron", "Description", "Action"]} currentPage={0} totalItem={0} onPaginate={function (page: number): void {
             throw new Error("Function not implemented.");
@@ -713,7 +862,7 @@ export default function Product() {
                       <FiEdit size={18} />
                     </button>
                     <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                      Edit Item
+                      Edit SKU
                     </div>
                   </div>
 
@@ -745,7 +894,7 @@ export default function Product() {
           </div>
 
           <div className="flex flex-col space-y-8">
-            <Breadcrumb pageName={`Add Item`} />
+            <Breadcrumb pageName={`Add SKU`} />
           </div>
           <div className=" overflow-y-scroll h-96 py-2">
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
@@ -903,7 +1052,7 @@ export default function Product() {
             </div>
 
             <div className="flex flex-col space-y-8 pt-6">
-              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update Item`} />
+              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update SKU`} />
             </div>
 
             <div className=" overflow-y-scroll h-96 py-2">
@@ -1002,7 +1151,7 @@ export default function Product() {
             </div>
 
             <div className="flex flex-col space-y-8">
-              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update Item`} />
+              <Breadcrumb pageName={productOrSku ? `Update Product` : `Update SKU`} />
             </div>
             <div className=" overflow-y-scroll h-96 py-2">
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
@@ -1169,7 +1318,7 @@ export default function Product() {
                       Dashboard / Product /
                     </Link>
                   </li>
-                  <li className="font-medium text-primary">Item Price Detail</li>
+                  <li className="font-medium text-primary">SKU Price Detail</li>
                 </ol>
               </nav>
             </div>
