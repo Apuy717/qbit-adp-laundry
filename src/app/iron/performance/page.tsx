@@ -129,11 +129,11 @@ export default function IncidentPage() {
             <td className="px-6 py-4">
               {k + 1}
             </td>
-            <td className="px-6 py-4">
+            <td className="px-6 py-4 capitalize">
               {i.user.fullname}
               <p className="text-xs font-thin">{` ` + i.user.dial_code + '' + i.user.phone_number}</p>
             </td>
-            <td className="px-6 py-4">
+            <td className="px-6 py-4 uppercase">
               {i.user.department}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">

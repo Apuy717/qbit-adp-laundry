@@ -108,8 +108,8 @@ export default function IncidentPage() {
             onChange={(val) => setEndDate(val)} />
           <div className="w-full">
             <Input
-              label={"Serach User"}
-              name={"search"}
+              label={"Search User"}
+              name={"Search"}
               id={"search"}
               value={search}
               onChange={(v) => setSearch(v)}
@@ -127,18 +127,18 @@ export default function IncidentPage() {
       </div>
 
       <Table
-        colls={["Name", "Department", "Outlet", "Work Time", "Started At", "Ended At"]}
+        colls={["Name", "Department", "Outlet", "Invoice", "Total Clothes", "Duration", "Started At", "Ended At"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
         {data.map((i, k) => (
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
-            <td className="px-6 py-4">
+            <td className="px-6 py-4 capitalize">
               {i.user.fullname}
               <p className="text-xs font-thin">{` ` + i.user.dial_code + '' + i.user.phone_number}</p>
             </td>
-            <td className="px-6 py-4">
+            <td className="px-6 py-4 uppercase">
               {i.user.department}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
@@ -146,15 +146,35 @@ export default function IncidentPage() {
               <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
             </td>
             <td className="px-6 py-4">
+              {i.order_item_stage.order_item.order.invoice_id}
+            </td>
+            <td className="px-6 py-4">
+              {i?.order_item_stage?.order_item?.total_item}
+            </td>
+            <td className="px-6 py-4">
               {formatWorkDuration(i.work_duration_minutes!)}
             </td>
             <td className="px-6 py-4">
-              {new Date(i.started_at!).toLocaleDateString()}
-              <p className="text-xs font-thin">{new Date(i.started_at!).toLocaleTimeString()}</p>
+              {new Date(i.started_at!).toLocaleDateString("id", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
             </td>
             <td className="px-6 py-4">
-              {i.finished_at == null ? `on progress` : new Date(i.finished_at).toLocaleDateString()}
-              <p className="text-xs font-thin">{i.finished_at == null ? `` : ` ` + new Date(i.finished_at!).toLocaleTimeString()}</p>
+              {i.finished_at == null ? `ON PROGRESS` :
+                new Date(i.finished_at!).toLocaleDateString("id", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              }
             </td>
           </tr>
         ))}

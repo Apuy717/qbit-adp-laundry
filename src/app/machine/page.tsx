@@ -280,7 +280,7 @@ export default function PageMachine() {
           <div className="lg:w-90">
             <Input
               label={"Search"}
-              name={"search"}
+              name={"Search"}
               id={"search"}
               value={search}
               onChange={(v) => setSearch(v)}
@@ -304,8 +304,8 @@ export default function PageMachine() {
       </div>
 
       <Table colls={role.name === ERoles.PROVIDER ? [
-        "#", "Name", "Code", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"] :
-        ["#", "Name", "Code", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"]}
+        "#", "Name", "Esp ID", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"] :
+        ["#", "Name", "Esp ID", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"]}
         currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
 
         {items.map((i, k) => (
@@ -398,7 +398,7 @@ export default function PageMachine() {
 
           <div className="h-80 overflow-y-auto mt-4 p-2">
             <div className="flex flex-col space-y-8">
-              <Input label={"Code*"} name={"machine_id"} id={"machine_id"}
+              <Input label={"Esp ID*"} name={"machine_id"} id={"machine_id"}
                 value={formik.values.machine_id}
                 onChange={(v) => formik.setFieldValue("machine_id", v)}
                 error={

@@ -77,7 +77,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           route: "#",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
           children: [
-            { label: "Detail", route: "/iron" },
+            { label: "Log", route: "/iron" },
             { label: "Performance", route: "/iron/performance" },
           ],
         },

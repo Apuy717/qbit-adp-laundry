@@ -118,7 +118,7 @@ export default function IncidentPage() {
             onChange={(val) => setEndDate(val)} />
           <div className="w-full">
             <Input
-              label={"Serach Token"}
+              label={"Search Token"}
               name={"search"}
               id={"search"}
               value={search}
@@ -138,7 +138,7 @@ export default function IncidentPage() {
 
 
       <Table
-        colls={["ID", "Date", "Outlet", "Invoice", "Reason", "Requested", "Approved", "Token", "Action"]}
+        colls={["Token", "Date Time", "Outlet", "Invoice", "Reason", "Requested By", "Approved By", "Action"]}
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
         totalItem={totalData}>
@@ -146,8 +146,15 @@ export default function IncidentPage() {
           <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
             <td className="px-6 py-4 whitespace-nowrap">
-              {i.id}
+              <span className="text-xs font-thin">{i.type === "multiple" ? "Incident" : "Request Extra"}</span>
+              <div className={`flex items-center justify-centerp-2 rounded ${!i.approved && "text-red-500"} ${i.approved && !i.is_used && "text-blue-500"} ${i.approved && i.is_used && "text-green-500"} font-semibold flex-col`}>
+                {i.token.substring(0, 8).toUpperCase()}
+              </div>
             </td>
+
+            {/* <td className="px-6 py-4 whitespace-nowrap">
+              {i.id.substring(0, 8).toUpperCase()}
+            </td> */}
 
             <td className="px-6 py-4 whitespace-nowrap">
               {new Date(i.created_at).toLocaleDateString("id", {
@@ -186,12 +193,6 @@ export default function IncidentPage() {
               {i.accepted_by?.fullname}
             </td>
 
-            <td className="px-6 py-4 whitespace-nowrap">
-              <span className="text-xs font-thin">{i.type === "multiple" ? "Incident" : "Request Extra"}</span>
-              <div className={`flex items-center justify-centerp-2 rounded ${!i.approved && "text-red-500"} ${i.approved && !i.is_used && "text-blue-500"} ${i.approved && i.is_used && "text-green-500"} font-semibold flex-col`}>
-                {i.token.substring(0, 8).toUpperCase()}
-              </div>
-            </td>
             <td>
               <div className="w-full h-full flex items-center justify-center">
                 {!i.approved && (
@@ -322,7 +323,7 @@ export default function IncidentPage() {
               </h4>
               <div className="py-3 flex flex-col space-y-1">
                 <Table
-                  colls={["#", "Item", "Machine"]}
+                  colls={["#", "Invoice", "Item", "Machine"]}
                   onPaginate={(page) => setCurrentPage(page)}
                   currentPage={0}
                   totalItem={0}>
@@ -330,6 +331,7 @@ export default function IncidentPage() {
                     <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600">
                       <td className="px-6 py-4">{k + 1}</td>
+                      <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage.order_item.order.invoice_id}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col">
                           {i.order_item_stage.order_item.product_name}

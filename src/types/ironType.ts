@@ -24,7 +24,10 @@ export type IronTypes = {
             id: string,
             product_name: string,
             product_sku_name: string,
-            total_item: number
+            total_item: number,
+            order: {
+                invoice_id: string
+            }
         }
     }
 }
