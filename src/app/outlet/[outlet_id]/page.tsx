@@ -6,6 +6,7 @@ import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Outlet } from "@/types/outlet";
+import { ERoles } from "@/types/Roles";
 import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -568,11 +569,13 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
                 : null
             }
           />
-          <InputToggle
-            value={!formik.values.is_deleted}
-            onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-            label={"Status"}
-          />
+          <div className={`${credential.role.name !== ERoles.PROVIDER && "hidden"}`}>
+            <InputToggle
+              value={!formik.values.is_deleted}
+              onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+              label={"Status"}
+            />
+          </div>
           <button
             onClick={formik.submitForm}
             className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
