@@ -21,8 +21,6 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 export default function PageMachine() {
-  const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
   const [items, setItems] = useState<MachineType[]>([])
@@ -97,7 +95,7 @@ export default function PageMachine() {
     if (!modal)
       GotPRItems()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterByOutlet, filterIsDeleted,
+  }, [currentPage, fixValueSearch, refresh, auth.access_token, filterIsDeleted,
     selectedOutlets, defaultSelectedOutlet, modal])
 
 
@@ -248,8 +246,15 @@ export default function PageMachine() {
     for (let cmd of commands) {
 
       const encodedCallback = encodeURIComponent(cmd);
-      fetch(`http://${machineDetail.ip}/cm?cmnd=${encodedCallback}`)
-        .then(res => res.json())
+      fetch(`/api-include/machine?ip=${machineDetail.ip}&cmnd=${encodedCallback}`)
+        .then(res => {
+          if (res.status !== 200) {
+            toast.error(`Machine not connected!`)
+            setTimeout(() => setLoading(false), 1000)
+            return;
+          }
+          return res.json()
+        })
         .then(res => {
           let key = cmd.split(" ")
           if (key.length >= 1) {
@@ -257,11 +262,9 @@ export default function PageMachine() {
             setTimeout(() => setLoading(false), 1000)
             setModalPairingMachine(false)
             idx++
-            console.log(idx, commands.length);
             if (idx === commands.length) {
               UpdateSttsMachine()
             }
-
           }
         })
         .catch(err => {
@@ -327,7 +330,7 @@ export default function PageMachine() {
 
             <td className="whitespace-nowrap px-6 py-4">
               {FormatDecimal(parseInt(i.cyles_machine))} cycle{" / "}
-              {i.runtime ? FormatDecimal(parseInt(i.runtime)) : 0} Menit
+              {i.relay_time_used ? FormatDecimal(parseInt(i.relay_time_used)) : 0} Menit
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
