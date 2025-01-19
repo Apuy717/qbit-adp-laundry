@@ -15,6 +15,7 @@ const DatePickerOne = (props: iDatePickerInput) => {
     // Init flatpickr
     flatpickr(refInput.current, {
       enableTime: true,
+      minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 2)),
       mode: "single",
       time_24hr: true,
       static: true,
