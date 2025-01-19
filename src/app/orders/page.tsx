@@ -23,13 +23,13 @@ export default function Orders() {
       new Date().getFullYear(),
       new Date().getMonth() + 1,
       0,
-    ).getDate()}`,
+    ).getDate()}, 23:59:59`,
   )
 
-  endOfMonth.setHours(6, 59, 59, 0)
+  // endOfMonth.setHours(6, 59, 59, 0)
   const offsetInMinutes = 7 * 60
-  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-  // endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  // startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
@@ -70,6 +70,11 @@ export default function Orders() {
 
       let tabActiveQuery = {}
       if (tabActive !== TabActive.ALL) tabActiveQuery = { tab_active: tabActive }
+
+      const _startedAt = new Date(startDate);
+      const pad = (n: any) => n.toString().padStart(2, '0');
+      const stdAt = `${_startedAt.getFullYear()}-${pad(_startedAt.getMonth() + 1)}-${pad(_startedAt.getDate())} ${pad(_startedAt.getHours())}:${pad(_startedAt.getMinutes())}:${pad(_startedAt.getSeconds())}`;
+      const endAt = `${_startedAt.getFullYear()}-${pad(_startedAt.getMonth() + 1)}-${pad(_startedAt.getDate())} ${pad(_startedAt.getHours())}:${pad(_startedAt.getMinutes())}:${pad(_startedAt.getSeconds())}`;
 
       const res = await PostWithToken<iResponse<OrderType[]>>({
         router: router,
@@ -361,14 +366,14 @@ export default function Orders() {
                 </div>
                 <div className="flex flex-row justify-between items-center">
                   <p>Cashier</p>
-                  <div>
+                  <div className="text-right">
                     <p>{detail?.admin.fullname}</p>
                     <span className="text-xs">({detail?.customer.dial_code} {detail?.customer.phone_number})</span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between items-center">
                   <p>Customer</p>
-                  <div>
+                  <div className="text-right">
                     <p>{detail?.customer.fullname}</p>
                     <span className="text-xs">({detail?.customer.dial_code} {detail?.customer.phone_number})</span>
                   </div>
@@ -393,11 +398,11 @@ export default function Orders() {
                 </div>
 
                 <div className="flex flex-row justify-between">
-                  <p>Methode Pembayaran</p>
+                  <p>Payment Method</p>
                   <p>{detail?.payment_method?.name}</p>
                 </div>
                 <div className="flex flex-row justify-between">
-                  <p>Status Pembayaran</p>
+                  <p>Payment Status</p>
                   <p className={`uppercase ${detail?.payment_status === EPaymentStatus.PAID && "text-green-500"}`}>{detail?.payment_status}</p>
                 </div>
 
@@ -409,7 +414,7 @@ export default function Orders() {
             </div>
             <div className="mt-4 px-6">
               <h4 className="font-semibold text-black dark:text-white">
-                Detail Item
+                Detail SKU
               </h4>
               <Table colls={["#", "Name", "Price", "Qty", "Total"]}
                 currentPage={0} totalItem={0}

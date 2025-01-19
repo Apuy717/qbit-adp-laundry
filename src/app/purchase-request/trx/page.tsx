@@ -1,7 +1,6 @@
 'use client'
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
-import { iDropdown } from "@/components/Inputs/InputComponent";
 import { FilterByOutletTableModal } from "@/components/Outlets/FilterByOutletTableModal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
@@ -12,18 +11,22 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { FiEye } from "react-icons/fi";
 import { useSelector } from "react-redux";
 
 export default function PRTrxPage() {
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endOfMonth = new Date(
+  let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  let endOfMonth = new Date(
     `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
       new Date().getFullYear(),
       new Date().getMonth() + 1,
       0,
     ).getDate()} 23:59`,
   )
+
+  // endOfMonth.setHours(6, 59, 59, 0)
+  const offsetInMinutes = 7 * 60
+  // startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
 
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);

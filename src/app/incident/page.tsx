@@ -147,7 +147,7 @@ export default function IncidentPage() {
             dark:bg-gray-800 dark:hover:bg-gray-600">
             <td className="px-6 py-4 whitespace-nowrap">
               <span className="text-xs font-thin">{i.type === "multiple" ? "Incident" : "Request Extra"}</span>
-              <div className={`flex items-center justify-centerp-2 rounded ${!i.approved && "text-red-500"} ${i.approved && !i.is_used && "text-blue-500"} ${i.approved && i.is_used && "text-green-500"} font-semibold flex-col`}>
+              <div className={`flex  rounded ${!i.approved && "text-red-500"} ${i.approved && !i.is_used && "text-blue-500"} ${i.approved && i.is_used && "text-green-500"} font-semibold flex-col`}>
                 {i.token.substring(0, 8).toUpperCase()}
               </div>
             </td>

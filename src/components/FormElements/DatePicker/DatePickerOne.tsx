@@ -25,6 +25,7 @@ const DatePickerOne = (props: iDatePickerInput) => {
       defaultSeconds: 59,
       defaultDate: props.defaultDate,
       disableMobile: true,
+
       prevArrow:
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
@@ -32,10 +33,13 @@ const DatePickerOne = (props: iDatePickerInput) => {
       onChange: (selectedDates) => {
         if (selectedDates.length > 0) {
           // Mengonversi ke format ISO tanpa milidetik
-          const offsetInMinutes = 7 * 60;
-          const date = new Date(selectedDates[0].getTime() + offsetInMinutes * 60 * 1000);
-          const isoDate = date.toISOString().split(".")[0];
-          props.onChange(isoDate);
+          // const offsetInMinutes = 7 * 60;
+          // const date = new Date(selectedDates[0].getTime() + offsetInMinutes * 60 * 1000);
+          // const isoDate = date.toISOString().split(".")[0];
+          const pad = (n: any) => n.toString().padStart(2, '0');
+          const date = `${selectedDates[0].getFullYear()}-${pad(selectedDates[0].getMonth() + 1)}-${pad(selectedDates[0].getDate())} ${pad(selectedDates[0].getHours())}:${pad(selectedDates[0].getMinutes())}:${pad(selectedDates[0].getSeconds())}`;
+          console.log(date);
+          props.onChange(date);
         }
       },
     });
