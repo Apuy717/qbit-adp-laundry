@@ -1,7 +1,7 @@
 import { Outlet } from "./outlet"
 
 export enum EDepartmentEmployee {
-  HQ = "hard quarter",
+  HQ = "head quarter",
   AUDITOR = "auditor",
   FINANCE = "finance",
   AM = "area manager",
