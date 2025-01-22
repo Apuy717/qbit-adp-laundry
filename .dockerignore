@@ -1,0 +1,9 @@
+node_modules
+docs
+.idea
+.dockerignore
+.git
+
+npm-debug.log
+*.md
+.next/cache
