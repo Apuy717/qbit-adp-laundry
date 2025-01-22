@@ -24,9 +24,10 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy the built application from the builder stage
+# Copy the built application from the builder stage next.config.mjs
 COPY --from=builder /usr/src/app/.next ./.next
 COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/next.config.mjs ./
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/public ./public
 
