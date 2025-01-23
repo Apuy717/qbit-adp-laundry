@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: qbit-adp-laundry
+    restart: always
     ports:
       - "4000:4000"
     volumes:
