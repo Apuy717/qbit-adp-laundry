@@ -14,15 +14,15 @@ const nextConfig = {
       return [
         {
           source: "/api/:path*",
-          destination: "http://alpha.laundry.qyubit.com/api/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/api/:path*",
         },
         {
           source: "/file/:path*",
-          destination: "http://alpha.laundry.qyubit.com/file/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/file/:path*",
         },
         {
           source: "/download/:path*",
-          destination: "http://alpha.laundry.qyubit.com/download/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/download/:path*",
         },
       ];
     }
