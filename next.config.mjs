@@ -10,6 +10,22 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    if (process.env.APP_ENV === "production") {
+      return [
+        {
+          source: "/api/:path*",
+          destination: "http://alpha.laundry.qyubit.com/api/:path*",
+        },
+        {
+          source: "/file/:path*",
+          destination: "http://alpha.laundry.qyubit.com/file/:path*",
+        },
+        {
+          source: "/download/:path*",
+          destination: "http://alpha.laundry.qyubit.com/download/:path*",
+        },
+      ];
+    }
     return [
       {
         source: "/api/:path*",
