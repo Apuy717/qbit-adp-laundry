@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const encodedCmnd = encodeURIComponent(cmnd);
-    const url = `http://${ip}/cm?cmnd=${encodedCmnd}`;
+    const url = `http://${ip}/cm?cmnd=${encodedCmnd}&user=admin&password=@Quantum2022`;
     const req = await fetch(url, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
