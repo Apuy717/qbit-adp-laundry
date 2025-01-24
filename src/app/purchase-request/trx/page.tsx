@@ -15,21 +15,13 @@ import { useSelector } from "react-redux";
 
 export default function PRTrxPage() {
   let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  let endOfMonth = new Date(
-    `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    ).getDate()} 23:59`,
-  )
+  let endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
-  // endOfMonth.setHours(6, 59, 59, 0)
-  const offsetInMinutes = 7 * 60
-  // startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+  endOfMonth.setHours(23, 59, 59, 0)
+  startOfMonth.setHours(0, 0, 0, 0)
 
-  const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
-  const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
+  const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
+  const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
   const router = useRouter();
   const { auth } = useSelector((s: RootState) => s.auth);
@@ -43,12 +35,18 @@ export default function PRTrxPage() {
 
   useEffect(() => {
     async function GotTransaction() {
+      const pad = (n: any) => n.toString().padStart(2, '0');
+      const stdDate = new Date(startDate)
+      const eDate = new Date(endDate)
+      const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+      const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
+
       const res = await PostWithToken<iResponse<PRTrx[]>>({
         url: "/api/pr/transaction", router: router, token: `${auth.access_token}`,
         data: {
           outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map((o: any) => o.outlet_id) : defaultSelectedOutlet.map((o: any) => o.outlet_id),
-          started_at: startDate,
-          ended_at: endDate,
+          started_at: _startedAt,
+          ended_at: _endedAt,
 
         }
       })

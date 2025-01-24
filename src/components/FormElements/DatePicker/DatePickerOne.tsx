@@ -24,7 +24,16 @@ const DatePickerOne = (props: iDatePickerInput) => {
       defaultHour: 23,
       defaultMinute: 59,
       defaultSeconds: 59,
-      defaultDate: props.defaultDate,
+      defaultDate: (() => {
+        // Get current date
+        const currentDate = new Date(props.defaultDate);
+
+        // Apply UTC+7 offset
+        // const offsetInMinutes = 7 * 60; // UTC+7 in minutes
+        // const utcPlus7Date = new Date(currentDate.getTime() + offsetInMinutes * 60 * 1000);
+
+        return currentDate;
+      })(),
       disableMobile: true,
 
       prevArrow:
@@ -39,7 +48,6 @@ const DatePickerOne = (props: iDatePickerInput) => {
           // const isoDate = date.toISOString().split(".")[0];
           const pad = (n: any) => n.toString().padStart(2, '0');
           const date = `${selectedDates[0].getFullYear()}-${pad(selectedDates[0].getMonth() + 1)}-${pad(selectedDates[0].getDate())} ${pad(selectedDates[0].getHours())}:${pad(selectedDates[0].getMinutes())}:${pad(selectedDates[0].getSeconds())}`;
-          console.log(date);
           props.onChange(date);
         }
       },

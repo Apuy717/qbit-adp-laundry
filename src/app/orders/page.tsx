@@ -17,22 +17,13 @@ import { useSelector } from "react-redux";
 
 export default function Orders() {
   let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  let endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+  endOfMonth.setHours(23, 59, 59, 0)
+  startOfMonth.setHours(0, 0, 0, 0)
 
-  let endOfMonth = new Date(
-    `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    ).getDate()}, 23:59:59`,
-  )
-
-  // endOfMonth.setHours(6, 59, 59, 0)
-  const offsetInMinutes = 7 * 60
-  // startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-  endOfMonth = new Date(endOfMonth.getTime() + offsetInMinutes * 60 * 1000);
-
+  const pad = (n: any) => n.toString().padStart(2, '0');
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
-  const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
+  const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
   const { auth } = useSelector((s: RootState) => s.auth)
   const [items, setItems] = useState<OrderType[]>([])
@@ -71,10 +62,11 @@ export default function Orders() {
       let tabActiveQuery = {}
       if (tabActive !== TabActive.ALL) tabActiveQuery = { tab_active: tabActive }
 
-      const _startedAt = new Date(startDate);
       const pad = (n: any) => n.toString().padStart(2, '0');
-      const stdAt = `${_startedAt.getFullYear()}-${pad(_startedAt.getMonth() + 1)}-${pad(_startedAt.getDate())} ${pad(_startedAt.getHours())}:${pad(_startedAt.getMinutes())}:${pad(_startedAt.getSeconds())}`;
-      const endAt = `${_startedAt.getFullYear()}-${pad(_startedAt.getMonth() + 1)}-${pad(_startedAt.getDate())} ${pad(_startedAt.getHours())}:${pad(_startedAt.getMinutes())}:${pad(_startedAt.getSeconds())}`;
+      const stdDate = new Date(startDate)
+      const eDate = new Date(endDate)
+      const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+      const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
 
       const res = await PostWithToken<iResponse<OrderType[]>>({
         router: router,
@@ -82,8 +74,8 @@ export default function Orders() {
         token: `${auth.access_token}`,
         data: {
           outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
-          started_at: startDate,
-          ended_at: endDate,
+          started_at: _startedAt,
+          ended_at: _endedAt,
           // ...paymentStts,
           ...tabActiveQuery,
           ...orderStts
@@ -135,14 +127,20 @@ export default function Orders() {
     let tabActiveQuery = {}
     if (tabActive !== TabActive.ALL) tabActiveQuery = { tab_active: tabActive }
 
+    const pad = (n: any) => n.toString().padStart(2, '0');
+    const stdDate = new Date(startDate)
+    const eDate = new Date(endDate)
+    const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+    const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
+
     const res = await PostWithToken<iResponse<{ filename: string }>>({
       router: router,
       url: "/api/order/download",
       token: `${auth.access_token}`,
       data: {
         outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
-        started_at: startDate,
-        ended_at: endDate,
+        started_at: _startedAt,
+        ended_at: _endedAt,
         // ...paymentStts,
         tabActiveQuery,
         ...orderStts
