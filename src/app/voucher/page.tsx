@@ -11,13 +11,11 @@ import { Voucher } from "@/types/voucher";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaRegPlusSquare } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-
 
 interface MyResponse {
   statusCode: number;
@@ -50,19 +48,6 @@ const CELLS = [
 ];
 
 export default function Vouchers() {
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endOfMonth = new Date(
-    `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    ).getDate()} 23:59`,
-  )
-
-  const [startDate, setStartDate] = useState<Date | string>(startOfMonth.toISOString().split(".")[0]);
-  const [endDate, setEndDate] = useState<Date | string>(endOfMonth.toISOString().split(".")[0]);
-
-  const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
@@ -73,25 +58,8 @@ export default function Vouchers() {
   const [loading, setLoading] = useState<boolean>(false);
   const [updateModal, setUpdateModal] = useState<boolean>(false)
   const [updateOrAddVoucher, setUpdateOrAddVoucher] = useState<boolean>(true)
-
-
-
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter()
-
-  const serviceType = [
-    {
-      label: "",
-      value: ""
-    }, {
-      label: "services",
-      value: "services"
-    }, {
-      label: "goods",
-      value: "goods"
-    }
-  ]
-
 
   useEffect(() => {
     const GotVoucher = async () => {
@@ -104,7 +72,7 @@ export default function Vouchers() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet
+          outlet_ids: [],
         }
       });
       if (res?.statusCode === 200) {
@@ -116,9 +84,10 @@ export default function Vouchers() {
         setLoadingSearch(false);
       }, 100);
     };
+
     GotVoucher()
 
-  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, filterByOutlet, updateOrAddVoucher, router])
+  }, [loading, currentPage, fixValueSearch, refresh, auth.auth.access_token, updateOrAddVoucher, router])
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -170,7 +139,7 @@ export default function Vouchers() {
         const { id, ...addValues } = newValues
         newValues = addValues
       }
-      console.log(newValues);
+
       setLoading(true);
       const res = await PostWithToken<MyResponse>({
         router: router,
@@ -231,8 +200,6 @@ export default function Vouchers() {
               formik.setFieldValue("is_deleted", false)
               setUpdateModal(true)
               setUpdateOrAddVoucher(false)
-              console.log(updateOrAddVoucher);
-
             }}
           >
             Add Voucher
@@ -304,7 +271,6 @@ export default function Vouchers() {
               <div className=" flex flex-row items-center space-x-2 relative group">
                 <button
                   onClick={() => {
-                    setStartDate(vou.started_at.split(".")[0])
                     formik.setFieldValue("id", vou.id)
                     formik.setFieldValue("name", vou.name)
                     formik.setFieldValue("code", vou.code)
@@ -379,8 +345,6 @@ export default function Vouchers() {
               defaultDate={formik.values.started_at.split(".")[0]}
               onChange={(val) => {
                 formik.setFieldValue("started_at", val)
-                console.log(val);
-
               }} />
             <DatePickerOne
               label={"Expired at"}
