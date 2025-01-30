@@ -52,7 +52,7 @@ export default function CreateOutlet() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.PROVIDER) router.push("/outlet");
+    if (auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN) router.push("/outlet");
   }, [auth.role.name, router]);
 
   const formikArea = useFormik({
