@@ -384,7 +384,7 @@ export default function OutletPage() {
           </button>
           <Link
             href={"/outlet/create"}
-            className={`${auth.role.name !== ERoles.PROVIDER && "hidden"}  inline-flex items-center 
+            className={`${auth.role.name !== ERoles.PROVIDER && auth.role.name && ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
