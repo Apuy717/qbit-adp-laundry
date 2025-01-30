@@ -29,15 +29,15 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://magenta.srv.qyubit.io:3001/api/:path*",
+        destination: "http://rayleigh.srv.qyubit.io:3001/api/:path*",
       },
       {
         source: "/file/:path*",
-        destination: "http://magenta.srv.qyubit.io:3001/file/:path*",
+        destination: "http://rayleigh.srv.qyubit.io:3001/file/:path*",
       },
       {
         source: "/download/:path*",
-        destination: "http://magenta.srv.qyubit.io:3001/download/:path*",
+        destination: "http://rayleigh.srv.qyubit.io:3001/download/:path*",
       },
     ];
   },
