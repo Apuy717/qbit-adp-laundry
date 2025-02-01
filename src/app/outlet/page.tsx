@@ -13,7 +13,7 @@ import { Outlet } from "@/types/outlet";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaLocationDot, FaLocationPin } from "react-icons/fa6";
 import { FiDelete, FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -179,7 +179,6 @@ export default function OutletPage() {
             formikGrouping.setFieldValue(`groupings[${0}].outlet_id`, mapingOutlet[0].value)
           }
         }
-        console.log(mapingOutlet);
         setMapingGroupOutlet(mapingOutlet)
       }
     }
@@ -402,8 +401,8 @@ export default function OutletPage() {
         totalItem={0}
       >
         {filterOutlet().map((i, k) => (
-          <>
-            <tr className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
+          <React.Fragment key={k}>
+            <tr key={k} className="text-center border-b bg-gray-200 dark:bg-boxdark hover:bg-gray-100 dark:border-gray-700 
                    dark:hover:bg-gray-600">
               <td colSpan={5} className="font-bold whitespace-nowrap px-6 py-4">{i.area}</td>
             </tr>
@@ -439,7 +438,7 @@ export default function OutletPage() {
                 </tr>
               )
             })}
-          </>
+          </React.Fragment>
         ))}
       </Table>
 

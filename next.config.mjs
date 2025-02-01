@@ -10,18 +10,34 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    if (process.env.APP_ENV === "production") {
+      return [
+        {
+          source: "/api/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/api/:path*",
+        },
+        {
+          source: "/file/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/file/:path*",
+        },
+        {
+          source: "/download/:path*",
+          destination: "https://api.alpha.laundry.qyubit.com/download/:path*",
+        },
+      ];
+    }
     return [
       {
         source: "/api/:path*",
-        destination: "http://101.255.104.213:3000/api/:path*",
+        destination: "http://magenta.srv.qyubit.io:3001/api/:path*",
       },
       {
         source: "/file/:path*",
-        destination: "http://101.255.104.213:3000/file/:path*",
+        destination: "http://magenta.srv.qyubit.io:3001/file/:path*",
       },
       {
         source: "/download/:path*",
-        destination: "http://101.255.104.213:3000/download/:path*",
+        destination: "http://magenta.srv.qyubit.io:3001/download/:path*",
       },
     ];
   },

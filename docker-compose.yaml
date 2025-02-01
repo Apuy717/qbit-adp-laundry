@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qbit-adp-laundry
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./:/code
+
