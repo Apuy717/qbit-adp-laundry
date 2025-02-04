@@ -3,8 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import {
   Input,
   InputDropdown,
-  InputTextArea,
-  InputToggle,
+  InputTextArea
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
@@ -14,9 +13,8 @@ import { RootState } from "@/stores/store";
 import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { log } from "node:console";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaLocationDot } from "react-icons/fa6";
+import { FaArrowLeft } from "react-icons/fa6";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -105,6 +103,9 @@ export default function CreateOutlet() {
       phone_number: "",
       email: "",
       is_deleted: true,
+      total_washer: "",
+      total_dryer: "",
+      schedule_opening: ""
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -126,6 +127,8 @@ export default function CreateOutlet() {
         .optional()
         .email("Email is not valid!"),
       is_deleted: Yup.boolean().required("Must be filled!"),
+      total_washer: Yup.string(),
+      total_dryer: Yup.string()
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -402,6 +405,45 @@ export default function CreateOutlet() {
                 error={
                   formik.touched.email && formik.errors.email
                     ? formik.errors.email
+                    : null
+                }
+              />
+              <Input
+                label={"Total Washer*"}
+                name={"total_washer"}
+                id={"total_washer"}
+                value={formik.values.total_washer}
+                type="number"
+                onChange={(v) => formik.setFieldValue("total_washer", v)}
+                error={
+                  formik.touched.total_washer && formik.errors.total_washer
+                    ? formik.errors.total_washer
+                    : null
+                }
+              />
+              <Input
+                label={"Total Dryer*"}
+                name={"total_dryer"}
+                id={"total_dryer"}
+                value={formik.values.total_dryer}
+                type="number"
+                onChange={(v) => formik.setFieldValue("total_dryer", v)}
+                error={
+                  formik.touched.total_dryer && formik.errors.total_dryer
+                    ? formik.errors.total_dryer
+                    : null
+                }
+              />
+              <Input
+                label={"Jadwal Pemasangan*"}
+                name={"total_dryer"}
+                id={"total_dryer"}
+                value={formik.values.total_dryer}
+                type="number"
+                onChange={(v) => formik.setFieldValue("total_dryer", v)}
+                error={
+                  formik.touched.total_dryer && formik.errors.total_dryer
+                    ? formik.errors.total_dryer
                     : null
                 }
               />
