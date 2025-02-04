@@ -51,7 +51,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
 
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.SUPER_ADMIN && auth.role.name !== ERoles.PROVIDER)
+    if (auth.role.name !== ERoles.SUPER_ADMIN && auth.role.name !== ERoles.PROVIDER && auth.role.name!== ERoles.OUTLET_ADMIN)
       router.push("/employee");
   }, [auth.role.name, router]);
 
