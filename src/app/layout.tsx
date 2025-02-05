@@ -25,6 +25,8 @@ export default function RootLayout({
   // const pathname = usePathname();
 
   useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_APP_ENV);
+
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
@@ -42,6 +44,14 @@ export default function RootLayout({
               <FilterPageProvider>
                 <LayoutProvider>
                   <AuthProvider>
+                    {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
+                      <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
+                    -top-20 z-99999 bg-orange-500 flex items-center justify-center text-2xl text-white 
+                    uppercase">
+                        <p>{process.env.NEXT_PUBLIC_APP_ENV}</p>
+                      </div>
+                    )}
+
                     {loading ? <Loader /> : children}
                   </AuthProvider>
                 </LayoutProvider>

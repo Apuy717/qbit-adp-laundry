@@ -102,10 +102,7 @@ export default function CreateOutlet() {
       dial_code: "+62",
       phone_number: "",
       email: "",
-      is_deleted: true,
-      total_washer: "",
-      total_dryer: "",
-      schedule_opening: ""
+      is_deleted: true
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -127,8 +124,6 @@ export default function CreateOutlet() {
         .optional()
         .email("Email is not valid!"),
       is_deleted: Yup.boolean().required("Must be filled!"),
-      total_washer: Yup.string(),
-      total_dryer: Yup.string()
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -408,45 +403,7 @@ export default function CreateOutlet() {
                     : null
                 }
               />
-              <Input
-                label={"Total Washer*"}
-                name={"total_washer"}
-                id={"total_washer"}
-                value={formik.values.total_washer}
-                type="number"
-                onChange={(v) => formik.setFieldValue("total_washer", v)}
-                error={
-                  formik.touched.total_washer && formik.errors.total_washer
-                    ? formik.errors.total_washer
-                    : null
-                }
-              />
-              <Input
-                label={"Total Dryer*"}
-                name={"total_dryer"}
-                id={"total_dryer"}
-                value={formik.values.total_dryer}
-                type="number"
-                onChange={(v) => formik.setFieldValue("total_dryer", v)}
-                error={
-                  formik.touched.total_dryer && formik.errors.total_dryer
-                    ? formik.errors.total_dryer
-                    : null
-                }
-              />
-              <Input
-                label={"Jadwal Pemasangan*"}
-                name={"total_dryer"}
-                id={"total_dryer"}
-                value={formik.values.total_dryer}
-                type="number"
-                onChange={(v) => formik.setFieldValue("total_dryer", v)}
-                error={
-                  formik.touched.total_dryer && formik.errors.total_dryer
-                    ? formik.errors.total_dryer
-                    : null
-                }
-              />
+
               <div className="flex space-x-2">
                 <InputDropdown
                   label={"Area"}

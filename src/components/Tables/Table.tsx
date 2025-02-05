@@ -4,10 +4,11 @@ interface iTable {
   totalItem: number;
   onPaginate: (page: number) => void;
   children: any;
+  showing?: number
 }
 
 const Table: React.FC<iTable> = (props) => {
-  const ITEMS_PER_PAGE_GROUP = 10;
+  const ITEMS_PER_PAGE_GROUP = props.showing ? props.showing : 10;
   const totalPages = Math.ceil(props.totalItem / ITEMS_PER_PAGE_GROUP);
 
   // Hitung rentang halaman yang akan ditampilkan
@@ -40,7 +41,7 @@ const Table: React.FC<iTable> = (props) => {
           <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
             Showing{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
-              1-{10}
+              1-{props.showing ? props.showing : 10}
             </span>{" "}
             of{" "}
             <span className="font-semibold text-gray-900 dark:text-white">

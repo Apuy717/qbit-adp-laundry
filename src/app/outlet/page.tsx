@@ -131,9 +131,6 @@ export default function OutletPage() {
           }
         }
         setOutlets(maping)
-        // console.log(outlets);
-        // console.log(res.data);
-
       }
     }
     const GotAreas = async () => {
@@ -151,7 +148,7 @@ export default function OutletPage() {
 
     GotGroupingOutlets();
     GotAreas()
-  }, [groupingModal, outlets, currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token, router]);
+  }, [groupingModal, currentPage, areaModal, fixValueSearch, refresh, auth.auth.access_token, router]);
 
   useEffect(() => {
     const GotGroupingOutlets = async () => {
