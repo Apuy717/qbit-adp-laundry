@@ -1,14 +1,15 @@
+name: "${NAMESPACE}-adp"
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: qbit-adp-laundry
+    container_name: "${NAMESPACE}-adp"
     restart: always
     env_file:
       - .env
     ports:
-      - "4000:4000"
+      - "127.0.0.1:${ADP_PORT}:4000"
     volumes:
       - ./:/code
 

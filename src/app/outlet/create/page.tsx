@@ -3,8 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import {
   Input,
   InputDropdown,
-  InputTextArea,
-  InputToggle,
+  InputTextArea
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
@@ -14,9 +13,8 @@ import { RootState } from "@/stores/store";
 import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { log } from "node:console";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaLocationDot } from "react-icons/fa6";
+import { FaArrowLeft } from "react-icons/fa6";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -52,7 +50,7 @@ export default function CreateOutlet() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.PROVIDER) router.push("/outlet");
+    if (auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN) router.push("/outlet");
   }, [auth.role.name, router]);
 
   const formikArea = useFormik({
@@ -104,7 +102,7 @@ export default function CreateOutlet() {
       dial_code: "+62",
       phone_number: "",
       email: "",
-      is_deleted: true,
+      is_deleted: true
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -339,7 +337,7 @@ export default function CreateOutlet() {
             </button>
             <button
               className={`font-semibold`}>
-              Create Outlet Form
+              Request Outlet Form
             </button>
           </div>
           <div className="px-10">
@@ -405,6 +403,7 @@ export default function CreateOutlet() {
                     : null
                 }
               />
+
               <div className="flex space-x-2">
                 <InputDropdown
                   label={"Area"}

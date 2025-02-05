@@ -57,7 +57,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <FaUsers size={22} />,
           label: "Employee",
           route: "/employee",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
         },
         {
           icon: <RiMoneyCnyCircleLine size={23} />,

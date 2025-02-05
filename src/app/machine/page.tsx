@@ -12,14 +12,24 @@ import { EMachineType, MachineType } from "@/types/machineType";
 import { Outlet } from "@/types/outlet";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { TbPlugConnectedX } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { io, Socket } from "socket.io-client";
 import * as Yup from "yup";
 
+enum EStatusSwithMachine {
+  ON = "ON",
+  OFF = "OFF"
+}
+
+interface iSwitchMachine {
+  machine_id: string;
+  status: EStatusSwithMachine
+}
 export default function PageMachine() {
   const [search, setSearch] = useState<string>("");
 
@@ -32,10 +42,46 @@ export default function PageMachine() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
+  const [switchMachine, setSwitchMachine] = useState<iSwitchMachine[]>([])
 
   const router = useRouter()
 
   const [outlets, setOutlets] = useState<iDropdown[]>([])
+  const refSocket = useRef<Socket | undefined>()
+
+  useEffect(() => {
+    refSocket.current = io(`ws://${process.env.NEXT_PUBLIC_API_DOMIAN}`);
+
+    refSocket.current.connect();
+
+    refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
+      console.log("==== Msg Server Socket ====");
+      console.log(msg);
+      console.log("==== Msg Server Socket ====");
+      setSwitchMachine((old) => {
+        const fAlreadyData = old.findIndex(f => f.machine_id === msg.machine_id);
+
+        if (fAlreadyData === -1) {
+          // Jika belum ada di array dan statusnya ON, tambahkan
+          return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
+        }
+
+        if (msg.status === EStatusSwithMachine.ON) {
+          // Jika sudah ada dan statusnya ON, update data
+          return old.map((item, index) =>
+            index === fAlreadyData ? { ...item, ...msg } : item
+          );
+        } else {
+          // Jika sudah ada dan statusnya bukan ON, hapus dari array
+          return old.filter((_, index) => index !== fAlreadyData);
+        }
+      });
+
+    });
+    return () => {
+      refSocket.current?.disconnect();
+    };
+  }, [])
 
   useEffect(() => {
     async function GotAllOutlet() {
@@ -65,9 +111,9 @@ export default function PageMachine() {
 
   useEffect(() => {
     async function GotPRItems() {
-      let urlwithQuery = `/api/machine?page=${currentPage}&limit=${10}`;
+      let urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/machine?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
+        urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}&search=${fixValueSearch}`;
       }
 
       let sttsFilter = {}
@@ -239,6 +285,9 @@ export default function PageMachine() {
     const commands = [
       `Rule1 ON Power1#State=0 DO WebSend [${pairingDomain}] /api/callback/sonoff-turn-off?esp_id=${machineDetail.machine_id}&api_key=${machineDetail.api_key} ENDON`,
       `Rule1 1`,
+      `Rule2 ON Power1#State=1 DO WebSend [${pairingDomain}] /api/callback/sonoff-turn-on?esp_id=${machineDetail.machine_id}&api_key=${machineDetail.api_key} ENDON`,
+      `Rule2 1`,
+      `PowerOnState 0`,
       `IPAddress1 ${machineDetail.ip}`
     ]
 
@@ -246,7 +295,9 @@ export default function PageMachine() {
     for (let cmd of commands) {
 
       const encodedCallback = encodeURIComponent(cmd);
-      fetch(`/api-include/machine?ip=${machineDetail.ip}&cmnd=${encodedCallback}`)
+      const urlOri = `http://${machineDetail.ip}/cm?cmnd=${encodedCallback}&user=admin&password=@Quantum2022`
+      // const urlProxy = `/api-include/machine?ip=${machineDetail.ip}&cmnd=${encodedCallback}`
+      fetch(urlOri)
         .then(res => {
           if (res.status !== 200) {
             toast.error(`Machine not connected!`)
@@ -307,9 +358,9 @@ export default function PageMachine() {
       </div>
 
       <Table colls={role.name === ERoles.PROVIDER ? [
-        "#", "Name", "Esp ID", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"] :
+        "#", "Name", "Esp ID", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Switch", "Status", "Action"] :
         ["#", "Name", "Esp ID", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"]}
-        currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)}>
+        currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)} showing={100}>
 
         {items.map((i, k) => (
           <tr
@@ -332,6 +383,19 @@ export default function PageMachine() {
               {FormatDecimal(parseInt(i.cyles_machine))} cycle{" / "}
               {i.relay_time_used ? FormatDecimal(parseInt(i.relay_time_used)) : 0} Menit
             </td>
+            {role.name === ERoles.PROVIDER && (
+              <td className="whitespace-nowrap px-6 py-4">
+                {switchMachine.length >= 1 && switchMachine.find(f => f.machine_id === i.machine_id) ? (
+                  <div className="px-2 bg-green-500 rounded-xl text-center">
+                    <p className="text-white">ON</p>
+                  </div>
+                ) : (
+                  <div className="px-2 bg-red-500 rounded-xl text-center">
+                    <p className="text-white">OFF</p>
+                  </div>
+                )}
+              </td>
+            )}
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
                 <div className="px-2 bg-red-500 rounded-xl text-center">
