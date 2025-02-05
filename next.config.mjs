@@ -10,34 +10,18 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    if (process.env.APP_ENV === "production") {
-      return [
-        {
-          source: "/api/:path*",
-          destination: "https://api.alpha.laundry.qyubit.com/api/:path*",
-        },
-        {
-          source: "/file/:path*",
-          destination: "https://api.alpha.laundry.qyubit.com/file/:path*",
-        },
-        {
-          source: "/download/:path*",
-          destination: "https://api.alpha.laundry.qyubit.com/download/:path*",
-        },
-      ];
-    }
     return [
       {
         source: "/api/:path*",
-        destination: "http://rayleigh.srv.qyubit.io:3001/api/:path*",
+        destination: `https://${process.env.NEXT_PUBLIC_API_DOMIAN}/api/:path*`,
       },
       {
         source: "/file/:path*",
-        destination: "http://rayleigh.srv.qyubit.io:3001/file/:path*",
+        destination: `https://${process.env.NEXT_PUBLIC_API_DOMIAN}/file/:path*`,
       },
       {
         source: "/download/:path*",
-        destination: "http://rayleigh.srv.qyubit.io:3001/download/:path*",
+        destination: `https://${process.env.NEXT_PUBLIC_API_DOMIAN}/download/:path*`,
       },
     ];
   },
