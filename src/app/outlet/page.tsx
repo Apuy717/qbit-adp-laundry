@@ -363,7 +363,7 @@ export default function OutletPage() {
       <Breadcrumb pageName="Outlet" />
       <div className="w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t">
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
-          <div className="lg:w-90">
+          {/* <div className="lg:w-90">
             <Input
               label={"Search"}
               name={"search"}
@@ -378,7 +378,7 @@ export default function OutletPage() {
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400 hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
-          </button>
+          </button> */}
           <Link
             href={"/outlet/create"}
             className={`${auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 

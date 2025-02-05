@@ -337,7 +337,7 @@ export default function CreateOutlet() {
             </button>
             <button
               className={`font-semibold`}>
-              Create Outlet Form
+              Request Outlet Form
             </button>
           </div>
           <div className="px-10">
