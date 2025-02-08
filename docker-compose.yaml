@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:${ADP_PORT}:4000"
+      - "${ADP_PORT}:4000"
     volumes:
       - ./:/code
 

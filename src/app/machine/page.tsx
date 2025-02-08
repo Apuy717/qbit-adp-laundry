@@ -50,7 +50,7 @@ export default function PageMachine() {
   const refSocket = useRef<Socket | undefined>()
 
   useEffect(() => {
-    refSocket.current = io(`https://${process.env.NEXT_PUBLIC_API_DOMIAN}`);
+    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMIAN}`);
 
     refSocket.current.connect();
 

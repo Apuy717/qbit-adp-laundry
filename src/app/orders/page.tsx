@@ -9,7 +9,7 @@ import { RootState } from "@/stores/store";
 import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AiOutlineLoading3Quarters, AiOutlinePlus } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
 import { HiDownload } from "react-icons/hi";
@@ -21,7 +21,6 @@ export default function Orders() {
   endOfMonth.setHours(23, 59, 59, 0)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const pad = (n: any) => n.toString().padStart(2, '0');
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
@@ -159,7 +158,7 @@ export default function Orders() {
     <div className="min-h-screen">
       <Breadcrumb pageName={"Sales"} />
       <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-t">
-        <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-5 gap-4">
           <DatePickerOne label={"Start"} defaultDate={startDate} onChange={(val) => {
             setStartDate(val)
           }} />
@@ -167,17 +166,19 @@ export default function Orders() {
             setEndDate(val)
           }} />
 
-          {/* <div className="w-full">
-            <InputDropdown className="flex-1" label={"Payment status"} name={"payment_status"} id={"payment_status"}
-              options={[{ label: "ALL", value: "all" }, ...Object.values(EPaymentStatus).map(i => ({ label: i.toUpperCase(), value: i }))]}
-              value={paymentStatus} onChange={(e) => setPaymentStatus(e)} error={null} />
-          </div> */}
-
           <div className="w-full">
             <InputDropdown className="flex-1" label={"Order Status"} name={"order_status"} id={"order_status"}
               options={[{ label: "ALL", value: "all" }, ...Object.values(EStatusOrder).map(i => ({ label: i.toUpperCase(), value: i }))]}
               value={orderStatus} onChange={(e) => setOrderStatus(e)} error={null} />
           </div>
+
+          <button
+            className={`w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            text-center font-edium text-white hover:bg-opacity-90`}
+            onClick={() => router.push("/orders/create")}
+          >
+            Create Order
+          </button>
           <button
             className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
             text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
