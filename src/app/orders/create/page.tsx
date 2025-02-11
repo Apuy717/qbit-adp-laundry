@@ -27,12 +27,14 @@ interface iCardOne {
 }
 
 interface iSelfServiceOption {
-  setIsSelfService: () => void,
-  is_self_service: boolean,
-  trxDate: Date | string,
-  setTrxDate: (val: Date | string) => void,
-  setIsB2B: () => void
-  isB2B: boolean
+  setIsSelfService: () => void;
+  is_self_service: boolean;
+  trxDate: Date | string;
+  setTrxDate: (val: Date | string) => void;
+  setIsB2B: () => void;
+  isB2B: boolean;
+  isCompleted: boolean;
+  setIsCompleted: () => void;
 }
 
 function CardOne(payload: Array<iCardOne>, options: iSelfServiceOption) {
@@ -83,6 +85,11 @@ function CardOne(payload: Array<iCardOne>, options: iSelfServiceOption) {
         <p>For Bussiness B2B</p>
         <InputToggle label="For Bussiness" value={options.isB2B} onClick={options.setIsB2B} />
       </div>
+
+      <div className="flex h-full mt-5  space-y-4 justify-between flex-col font-semibold">
+        <p>Order Completed</p>
+        <InputToggle label="Order Completed" value={options.isCompleted} onClick={options.setIsCompleted} />
+      </div>
     </div>
   )
 }
@@ -122,6 +129,7 @@ export default function CreateOrder() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodType[]>([])
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType | null>(null)
   const [isB2B, setIsB2B] = useState<boolean>(false)
+  const [isCompleted, setIsCompleted] = useState<boolean>(true)
 
 
   const [modalOutlet, setModalOutlet] = useState<boolean>(false)
@@ -229,7 +237,7 @@ export default function CreateOrder() {
       }))
     }
 
-    const res = await PostWithToken<iResponse<any>>({
+    const res = await PostWithToken<iResponse<{ id: string }>>({
       router: router,
       url: "/api/order/create",
       data: payload,
@@ -241,8 +249,22 @@ export default function CreateOrder() {
         toast.error(res.err[0])
     }
     if (res.statusCode === 200) {
-      toast.success("Order creation has been successful!")
-      setTimeout(() => router.push("/orders"), 500)
+      if (isCompleted) {
+        const resSetCompleted = await PostWithToken<iResponse<{ id: string }>>({
+          router: router,
+          url: `/api/order/set-completed/${res.data.id}?overide_process=true`,
+          token: `${access_token}`,
+          data: {}
+        })
+
+        if (resSetCompleted.statusCode === 200) {
+          toast.success("Order creation has been successful!")
+          setTimeout(() => router.push("/orders"), 500)
+        }
+      } else {
+        toast.success("Order creation has been successful!")
+        setTimeout(() => router.push("/orders"), 500)
+      }
     }
     setTimeout(() => setLoading(false), 1000)
   }
@@ -291,7 +313,9 @@ export default function CreateOrder() {
               setTrxDate(val)
             },
             isB2B: isB2B,
-            setIsB2B: () => setIsB2B(!isB2B)
+            setIsB2B: () => setIsB2B(!isB2B),
+            isCompleted: isCompleted,
+            setIsCompleted: () => setIsCompleted(!isCompleted)
           }
         )
       }

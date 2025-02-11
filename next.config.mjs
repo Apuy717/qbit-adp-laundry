@@ -10,6 +10,8 @@ const nextConfig = {
     ],
   },
   async rewrites() {
+    console.log(process.env.NEXT_PUBLIC_API_DOMIAN);
+
     return [
       {
         source: "/api/:path*",

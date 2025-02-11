@@ -10,7 +10,9 @@ import { PRTrx } from "@/types/PRTrx";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaArrowLeft } from "react-icons/fa";
+import { HiDownload } from "react-icons/hi";
 import { useSelector } from "react-redux";
 
 export default function PRTrxPage() {
@@ -76,6 +78,36 @@ export default function PRTrxPage() {
     return `Rp. ${result}`
   }
 
+
+  const [loadingDownload, setLodaingDownload] = useState<boolean>(false)
+  async function DownloadXLXS() {
+    setLodaingDownload(true);
+
+    const pad = (n: any) => n.toString().padStart(2, '0');
+    const stdDate = new Date(startDate)
+    const eDate = new Date(endDate)
+    const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+    const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
+
+    const res = await PostWithToken<iResponse<{ filename: string }>>({
+      router: router,
+      url: "/api/pr/download",
+      token: `${auth.access_token}`,
+      data: {
+        outlet_ids: selectedOutlets.length >= 1 ? selectedOutlets.map(o => o.outlet_id) : defaultSelectedOutlet.map(o => o.outlet_id),
+        started_at: _startedAt,
+        ended_at: _endedAt,
+      }
+    })
+
+    if (res.statusCode === 200) {
+      const url = `${window.location.origin}/download/${res.data.filename}`;
+      window.open(url, '_blank');
+    }
+
+    setTimeout(() => setLodaingDownload(false), 1000)
+  }
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName="Expense" />
@@ -105,6 +137,14 @@ export default function PRTrxPage() {
             }}
           >
             Add Expense
+          </button>
+          <button
+            className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+                      text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={DownloadXLXS}
+          >
+            {loadingDownload && <AiOutlineLoading3Quarters size={23} className="animate-spin" />}
+            {!loadingDownload && <HiDownload size={23} />}
           </button>
         </div>
       </div>
