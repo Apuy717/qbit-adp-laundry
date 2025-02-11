@@ -297,7 +297,7 @@ export default function PageMachine() {
       const encodedCallback = encodeURIComponent(cmd);
       const urlOri = `http://${machineDetail.ip}/cm?cmnd=${encodedCallback}&user=admin&password=@Quantum2022`
       // const urlProxy = `/api-include/machine?ip=${machineDetail.ip}&cmnd=${encodedCallback}`
-      fetch(urlOri)
+      await fetch(urlOri)
         .then(res => {
           if (res.status !== 200) {
             toast.error(`Machine not connected!`)
