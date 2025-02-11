@@ -656,6 +656,7 @@ export default function Product() {
             "Name",
             "Type",
             "Price",
+            "Outlet",
             "Stock",
             "Washer",
             "Dryer",
@@ -678,6 +679,9 @@ export default function Product() {
                 {i.is_self_service ? "Self Service" : "Full Service"}
               </td>
               <td className="whitespace-nowrap px-6 py-4">{rupiah(i.price)}</td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.outlet === null ? "ALL" : i.outlet.name}
+              </td>
               <td className="whitespace-nowrap px-6 py-4">
                 {i.stock ? `${i.stock} ${i.unit}` : "-"}
               </td>
@@ -877,7 +881,9 @@ export default function Product() {
               "#",
               "Code",
               "Name",
+              "Type",
               "Price",
+              "Outlet",
               "Stock",
               "Washer",
               "Dryer",
@@ -897,7 +903,13 @@ export default function Product() {
                 <td className="whitespace-nowrap px-6 py-4">{i.code}</td>
                 <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
                 <td className="whitespace-nowrap px-6 py-4">
+                  {i.is_self_service ? "Self Service" : "Full Service"}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
                   {rupiah(i.price)}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {i.outlet === null ? "ALL" : i.outlet.name}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.stock ? `${i.stock} ${i.unit}` : "-"}
