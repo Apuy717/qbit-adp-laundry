@@ -50,9 +50,26 @@ export default function PageMachine() {
   const refSocket = useRef<Socket | undefined>()
 
   useEffect(() => {
-    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMIAN}`);
+    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMIAN}`, {
+      transports: ['websocket', 'polling'],
+      reconnection: true, // Enable automatic reconnection
+      reconnectionAttempts: Infinity, // Try to reconnect indefinitely
+      reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
+      reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
+      randomizationFactor: 0.5, // Random factor to vary the delay time
+      timeout: 20000, // Timeout duration for connection attempts (in ms)
+    });
 
     refSocket.current.connect();
+
+    refSocket.current.emit("ping", "ping")
+
+    refSocket.current.on("ping", (msg) => {
+      console.log("==== PING ====");
+      console.log(msg);
+      console.log("==== PING ====");
+    })
+
 
     refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
       console.log("==== Msg Server Socket ====");
@@ -288,7 +305,8 @@ export default function PageMachine() {
       `Rule2 ON Power1#State=1 DO WebSend [${pairingDomain}] /api/callback/sonoff-turn-on?esp_id=${machineDetail.machine_id}&api_key=${machineDetail.api_key} ENDON`,
       `Rule2 1`,
       `PowerOnState 0`,
-      `IPAddress1 ${machineDetail.ip}`
+      `IPAddress1 ${machineDetail.ip}`,
+      `WebPassword @Quantum2022`
     ]
 
     let idx = 0
