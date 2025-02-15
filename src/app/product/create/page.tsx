@@ -42,6 +42,7 @@ export default function CreateProduct() {
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown);
   const [showImage, setShowImage] = useState<string>("");
   const [isSelfService, setIsSelfService] = useState<boolean>(false);
+  const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
 
   const auth = useSelector((s: RootState) => s.auth);
   const serviceType = [
@@ -56,6 +57,34 @@ export default function CreateProduct() {
   ];
 
   const router = useRouter();
+  useEffect(() => {
+    const GotOutlets = async () => {
+      let urlwithQuery = `/api/outlet`;
+      const res = await GetWithToken<MyResponse>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+      });
+      const allOutlet = {
+        label: "All",
+        value: "all",
+      };
+      const mapingOutlet = res.data.map((i: any) => {
+        return {
+          label: i.name,
+          value: i.id,
+        };
+      });
+      mapingOutlet.unshift(allOutlet);
+      console.log(mapingOutlet);
+
+      if (mapingOutlet.length >= 1) {
+        setOutlets(mapingOutlet);
+      }
+    };
+    GotOutlets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -67,6 +96,7 @@ export default function CreateProduct() {
       is_self_service: false,
       variants: [
         {
+          outlet_id: "",
           code: "",
           name: "",
           description: "",
@@ -111,10 +141,17 @@ export default function CreateProduct() {
     onSubmit: async (values) => {
       if (loading) return;
       setLoading(true);
+      const updatedValues = {
+        ...values,
+        variants: values.variants.map((variant) => ({
+          ...variant,
+          outlet_id: variant.outlet_id === "all" ? null : variant.outlet_id,
+        })),
+      };
       const res = await PostWithToken<MyResponse>({
         router: router,
         url: "/api/product/create",
-        data: values,
+        data: updatedValues,
         token: `${auth.auth.access_token}`,
       });
       if (res.statusCode === 422) {
@@ -136,6 +173,7 @@ export default function CreateProduct() {
     formik.setFieldValue("variants", [
       ...formik.values.variants,
       {
+        outlet_id: "",
         code: "",
         name: "",
         description: "",
@@ -262,17 +300,63 @@ export default function CreateProduct() {
               }
             />
             <div className="mt-6">
-              <InputToggle
+              <div className="flex gap-4">
+                {/* Pilihan Ya */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="false"
+                    checked={selectedRadio === false}
+                    onChange={() => {
+                      setSelectedRadio(false);
+                      formik.values.variants.map((variant, index) => {
+                        formik.setFieldValue(
+                          `variants[${index}].is_self_service`,
+                          false,
+                        );
+                      });
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-lg">Full Service</span>
+                </label>
+
+                {/* Pilihan Tidak */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="true"
+                    checked={selectedRadio === true}
+                    onChange={() => {
+                      setSelectedRadio(true);
+                      formik.values.variants.map((variant, index) => {
+                        formik.setFieldValue(
+                          `variants[${index}].is_self_service`,
+                          true,
+                        );
+                      });
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-lg">Self Service</span>
+                </label>
+              </div>
+              {/* <InputToggle
                 value={formik.values.is_self_service}
                 onClick={(v) => {
-                  setIsSelfService(!isSelfService)
+                  setIsSelfService(!isSelfService);
                   formik.setFieldValue("is_self_service", v);
-                  formik.values.variants.map((variant, index) =>{
-                    formik.setFieldValue(`variants[${index}].is_self_service`, v);
-                  })
+                  formik.values.variants.map((variant, index) => {
+                    formik.setFieldValue(
+                      `variants[${index}].is_self_service`,
+                      v,
+                    );
+                  });
                 }}
                 label={isSelfService ? "Self Service" : "Full Service"}
-              />
+              /> */}
             </div>
             <div className="mt-6">
               <InputToggle
@@ -438,7 +522,25 @@ export default function CreateProduct() {
                   }
                 />
               </div>
-              <div className="pt-6">
+
+              <div className="space-y-3 pt-6">
+                <InputDropdown
+                  label={"Outlets*"}
+                  name={"Outlets"}
+                  id={"Outlets"}
+                  value={formik.values.variants[index].outlet_id===""?outlets[0].value:formik.values.variants[index].outlet_id}
+                  onChange={(v) =>
+                    formik.setFieldValue(`variants[${index}].outlet_id`, v)
+                  }
+                  options={outlets}
+                  error={
+                    formik.touched.variants?.[index]?.outlet_id &&
+                    typeof formik.errors.variants?.[index] === "object" &&
+                    formik.errors.variants[index]?.outlet_id
+                      ? formik.errors.variants[index].outlet_id
+                      : null
+                  }
+                />
                 <InputTextArea
                   label={"Item Description"}
                   name={`description ${index}`}

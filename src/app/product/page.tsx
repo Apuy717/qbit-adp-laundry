@@ -58,6 +58,7 @@ export default function Product() {
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
+  const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
 
   const [skuId, setSkuId] = useState<string>("");
   const [skuPrices, setSkuPrices] = useState<any[]>([]);
@@ -92,12 +93,18 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
       });
+      const allOutlet = {
+        label: "All",
+        value: "all",
+      };
       const mapingOutlet = res.data.map((i: any) => {
         return {
           label: i.name,
           value: i.id,
         };
       });
+      mapingOutlet.unshift(allOutlet);
+      console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
@@ -242,6 +249,7 @@ export default function Product() {
       is_deleted: "",
       category_id: "",
 
+      is_self_service: false,
       product_id: "",
       code: "",
       price: "",
@@ -310,6 +318,7 @@ export default function Product() {
             description: values.description,
             is_deleted: values.is_deleted,
             category_id: values.category_id,
+            is_self_service: values.is_self_service,
           },
           token: `${auth.auth.access_token}`,
         });
@@ -321,6 +330,7 @@ export default function Product() {
             data: {
               id: values.id,
               product_id: values.product_id,
+              outlet_id: values.outlet_id === "all" ? null : values.outlet_id,
               code: values.code,
               name: values.name,
               description: values.description,
@@ -344,6 +354,7 @@ export default function Product() {
             url: "/api/product/add-sku",
             data: {
               product_id: values.product_id,
+              outlet_id: values.outlet_id === "all" ? null : values.outlet_id,
               code: values.code,
               name: values.name,
               description: values.description,
@@ -576,10 +587,17 @@ export default function Product() {
                         // formik.setFieldValue("slug", prod.slug)
                         formik.setFieldValue(
                           "description",
-                          prod.description == null ? `` : prod.description,
+                          prod.description === null ? `` : prod.description,
                         );
                         // formik.setFieldValue("category_id", prod.category.id)
                         formik.setFieldValue("is_deleted", prod.is_deleted);
+                        formik.setFieldValue(
+                          "is_self_service",
+                          prod.is_self_service,
+                        );
+                        setSelectedRadio(prod.is_self_service);
+                        console.log(prod.is_self_service);
+
                         setUpdateModal(true);
                         setProductOrSku(true);
                         // console.log(formik.values.outlet_id);
@@ -636,7 +654,9 @@ export default function Product() {
             "#",
             "Code",
             "Name",
+            "Type",
             "Price",
+            "Outlet",
             "Stock",
             "Washer",
             "Dryer",
@@ -655,7 +675,13 @@ export default function Product() {
               <td className="px-6 py-4">{k + 1}</td>
               <td className="whitespace-nowrap px-6 py-4">{i.code}</td>
               <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.is_self_service ? "Self Service" : "Full Service"}
+              </td>
               <td className="whitespace-nowrap px-6 py-4">{rupiah(i.price)}</td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.outlet === null ? "ALL" : i.outlet.name}
+              </td>
               <td className="whitespace-nowrap px-6 py-4">
                 {i.stock ? `${i.stock} ${i.unit}` : "-"}
               </td>
@@ -710,9 +736,13 @@ export default function Product() {
                   <button
                     className="cursor-pointer"
                     onClick={() => {
-                      console.log(formik.values.product_id);
-
                       formik.setFieldValue("id", i.id);
+                      formik.setFieldValue(
+                        "outlet_id",
+                        i.outlet !== null ? i.outlet.id : outlets[0].value,
+                      );
+                      formik.setFieldValue("product_id", i.product_id);
+                      setProductId(i.product_id);
                       formik.setFieldValue("code", i.code);
                       formik.setFieldValue("name", i.name);
                       formik.setFieldValue(
@@ -741,9 +771,17 @@ export default function Product() {
                       );
 
                       formik.setFieldValue("is_deleted", i.is_deleted);
+                      formik.setFieldValue(
+                        "is_self_service",
+                        i.is_self_service,
+                      );
+                      setSelectedRadio(i.is_self_service);
+
                       setUpdateModal(true);
                       setUpdateOrAddSku(true);
                       setProductOrSku(false);
+                      console.log(formik.values.outlet_id);
+                      console.log(formik.values.product_id);
                     }}
                   >
                     <FiEdit size={18} />
@@ -803,7 +841,8 @@ export default function Product() {
             className="rounded-md bg-blue-500 px-10 py-2 text-white"
             onClick={() => {
               if (productId !== null) {
-                formik.setFieldValue("product_id", productId);
+                setSelectedRadio(false);
+                formik.setFieldValue("product_id", MapingProduct[0].value);
                 formik.setFieldValue("code", "");
                 formik.setFieldValue("name", "");
                 formik.setFieldValue("description", "");
@@ -819,6 +858,8 @@ export default function Product() {
                 formik.setFieldValue("machine_iron", false);
                 formik.setFieldValue("iron_duration", 0);
                 formik.setFieldValue("is_deleted", false);
+                formik.setFieldValue(`is_self_service`, false);
+
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
                 setaddSkuModal(true);
@@ -840,7 +881,9 @@ export default function Product() {
               "#",
               "Code",
               "Name",
+              "Type",
               "Price",
+              "Outlet",
               "Stock",
               "Washer",
               "Dryer",
@@ -860,7 +903,13 @@ export default function Product() {
                 <td className="whitespace-nowrap px-6 py-4">{i.code}</td>
                 <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
                 <td className="whitespace-nowrap px-6 py-4">
+                  {i.is_self_service ? "Self Service" : "Full Service"}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
                   {rupiah(i.price)}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {i.outlet === null ? "ALL" : i.outlet.name}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.stock ? `${i.stock} ${i.unit}` : "-"}
@@ -923,6 +972,12 @@ export default function Product() {
                       className="cursor-pointer"
                       onClick={() => {
                         formik.setFieldValue("id", i.id);
+                        formik.setFieldValue("product_id", i.product_id);
+                        formik.setFieldValue(
+                          "outlet_id",
+                          i.outlet !== null ? i.outlet.id : outlets[0].value,
+                        );
+                        setProductId(i.product_id);
                         formik.setFieldValue("code", i.code);
                         formik.setFieldValue("name", i.name);
                         formik.setFieldValue(
@@ -954,6 +1009,11 @@ export default function Product() {
                         );
 
                         formik.setFieldValue("is_deleted", i.is_deleted);
+                        formik.setFieldValue(
+                          "is_self_service",
+                          i.is_self_service,
+                        );
+                        setSelectedRadio(i.is_self_service);
                         setUpdateModal(true);
                         setUpdateOrAddSku(true);
                         setProductOrSku(false);
@@ -995,114 +1055,178 @@ export default function Product() {
           <div className="flex flex-col space-y-8">
             <Breadcrumb pageName={`Add SKU`} />
           </div>
-          <div className=" h-96 overflow-y-scroll py-2">
-            <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
-              <Input
-                label={"Code*"}
-                name={"code"}
-                id={"code"}
-                value={formik.values.code}
-                onChange={(v) => formik.setFieldValue(`code`, v)}
-                error={
-                  formik.touched.code &&
-                  typeof formik.errors.code === "object" &&
-                  formik.errors.code
-                    ? formik.errors.code
-                    : null
-                }
-              />
-              <Input
-                label={"Name*"}
-                name={"name"}
-                id={"name"}
-                value={formik.values.name}
-                onChange={(v) => formik.setFieldValue(`name`, v)}
-                error={
-                  formik.touched.name &&
-                  typeof formik.errors.name === "object" &&
-                  formik.errors.name
-                    ? formik.errors.name
-                    : null
-                }
-              />
+          <div className="h-96 space-y-6 overflow-y-scroll py-2">
+            <InputDropdown
+              label={"Outlets*"}
+              name={"Outlets"}
+              id={"Outlets"}
+              value={formik.values.outlet_id}
+              onChange={(v) => formik.setFieldValue("outlet_id", v)}
+              options={outlets}
+              error={
+                formik.touched.outlet_id && formik.errors.outlet_id
+                  ? formik.errors.outlet_id
+                  : null
+              }
+            />
+            <InputDropdown
+              label={"Product*"}
+              name={"Product"}
+              id={"Product"}
+              value={
+                formik.values.product_id !== null
+                  ? formik.values.product_id
+                  : ""
+              }
+              onChange={(v) => {
+                setProductId(v);
+                formik.setFieldValue(`product_id`, v);
+              }}
+              options={MapingProduct}
+              error={
+                formik.touched.product_id &&
+                typeof formik.errors.product_id === "object" &&
+                formik.errors.product_id
+                  ? formik.errors.product_id
+                  : null
+              }
+            />
+            <Input
+              label={"Code*"}
+              name={"code"}
+              id={"code"}
+              value={formik.values.code}
+              onChange={(v) => formik.setFieldValue(`code`, v)}
+              error={
+                formik.touched.code &&
+                typeof formik.errors.code === "object" &&
+                formik.errors.code
+                  ? formik.errors.code
+                  : null
+              }
+            />
+            <Input
+              label={"Name*"}
+              name={"name"}
+              id={"name"}
+              value={formik.values.name}
+              onChange={(v) => formik.setFieldValue(`name`, v)}
+              error={
+                formik.touched.name &&
+                typeof formik.errors.name === "object" &&
+                formik.errors.name
+                  ? formik.errors.name
+                  : null
+              }
+            />
 
-              <Input
-                label={"Price*"}
-                name={"price"}
-                id={"price"}
-                value={formik.values.price ? formik.values.price : ""}
-                onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
-                error={
-                  formik.touched.price &&
-                  typeof formik.errors.price === "object" &&
-                  formik.errors.price
-                    ? formik.errors.price
-                    : null
-                }
-              />
+            <Input
+              label={"Price*"}
+              name={"price"}
+              id={"price"}
+              value={formik.values.price ? formik.values.price : ""}
+              onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
+              error={
+                formik.touched.price &&
+                typeof formik.errors.price === "object" &&
+                formik.errors.price
+                  ? formik.errors.price
+                  : null
+              }
+            />
 
-              <InputDropdown
-                label={"Type*"}
-                name={"type"}
-                id={"type"}
-                value={formik.values.type}
-                onChange={(v) => formik.setFieldValue(`type`, v)}
-                options={serviceType}
-                error={
-                  formik.touched.type &&
-                  typeof formik.errors.type === "object" &&
-                  formik.errors.type
-                    ? formik.errors.type
-                    : null
-                }
+            <InputDropdown
+              label={"Type*"}
+              name={"type"}
+              id={"type"}
+              value={formik.values.type}
+              onChange={(v) => formik.setFieldValue(`type`, v)}
+              options={serviceType}
+              error={
+                formik.touched.type &&
+                typeof formik.errors.type === "object" &&
+                formik.errors.type
+                  ? formik.errors.type
+                  : null
+              }
+            />
+            <Input
+              className={formik.values.type === "services" ? `hidden` : ``}
+              label={"Stock*"}
+              name={"stock"}
+              id={"stock"}
+              value={formik.values.stock ? formik.values.stock : ""}
+              onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
+              error={
+                formik.touched.stock &&
+                typeof formik.errors.stock === "object" &&
+                formik.errors.stock
+                  ? formik.errors.stock
+                  : null
+              }
+            />
+            <Input
+              className={formik.values.type === "services" ? `hidden` : ``}
+              label={"Unit*"}
+              name={"unit"}
+              id={"unit"}
+              value={formik.values.unit ? formik.values.unit : ""}
+              onChange={(v) => formik.setFieldValue(`unit`, v)}
+              error={
+                formik.touched.unit &&
+                typeof formik.errors.unit === "object" &&
+                formik.errors.unit
+                  ? formik.errors.unit
+                  : null
+              }
+            />
+            <InputTextArea
+              label={"Description"}
+              name={"description"}
+              id={"description"}
+              value={formik.values.description}
+              onChange={(v) => formik.setFieldValue(`description`, v)}
+              error={
+                formik.touched.description &&
+                typeof formik.errors.description === "object" &&
+                formik.errors.description
+                  ? formik.errors.description
+                  : null
+              }
+            />
+
+            {/* Pilihan Ya */}
+            <label className="flex cursor-pointer items-center space-x-2">
+              <input
+                type="radio"
+                name="addSkuSelect"
+                value="false"
+                checked={selectedRadio === false}
+                onChange={() => {
+                  setSelectedRadio(false);
+                  formik.setFieldValue(`is_self_service`, false);
+                }}
+                className="h-5 w-5 checked:bg-blue-600"
               />
-              <Input
-                className={formik.values.type === "services" ? `hidden` : ``}
-                label={"Stock*"}
-                name={"stock"}
-                id={"stock"}
-                value={formik.values.stock ? formik.values.stock : ""}
-                onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
-                error={
-                  formik.touched.stock &&
-                  typeof formik.errors.stock === "object" &&
-                  formik.errors.stock
-                    ? formik.errors.stock
-                    : null
-                }
+              <span className="text-lg">Full Service</span>
+            </label>
+
+            {/* Pilihan Tidak */}
+            <label className="flex cursor-pointer items-center space-x-2">
+              <input
+                type="radio"
+                name="addSkuSelect"
+                value="true"
+                checked={selectedRadio === true}
+                onChange={() => {
+                  setSelectedRadio(true);
+                  formik.setFieldValue(`is_self_service`, true);
+                }}
+                className="h-5 w-5 checked:bg-blue-600"
               />
-              <Input
-                className={formik.values.type === "services" ? `hidden` : ``}
-                label={"Unit*"}
-                name={"unit"}
-                id={"unit"}
-                value={formik.values.unit ? formik.values.unit : ""}
-                onChange={(v) => formik.setFieldValue(`unit`, v)}
-                error={
-                  formik.touched.unit &&
-                  typeof formik.errors.unit === "object" &&
-                  formik.errors.unit
-                    ? formik.errors.unit
-                    : null
-                }
-              />
-            </div>
-            <div className="pt-6">
-              <InputTextArea
-                label={"Description"}
-                name={"description"}
-                id={"description"}
-                value={formik.values.description}
-                onChange={(v) => formik.setFieldValue(`description`, v)}
-                error={
-                  formik.touched.description &&
-                  typeof formik.errors.description === "object" &&
-                  formik.errors.description
-                    ? formik.errors.description
-                    : null
-                }
-              />
-            </div>
+              <span className="text-lg">Self Service</span>
+            </label>
+
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
               <InputToggle
                 value={formik.values.machine_washer}
@@ -1213,7 +1337,7 @@ export default function Product() {
             </div>
 
             <div className=" h-96 overflow-y-scroll py-2">
-              <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1">
                 <Input
                   label={"Name*"}
                   name={"name"}
@@ -1286,22 +1410,54 @@ export default function Product() {
                   }
                 />
 
-                <div className="mt-6">
-                  <InputToggle
-                    value={!formik.values.is_deleted}
-                    onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-                    label={"Status"}
+                {/* Pilihan Ya */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="false"
+                    checked={selectedRadio === false}
+                    onChange={() => {
+                      setSelectedRadio(false);
+                      formik.setFieldValue(`is_self_service`, false);
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
                   />
-                </div>
+                  <span className="text-lg">Full Service</span>
+                </label>
+
+                {/* Pilihan Tidak */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="true"
+                    checked={selectedRadio === true}
+                    onChange={() => {
+                      setSelectedRadio(true);
+                      formik.setFieldValue(`is_self_service`, true);
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-lg">Self Service</span>
+                </label>
               </div>
 
-              <button
-                onClick={formik.submitForm}
-                className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-              >
-                Submit
-              </button>
+              <div className="mt-6">
+                <InputToggle
+                  value={!formik.values.is_deleted}
+                  onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                  label={"Status"}
+                />
+              </div>
             </div>
+
+            <button
+              onClick={formik.submitForm}
+              className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Submit
+            </button>
           </div>
         ) : (
           <div className="relative w-[90%] rounded-md bg-white p-4  shadow dark:bg-boxdark md:w-[50%] ">
@@ -1322,11 +1478,27 @@ export default function Product() {
             <div className=" h-96 overflow-y-scroll py-2">
               <div className="grid grid-cols-1 gap-x-4 gap-y-6">
                 <InputDropdown
+                  label={"Outlets*"}
+                  name={"Outlets"}
+                  id={"Outlets"}
+                  value={formik.values.outlet_id}
+                  onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                  options={outlets}
+                  error={
+                    formik.touched.outlet_id && formik.errors.outlet_id
+                      ? formik.errors.outlet_id
+                      : null
+                  }
+                />
+                <InputDropdown
                   label={"Product*"}
                   name={"Product"}
                   id={"Product"}
                   value={productId ? productId : ""}
-                  onChange={(v) => formik.setFieldValue(`product_id`, v)}
+                  onChange={(v) => {
+                    setProductId(v);
+                    formik.setFieldValue(`product_id`, v);
+                  }}
                   options={MapingProduct}
                   error={
                     formik.touched.product_id &&
@@ -1441,6 +1613,39 @@ export default function Product() {
                       : null
                   }
                 />
+              </div>
+              <div className="pt-6">
+                {/* Pilihan Ya */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="false"
+                    checked={selectedRadio === false}
+                    onChange={() => {
+                      setSelectedRadio(false);
+                      formik.setFieldValue(`is_self_service`, false);
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-lg">Full Service</span>
+                </label>
+
+                {/* Pilihan Tidak */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="agreement"
+                    value="true"
+                    checked={selectedRadio === true}
+                    onChange={() => {
+                      setSelectedRadio(true);
+                      formik.setFieldValue(`is_self_service`, true);
+                    }}
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-lg">Self Service</span>
+                </label>
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
                 <InputToggle

@@ -14,6 +14,7 @@ import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import {
   FaUsers
 } from "react-icons/fa";
+import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
@@ -109,6 +110,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <MdPayment size={22} />,
           label: "Payment Method",
           route: "/payment-method",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+        {
+          icon: <GrDocumentText size={22} />,
+          label: "Terms And Conditions",
+          route: "/terms-and-conditions",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
         },
 
