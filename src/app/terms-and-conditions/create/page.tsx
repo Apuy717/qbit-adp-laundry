@@ -103,7 +103,7 @@ export default function TermsAndConditions() {
 
       if (res.statusCode === 200) {
         toast.success("Success create Terms and Conditions!");
-        // router.push("/");
+        router.push("/terms-and-conditions");
         console.log(res.data);
       }
       setLoading(false);
@@ -180,8 +180,8 @@ export default function TermsAndConditions() {
               </div>
               <Input
                 label={"Items Title*"}
-                name={"label"}
-                id={"label"}
+                name={`label${index}`}
+                id={`label${index}`}
                 value={i.label}
                 onChange={(v) =>
                   formik.setFieldValue(`items[${index}].label`, v)
@@ -196,8 +196,8 @@ export default function TermsAndConditions() {
               />
               <InputTextArea
                 label={"Items Content*"}
-                name={"text"}
-                id={"text"}
+                name={`text${index}`}
+                id={`text${index}`}
                 value={i.text}
                 onChange={(v) =>
                   formik.setFieldValue(`items[${index}].text`, v)
