@@ -197,7 +197,7 @@ export default function TermsAndConditions({
             <div className="h-full w-full space-y-6 rounded-lg p-4 outline outline-1 outline-slate-400">
               <div className="flex justify-between">
                 <p className="font-bold">Items {index + 1}</p>
-                <div className="">
+                {/* <div className="">
                   <button
                     className={
                       index == 0
@@ -208,7 +208,7 @@ export default function TermsAndConditions({
                   >
                     Delete items
                   </button>
-                </div>
+                </div> */}
               </div>
               <Input
                 label={"Items Title*"}
@@ -256,14 +256,14 @@ export default function TermsAndConditions({
           </div>
         ))}
 
-        <div className="w-full">
+        {/* <div className="w-full">
           <button
             onClick={addVariant}
             className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
             Add items
           </button>
-        </div>
+        </div> */}
         <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1">
           <button
             onClick={formik.submitForm}
