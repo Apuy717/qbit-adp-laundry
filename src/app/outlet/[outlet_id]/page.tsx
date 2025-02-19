@@ -1,6 +1,12 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Input, InputDropdown, InputTextArea, InputToggle } from "@/components/Inputs/InputComponent";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
+import {
+  Input,
+  InputDropdown,
+  InputTextArea,
+  InputToggle,
+} from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
@@ -19,10 +25,10 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 interface iResponseOutlet {
-  statusCode: number,
-  msg: string,
-  data: Outlet,
-  err: string | string[]
+  statusCode: number;
+  msg: string;
+  data: Outlet;
+  err: string | string[];
 }
 
 interface iResponseAddress {
@@ -45,59 +51,86 @@ interface MyResponse {
   err: string | string[];
 }
 
-export default function UpdateOutlet({ params }: { params: { outlet_id: string } }) {
-  const [outlet, setOutlet] = useState<Outlet | null>(null)
-  const [areas, setAreas] = useState<any[]>([])
-  const [areaModal, setAreaModal] = useState<boolean>(false)
-  const [mapingGroupArea, setMapingGroupArea] = useState<any[]>([])
-  const credential = useSelector((s: RootState) => s.auth)
-  const router = useRouter()
-  const [loading, setLoading] = useState<boolean>(true)
+export default function UpdateOutlet({
+  params,
+}: {
+  params: { outlet_id: string };
+}) {
+  const [outlet, setOutlet] = useState<Outlet | null>(null);
+  const [areas, setAreas] = useState<any[]>([]);
+  const [areaModal, setAreaModal] = useState<boolean>(false);
+  const [mapingGroupArea, setMapingGroupArea] = useState<any[]>([]);
+  const credential = useSelector((s: RootState) => s.auth);
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-
 
   const [province, setProvince] = useState<iDropdown[]>([]);
   const [city, setCity] = useState<iDropdown[]>([]);
   const [subdistrict, setSubDistrict] = useState<iDropdown[]>([]);
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
+  const [dateComponent, setDateCompnent] = useState<boolean>(false);
+
+  let startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+  );
+  let endOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate() + 1,
+  );
+
+  endOfMonth.setHours(6, 59, 59, 0);
+  const offsetInMinutes = 7 * 60;
+  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+
+  const [startDate, setStartDate] = useState<Date | string>(
+    startOfMonth.toISOString().split(".")[0],
+  );
+  const [endDate, setEndDate] = useState<Date | string>(
+    endOfMonth.toISOString().split(".")[0],
+  );
 
   useEffect(() => {
     async function GotDetailOutlet(isupdate: boolean) {
       const res = await GetWithToken<iResponseOutlet>({
         router: router,
         url: `/api/outlet/${params.outlet_id}`,
-        token: `${credential.auth.access_token}`
+        token: `${credential.auth.access_token}`,
       });
 
-      if (res.statusCode === 404) toast.warning("Outlet not found, try again!")
+      if (res.statusCode === 404) toast.warning("Outlet not found, try again!");
 
-      formik.setFieldValue("id", res.data.id)
-      formik.setFieldValue("name", res.data.name)
+      formik.setFieldValue("id", res.data.id);
+      formik.setFieldValue("name", res.data.name);
       // formik.setFieldValue("country", res.data.country)
       // formik.setFieldValue("area_id", res.data.area_id)
-      formik.setFieldValue("province", res.data.province)
-      formik.setFieldValue("city", res.data.city)
-      formik.setFieldValue("district", res.data.district)
+      formik.setFieldValue("province", res.data.province);
+      formik.setFieldValue("city", res.data.city);
+      formik.setFieldValue("district", res.data.district);
       // formik.setFieldValue("postal_code", res.data.postal_code)
-      formik.setFieldValue("address", res.data.address)
-      formik.setFieldValue("dial_code", res.data.dial_code)
-      formik.setFieldValue("phone_number", res.data.phone_number)
-      formik.setFieldValue("email", res.data.email)
-      // formik.setFieldValue("latitude", res.data.latitude)
-      // formik.setFieldValue("longitude", res.data.longitude)
-      formik.setFieldValue("is_deleted", res.data.is_deleted)
+      formik.setFieldValue("address", res.data.address);
+      formik.setFieldValue("dial_code", res.data.dial_code);
+      formik.setFieldValue("phone_number", res.data.phone_number);
+      formik.setFieldValue("email", res.data.email);
+      formik.setFieldValue("is_deleted", res.data.is_deleted);
+      formik.setFieldValue("total_washer", res.data.total_washer);
+      formik.setFieldValue("total_dryer", res.data.total_dryer);
+      formik.setFieldValue("opening_schedule", res.data.opening_schedule);
       console.log(res.data);
-      setOutlet(res.data)
-
+      setOutlet(res.data);
+      setDateCompnent(true);
 
       if (res.data.province && res.data.province.split("--").length >= 2)
-        GotCity(res.data.province.split("--")[0], isupdate)
+        GotCity(res.data.province.split("--")[0], isupdate);
 
       if (res.data.city && res.data.city.split("--").length >= 2)
-        GotSubDistrict(res.data.city.split("--")[0], isupdate)
+        GotSubDistrict(res.data.city.split("--")[0], isupdate);
 
-      setLoading(false)
+      setLoading(false);
     }
 
     async function GotProvince(isupdate: boolean) {
@@ -119,13 +152,12 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           };
         });
         if (formik.values.province) {
-          formik.setFieldValue("province", formik.values.province)
+          formik.setFieldValue("province", formik.values.province);
         }
         setProvince(maping);
-        GotDetailOutlet(isupdate)
+        GotDetailOutlet(isupdate);
       }
     }
-
 
     const country = CountryList.getAll();
     country.map((i) => {
@@ -138,7 +170,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
 
     GotProvince(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   useEffect(() => {
     const GotAreas = async () => {
@@ -161,23 +193,25 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         url: urlwithQuery,
         token: `${credential.auth.access_token}`,
       });
-      const mapingArea = (res.data).map((i: any) => {
+      const mapingArea = res.data.map((i: any) => {
         return {
           label: i.name,
           value: i.id,
         };
-      })
+      });
 
       if (mapingArea.length >= 1) {
-        setMapingGroupArea(mapingArea)
+        setMapingGroupArea(mapingArea);
         if (formik.values.area_id === "" && outlet !== null) {
-          const item = mapingGroupArea.findIndex((i: any) => i.value === outlet?.outlet_area_grouping.outlet_area.id);
-          formik.setFieldValue("area_id", mapingGroupArea[item].value)
+          const item = mapingGroupArea.findIndex(
+            (i: any) => i.value === outlet?.outlet_area_grouping.outlet_area.id,
+          );
+          formik.setFieldValue("area_id", mapingGroupArea[item].value);
         }
       }
     };
     GotGroupingAreas();
-    GotAreas()
+    GotAreas();
   }, [credential.auth.access_token, router, areaModal, outlet]);
 
   const formikArea = useFormik({
@@ -194,17 +228,16 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         router: router,
         url: "/api/outlet/create-or-update-area",
         data: values,
-        token: `${credential.auth.access_token}`
-      })
+        token: `${credential.auth.access_token}`,
+      });
 
       if (res?.statusCode === 200) {
         toast.success("create area success!");
-        setAreaModal(false)
-        formikArea.setFieldValue("name", "")
+        setAreaModal(false);
+        formikArea.setFieldValue("name", "");
       }
     },
-  })
-
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -220,6 +253,9 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       phone_number: "",
       email: "",
       is_deleted: true,
+      opening_schedule: new Date(startDate),
+      total_washer: 0,
+      total_dryer: 0,
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -261,12 +297,12 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       if (res.statusCode === 200) {
         toast.success("Update data success!");
         router.push("/outlet");
+        console.log(values);
         console.log(res.data);
       }
       setLoading(false);
     },
   });
-
 
   async function GotCity(province_id: string, isupdate: boolean) {
     const res = await GET<iResponseAddress>({
@@ -291,8 +327,8 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         };
       });
       if (isupdate) {
-        formik.setFieldValue("city", maping[0].value)
-        GotSubDistrict(maping[0].value.split("--")[0], true)
+        formik.setFieldValue("city", maping[0].value);
+        GotSubDistrict(maping[0].value.split("--")[0], true);
       }
       setCity(maping);
     }
@@ -322,36 +358,37 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       console.log(city_id === formik.values.city.split("--")[0]);
 
       if (isupdate) {
-        formik.setFieldValue("district", maping[0].value.split("--")[1])
+        formik.setFieldValue("district", maping[0].value.split("--")[1]);
       }
       setSubDistrict(maping);
     }
   }
 
   const deleteArea = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure you want to delete this Area?");
+    const userConfirmed = window.confirm(
+      "Are you sure you want to delete this Area?",
+    );
     if (!userConfirmed) {
       return;
     }
     const data = {
-      area_id: id
-    }
+      area_id: id,
+    };
     console.log(data);
 
     const res = await PostWithToken<MyResponse>({
       router: router,
       url: "/api/outlet/remove-area",
       data: data,
-      token: `${credential.auth.access_token}`
-    })
+      token: `${credential.auth.access_token}`,
+    });
     if (res?.statusCode === 200) {
       toast.success("Data changed success!");
-      formik.setFieldValue("name", "")
-      formik.setFieldValue("area_id", "")
-      setRefresh(true)
+      formik.setFieldValue("name", "");
+      formik.setFieldValue("area_id", "");
+      setRefresh(true);
     }
-
-  }
+  };
 
   return (
     <>
@@ -360,18 +397,17 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
-        <div className="flex mb-8 border-b-2 py-6 px-10 space-x-4">
-          <button onClick={() => {
-            router.push("/outlet")
-          }}>
+        <div className="mb-8 flex space-x-4 border-b-2 px-10 py-6">
+          <button
+            onClick={() => {
+              router.push("/outlet");
+            }}
+          >
             <FaArrowLeft size={20} />
           </button>
-          <button
-            className={`font-semibold`}>
-            Edit Outlet Form
-          </button>
+          <button className={`font-semibold`}>Edit Outlet Form</button>
         </div>
-        <div className="grid grid-cols-1 px-10 gap-6">
+        <div className="grid grid-cols-1 gap-6 px-10">
           <Input
             label={"Name*"}
             name={"name"}
@@ -450,11 +486,11 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
             />
             <button
               onClick={() => {
-                setAreaModal(true)
+                setAreaModal(true);
               }}
               className={`inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90
+            dark:text-gray-400 lg:px-8 xl:px-10`}
             >
               Create Area
             </button>
@@ -569,7 +605,47 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
                 : null
             }
           />
-          <div className={`${credential.role.name !== ERoles.PROVIDER && "hidden"}`}>
+          <Input
+            label={"Total Washer*"}
+            name={"total_washer"}
+            id={"total_washer"}
+            value={formik.values.total_washer ? formik.values.total_washer : ""}
+            onChange={(v) => formik.setFieldValue("total_washer", parseInt(v))}
+            error={
+              formik.touched.total_washer && formik.errors.total_washer
+                ? formik.errors.total_washer
+                : null
+            }
+          />
+          <Input
+            label={"Total Dryer*"}
+            name={"total_dryer"}
+            id={"total_dryer"}
+            value={formik.values.total_dryer ? formik.values.total_dryer : ""}
+            onChange={(v) => formik.setFieldValue("total_dryer", parseInt(v))}
+            error={
+              formik.touched.total_dryer && formik.errors.total_dryer
+                ? formik.errors.total_dryer
+                : null
+            }
+          />
+          {dateComponent ? (
+            <DatePickerOne
+              label={"Opening Schedule"}
+              defaultDate={new Date(formik.values.opening_schedule)}
+              onChange={(v) => {
+                console.log(v);
+                formik.setFieldValue("opening_schedule", v);
+                setStartDate(v);
+              }}
+            />
+          ) : (
+            <p>loading...</p>
+          )}
+
+          <div
+            className={`${credential.role.name !== ERoles.PROVIDER && "hidden"}`}
+          >
             <InputToggle
               value={!formik.values.is_deleted}
               onClick={(v) => formik.setFieldValue("is_deleted", !v)}
@@ -586,13 +662,13 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
       </div>
 
       <Modal isOpen={areaModal}>
-        <div className="relative bg-white dark:bg-boxdark shadow rounded-md w-[90%] md:w-[50%] p-4">
+        <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
           <div
-            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
-              formikArea.setFieldValue("id", "")
-              formikArea.setFieldValue("name", "")
-              setAreaModal(false)
+              formikArea.setFieldValue("id", "");
+              formikArea.setFieldValue("name", "");
+              setAreaModal(false);
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -603,7 +679,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
           </div>
 
           <div className="">
-            <div className="flex justify-between items-center space-x-4">
+            <div className="flex items-center justify-between space-x-4">
               <Input
                 label={"Area Name*"}
                 name={"area_name"}
@@ -618,28 +694,28 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
               />
               <button
                 onClick={formikArea.submitForm}
-                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              >
                 Submit
               </button>
             </div>
 
-
-            <div className="h-70 overflow-y-auto mt-4">
+            <div className="mt-4 h-70 overflow-y-auto">
               <Table
                 colls={["#", "Name", "Action"]}
                 onPaginate={() => null}
                 currentPage={0}
-                totalItem={0}>
+                totalItem={0}
+              >
                 {areas.map((i, k) => (
-                  <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                    <td className="px-6 py-4">
-                      {k + 1}
-                    </td>
-                    <td className="px-6 py-4">
-                      {i.name}
-                    </td>
+                  <tr
+                    key={k}
+                    className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                  >
+                    <td className="px-6 py-4">{k + 1}</td>
+                    <td className="px-6 py-4">{i.name}</td>
                     <td className="flex space-x-2 px-6 py-4 ">
-                      <div className="relative group">
+                      <div className="group relative">
                         <button
                           onClick={() => {
                             formikArea.setFieldValue("name", i.name);
@@ -648,12 +724,12 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
                         >
                           <FiEdit size={23} />
                         </button>
-                        <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                           Edit Area
                         </div>
                       </div>
 
-                      <div className="relative group">
+                      <div className="group relative">
                         <button
                           onClick={() => {
                             deleteArea(i.id);
@@ -662,7 +738,7 @@ export default function UpdateOutlet({ params }: { params: { outlet_id: string }
                         >
                           <FiTrash size={23} />
                         </button>
-                        <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                           Delete Area
                         </div>
                       </div>
