@@ -170,7 +170,7 @@ export default function PageMachine() {
       setFixValueSearch("");
       setRefresh((prev) => !prev);
     } else {
-      if (search.length >= 1) {
+      if (search.length >= 1 && fixValueSearch !== search) {
         setItems([]);
         setLoadingSearch(true);
         setFixValueSearch(search);

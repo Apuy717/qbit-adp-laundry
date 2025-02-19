@@ -102,10 +102,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
         },
         {
-          icon: <BiSolidWasher size={23} />,
-          label: "Machine",
-          route: "/machine",
+          icon: <BiSolidWasher size={24} />,
+          label: "Machines",
+          route: "#",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
+          children: [
+            { label: "Machine", route: "/machine" },
+            { label: "Empty Wash", route: "/empty-wash" },
+          ],
         },
         {
           icon: <MdPayment size={22} />,
