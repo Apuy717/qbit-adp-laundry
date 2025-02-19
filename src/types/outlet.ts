@@ -16,11 +16,19 @@ export type Outlet = {
   created_at: string;
   updated_at: string;
   outlet_area_grouping: OutletArea
+  outlet_grouping: OutletCV
 }
 
 export type OutletArea = {
   id: string,
   outlet_area: {
+    id: string
+    name: string
+  }
+}
+export type OutletCV = {
+  id: string,
+  outlet_grouping_master: {
     id: string
     name: string
   }

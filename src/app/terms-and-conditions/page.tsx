@@ -64,7 +64,7 @@ export default function TermsAndConditions() {
   }, []);
 
   return (
-    <div>
+    <div className=" dark:min-h-screen">
       <div className="mb-4 w-full  rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
           <Link
@@ -129,7 +129,7 @@ export default function TermsAndConditions() {
                 <div className="group relative">
                   <button
                     onClick={() => {
-                      router.push(`terms-and-conditions/update/${i.outlet_id}`);
+                      router.push(`terms-and-conditions/update/${i.id}`);
                     }}
                   >
                     <FiEdit size={18} />
