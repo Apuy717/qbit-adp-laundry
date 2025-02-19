@@ -1,7 +1,10 @@
 import { ChangeEvent, FC, useState } from "react";
 import { BiErrorCircle, BiInfoCircle } from "react-icons/bi";
 
-export interface iDropdown { label: string; value: string }
+export interface iDropdown {
+  label: string;
+  value: string;
+}
 
 export interface iInput {
   label: string;
@@ -16,7 +19,7 @@ export interface iInput {
   info?: string;
   placeholder?: string;
   options?: iDropdown[] | any[];
-  rows?: number
+  rows?: number;
 }
 
 export interface iInputFile {
@@ -39,8 +42,9 @@ export const InputDropdown: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
-          }  left-4 text-gray-500`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${
+          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        }  left-4 text-gray-500`}
       >
         {props.label}
       </label>
@@ -49,7 +53,7 @@ export const InputDropdown: FC<iInput> = (props) => {
         id={props.id}
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
-        className="focus:border-apps-primary w-full rounded-md border-2 dark:border-form-strokedark bg-white p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        className="focus:border-apps-primary w-full rounded-md border-2 bg-white p-3 text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark"
       >
         {props.options &&
           props.options.map((i, k) => (
@@ -59,8 +63,9 @@ export const InputDropdown: FC<iInput> = (props) => {
           ))}
       </select>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
-          }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -78,7 +83,7 @@ export const Input: FC<iInput> = (props) => {
         type={props.type ? props.type : "text"}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary bg-white w-full rounded-md border-[1.5px] dark:border-form-strokedark p-3 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        className="focus:border-apps-primary w-full rounded-md border-[1.5px] bg-white p-3 text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark"
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}
@@ -89,8 +94,13 @@ export const Input: FC<iInput> = (props) => {
 
       <label
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus || typeof props.value === "number" || typeof props.value === "string" && props.value.length >= 1 ? `-top-3` : `top-3`
-          }  left-4 text-gray-500 dark:text-gray-300`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${
+          isFocus ||
+          typeof props.value === "number" ||
+          (typeof props.value === "string" && props.value.length >= 1)
+            ? `-top-3`
+            : `top-3`
+        }  left-4 text-gray-500 dark:text-gray-300`}
       >
         {props.label}
       </label>
@@ -101,8 +111,9 @@ export const Input: FC<iInput> = (props) => {
         <p>{props.info}</p>
       </div>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
-          }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -156,8 +167,9 @@ export const InputTextArea: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
-          }  left-4 text-gray-500`}
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${
+          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        }  left-4 text-gray-500`}
       >
         {props.label}
       </label>
@@ -173,8 +185,47 @@ export const InputTextArea: FC<iInput> = (props) => {
         onChange={(e) => props.onChange(e.target.value)}
       ></textarea>
       <div
-        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${props.error === null ? `hidden` : `block`
-          }`}
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
+      >
+        <BiErrorCircle className="mr-1" />
+        <p>{props.error}</p>
+      </div>
+    </div>
+  );
+};
+export const InputTextAreaWithKeydown: FC<
+  iInput & { onKeydown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void }
+> = (props) => {
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+  return (
+    <div className={`${props.className} relative flex-1`}>
+      <label
+        onClick={() => setIsFocus(true)}
+        htmlFor={props.id}
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${
+          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        }  left-4 text-gray-500`}
+      >
+        {props.label}
+      </label>
+      <textarea
+        value={props.value}
+        rows={props.rows ? props.rows : 2}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        id={props.id}
+        name={props.name}
+        autoComplete="off"
+        className="focus:border-apps-primary w-full rounded-md border-2 p-2 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        onChange={(e) => props.onChange(e.target.value)}
+        onKeyDown={(e) => props.onKeydown(e)}
+      ></textarea>
+      <div
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
@@ -201,15 +252,17 @@ export const InputFile: FC<iInputFile> = (props) => {
         required={props.required}
       />
       <div
-        className={`mr-2 flex flex-row items-center text-sm normal-case text-red-500 ${props.error === null ? `hidden` : `block`
-          }`}
+        className={`mr-2 flex flex-row items-center text-sm normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
       >
         <BiErrorCircle className="mr-1" />
         <p>{props.error}</p>
       </div>
       <div
-        className={`mr-2 flex flex-row items-center text-xs normal-case text-gray-500 ${props.info ? `block` : `hidden`
-          }`}
+        className={`mr-2 flex flex-row items-center text-xs normal-case text-gray-500 ${
+          props.info ? `block` : `hidden`
+        }`}
       >
         <BiInfoCircle className="mr-1" />
         <p>{props.info}</p>
