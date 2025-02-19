@@ -108,6 +108,8 @@ export default function CreateOutlet() {
       });
 
       if (res?.statusCode === 200) {
+        console.log(res.data);
+
         toast.success("create area success!");
         setAreaModal(false);
         formikArea.setFieldValue("name", "");
@@ -129,7 +131,7 @@ export default function CreateOutlet() {
       phone_number: "",
       email: "",
       is_deleted: true,
-      opening_schedule: "",
+      opening_schedule: new Date(startDate),
       total_washer: 0,
       total_dryer: 0,
     },
@@ -177,7 +179,6 @@ export default function CreateOutlet() {
         router.push("/outlet");
       }
       console.log(res.data);
-
       setLoading(false);
     },
   });
@@ -539,12 +540,15 @@ export default function CreateOutlet() {
                 }
               />
               <Input
-                type="number"
                 label={"Total Washer*"}
                 name={"total_washer"}
                 id={"total_washer"}
-                value={formik.values.total_washer}
-                onChange={(v) => formik.setFieldValue("total_washer", v)}
+                value={
+                  formik.values.total_washer ? formik.values.total_washer : ""
+                }
+                onChange={(v) =>
+                  formik.setFieldValue("total_washer", parseInt(v))
+                }
                 error={
                   formik.touched.total_washer && formik.errors.total_washer
                     ? formik.errors.total_washer
@@ -552,12 +556,15 @@ export default function CreateOutlet() {
                 }
               />
               <Input
-                type="number"
                 label={"Total Dryer*"}
                 name={"total_dryer"}
                 id={"total_dryer"}
-                value={formik.values.total_dryer}
-                onChange={(v) => formik.setFieldValue("total_dryer", v)}
+                value={
+                  formik.values.total_dryer ? formik.values.total_dryer : ""
+                }
+                onChange={(v) =>
+                  formik.setFieldValue("total_dryer", parseInt(v))
+                }
                 error={
                   formik.touched.total_dryer && formik.errors.total_dryer
                     ? formik.errors.total_dryer

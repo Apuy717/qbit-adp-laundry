@@ -17,6 +17,9 @@ export type Outlet = {
   updated_at: string;
   outlet_area_grouping: OutletArea
   outlet_grouping: OutletCV
+  opening_schedule: string,
+  total_washer: number,
+  total_dryer: number,
 }
 
 export type OutletArea = {

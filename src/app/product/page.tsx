@@ -262,7 +262,7 @@ export default function Product() {
       dryer_duration: 0,
       machine_iron: false,
       iron_duration: 0,
-      quantity_decimal:false,
+      quantity_decimal: false,
 
       sku_id: "",
     },
@@ -448,7 +448,7 @@ export default function Product() {
 
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
-          <InputDropdown
+          {/* <InputDropdown
             label={"Filter By Category"}
             name={"filterByCategory"}
             id={"filterByCategory"}
@@ -456,7 +456,7 @@ export default function Product() {
             onChange={(e) => setFilterByCategory(e)}
             error={null}
             options={[{ label: "All", value: "all" }].concat(categorys)}
-          />
+          /> */}
           <div className="w-full md:w-96">
             <Input
               label={"Search"}
