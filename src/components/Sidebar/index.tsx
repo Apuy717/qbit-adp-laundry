@@ -52,6 +52,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
+            { label: "Group by CV", route: "/group-by-cv" },
           ],
         },
         {
@@ -104,7 +105,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <BiSolidWasher size={23} />,
           label: "Machine",
           route: "/machine",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
         },
         {
           icon: <MdPayment size={22} />,

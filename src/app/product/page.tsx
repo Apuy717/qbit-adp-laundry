@@ -262,6 +262,7 @@ export default function Product() {
       dryer_duration: 0,
       machine_iron: false,
       iron_duration: 0,
+      quantity_decimal:false,
 
       sku_id: "",
     },

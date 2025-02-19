@@ -55,7 +55,7 @@ export default function TermsAndConditions({
         };
       });
       mapingOutlet.unshift(allOutlet);
-      console.log(mapingOutlet);
+      // console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         setOutlets(mapingOutlet);
@@ -67,32 +67,28 @@ export default function TermsAndConditions({
 
   useEffect(() => {
     const GotTerms = async () => {
-      const data = {
-        outlet_ids: [params.id],
-      };
-      let urlwithQuery = `/api/t-and-c?page=1&limit=10`;
-      const res = await PostWithToken<MyResponse>({
+      let urlwithQuery = `/api/t-and-c/detail/${params.id}`;
+      const res = await GetWithToken<MyResponse>({
         router: router,
         url: urlwithQuery,
-        data: data,
         token: `${auth.auth.access_token}`,
       });
 
       if (res.statusCode === 200) {
-        setTerms(res.data[0]);
-        console.log(terms?.title);
+        setTerms(res.data);
+        // console.log(res.data);
         console.log(terms?.terms_and_conditions_items.length);
-        
-        formik.setFieldValue("id", res.data[0]?.id);
-        formik.setFieldValue("outlet_id", res.data[0]?.outlet_id);
-        formik.setFieldValue("title", res.data[0]?.title);
-        formik.setFieldValue("items", res.data[0]?.terms_and_conditions_items);
+
+        formik.setFieldValue("id", res.data.id);
+        formik.setFieldValue("outlet_id", res.data.outlet_id);
+        formik.setFieldValue("title", res.data.title);
+        formik.setFieldValue("items", res.data.terms_and_conditions_items);
       }
     };
     GotTerms();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const formik = useFormik({
     initialValues: {
       id: "",
@@ -117,7 +113,7 @@ export default function TermsAndConditions({
     }),
     onSubmit: async (values) => {
       const val = JSON.stringify(values);
-      console.log(val);
+      // console.log(val);
 
       if (loading) return;
       setLoading(true);
@@ -162,7 +158,7 @@ export default function TermsAndConditions({
     items.splice(index, 1);
     formik.setFieldValue("items", items);
   };
-  
+
   return (
     <div>
       <Breadcrumb pageName="Terms and Conditions" />
@@ -276,12 +272,11 @@ export default function TermsAndConditions({
 
       <div className="mt-6 h-full w-full space-y-6 rounded-md bg-white p-4 dark:bg-boxdark">
         <div className="w-full">
-          <button
-            onClick={() => {}}
-            className="w-auto rounded-md bg-gray-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+          <div
+            className="w-auto rounded-md bg-gray-500 px-10 py-2 text-center font-medium text-white lg:px-8 xl:px-10"
           >
             Preview
-          </button>
+          </div>
         </div>
         <div className="h-full w-full space-y-6 rounded-lg p-4 text-black-2 outline outline-1 outline-slate-400  dark:text-gray-300">
           <p className="text-3xl font-bold">{formik.values.title}</p>
