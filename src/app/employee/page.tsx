@@ -76,7 +76,7 @@ export default function PageEmployee() {
       setFixValueSearch("");
       setRefresh((prev) => !prev);
     } else {
-      if (search.length >= 1) {
+      if (search.length >= 1 && fixValueSearch !== search) {
         setEmployee([]);
         setLoadingSearch(true);
         setFixValueSearch(search);
