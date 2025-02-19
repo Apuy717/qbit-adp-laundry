@@ -2,6 +2,8 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
+import { Input } from "@/components/Inputs/InputComponent";
+import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
@@ -11,8 +13,10 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaCheck } from "react-icons/fa";
+import { IoCloseOutline } from "react-icons/io5";
 import { MdBlock } from "react-icons/md";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 
 export default function EmptyWash() {
@@ -39,12 +43,14 @@ export default function EmptyWash() {
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
   const router = useRouter()
   const [loading, setLoading] = useState<boolean>(true)
-
+  const [modalApproved, setModalApproved] = useState<boolean>(false)
+  const [duration, setDuration] = useState<string>("")
+  const [payloadApproved, setPayloadApproved] = useState<{ id: string, stts: EEmptyWash, duration: number } | null>(null)
 
   useEffect(() => {
     async function GotItems() {
       setLoading(true)
-      let urlwithQuery = `/api/empty-wash/filter?page=${currentPage}&limit=${100}`;
+      let urlwithQuery = `/api/empty-wash/filter?page=${currentPage}&limit=${10}`;
       const pad = (n: any) => n.toString().padStart(2, "0");
       const stdDate = new Date(startDate);
       const eDate = new Date(endDate);
@@ -87,6 +93,7 @@ export default function EmptyWash() {
     })
 
     if (res.statusCode === 200) {
+      toast.success(`Success update status to ${stts}`)
       setItems((prevItems) =>
         prevItems.map((item) =>
           item.id === id ? {
@@ -95,6 +102,8 @@ export default function EmptyWash() {
           } : item
         )
       );
+      setPayloadApproved(null)
+      setModalApproved(false)
     }
   }
 
@@ -129,7 +138,7 @@ export default function EmptyWash() {
       }
 
       <Table
-        colls={["created", "outlet", "machine", "requested", "approved", "status", "action"]}
+        colls={["created", "outlet", "machine", "Duration", "requested", "approved", "status", "action"]}
         currentPage={currentPage}
         totalItem={totalItem}
         onPaginate={(page) => setCurrentPage(page)}
@@ -171,6 +180,8 @@ export default function EmptyWash() {
               </div>
             </td>
 
+            <td className="whitespace-nowrap px-6 py-4">{i.duration !== null && i.duration >= 1 && i.duration} {i.duration ? "min" : "-"}</td>
+
             <td className="whitespace-nowrap px-6 py-4">
               <div className="flex flex-col">
                 {i.requested?.fullname}
@@ -209,7 +220,14 @@ export default function EmptyWash() {
                 i.review_status === EEmptyWash.PENDING && (
                   <button
                     className="bg-green-500 hover:bg-green-700 p-2 rounded uppercase"
-                    onClick={() => SetReviewStatus(i.id, EEmptyWash.APPROVED, 20)}
+                    onClick={() => {
+                      setModalApproved(true);
+                      setPayloadApproved({
+                        id: i.id,
+                        stts: EEmptyWash.APPROVED,
+                        duration: 0
+                      })
+                    }}
                   >
                     <FaCheck />
                   </button>
@@ -229,6 +247,53 @@ export default function EmptyWash() {
           </tr>
         ))}
       </Table>
-    </div>
+
+      <Modal isOpen={modalApproved}>
+        <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+          <div
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            onClick={() => {
+              setPayloadApproved(null);
+              setModalApproved(false)
+            }}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="flex flex-col space-y-8">
+            <Breadcrumb
+              pageName={"Approved Empty Wash"}
+            />
+          </div>
+
+          <div className="gap-y-6">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-6">
+              <Input
+                type="number"
+                label={"Duration*"}
+                name={"CV_name"}
+                id={"CV_name"}
+                value={duration}
+                onChange={(v) => setDuration(v)}
+                error={duration.length === 0 ? "Duration required" : null}
+              />
+            </div>
+
+            <button
+              className={`mt-6 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center 
+                font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 ${duration.length === 0 && "cursor-not-allowed"}`}
+              disabled={duration.length >= 1 ? false : true}
+              onClick={() => {
+                if (duration.length >= 1 && payloadApproved) {
+                  SetReviewStatus(payloadApproved.id, EEmptyWash.APPROVED, parseInt(duration))
+                }
+              }}
+            >
+              Approved
+            </button>
+          </div>
+        </div>
+      </Modal >
+    </div >
   )
 }
