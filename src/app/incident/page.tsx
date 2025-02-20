@@ -75,7 +75,6 @@ export default function IncidentPage() {
         },
       });
       if (res?.statusCode === 200) {
-        console.log(res.data);
 
         if (res.data.length >= 1 && res.total) setTotalData(res.total);
         else setTotalData(0);

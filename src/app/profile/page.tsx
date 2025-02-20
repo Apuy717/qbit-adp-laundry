@@ -13,9 +13,6 @@ import { useSelector } from "react-redux";
 export default function Detailcredential() {
   const router = useRouter()
   const credential = useSelector((s: RootState) => s).auth
-  console.log(credential);
-
-
 
   return (
     <>

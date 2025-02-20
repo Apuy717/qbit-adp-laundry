@@ -56,7 +56,6 @@ export default function TermsAndConditions() {
 
       if (res.statusCode === 200) {
         setTerms(res.data);
-        console.log(res.data);
       }
     };
     GotTerms();

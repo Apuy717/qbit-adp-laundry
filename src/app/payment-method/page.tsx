@@ -83,7 +83,6 @@ export default function PagePaymentMethod() {
         }
       })
 
-      console.log(res);
 
       if (res?.statusCode === 200) {
         if (res.total)
@@ -150,7 +149,6 @@ export default function PagePaymentMethod() {
       }),
     }),
     onSubmit: async (values) => {
-      console.log(values);
       if (loading) return
       setLoading(true)
       let idUpdate = {}
@@ -174,7 +172,6 @@ export default function PagePaymentMethod() {
         },
       })
 
-      console.log(res);
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");

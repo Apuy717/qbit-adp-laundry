@@ -30,8 +30,6 @@ const SignIn: React.FC = () => {
       code: Yup.string().required("code atau nomor telepon diperlukan"),
     }),
     onSubmit: async (value) => {
-      console.log(value);
-      
       const res = await reqApi.POST("/api/auth/forgot-password", value);
 
       if (res?.statusCode === 200) {

@@ -120,7 +120,6 @@ export default function UpdateOutlet({
       formik.setFieldValue("total_washer", res.data.total_washer);
       formik.setFieldValue("total_dryer", res.data.total_dryer);
       formik.setFieldValue("opening_schedule", res.data.opening_schedule);
-      console.log(res.data);
       setOutlet(res.data);
       setDateCompnent(true);
 
@@ -212,7 +211,7 @@ export default function UpdateOutlet({
     };
     GotGroupingAreas();
     GotAreas();
-  }, [credential.auth.access_token, router, areaModal, outlet]);
+  }, [credential.auth.access_token, router, areaModal, outlet,mapingGroupArea]);
 
   const formikArea = useFormik({
     initialValues: {
@@ -222,7 +221,6 @@ export default function UpdateOutlet({
       name: Yup.string().required("Area name shouldn't be empty"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
       const res = await PostWithToken<MyResponse>({
         router: router,
@@ -296,9 +294,7 @@ export default function UpdateOutlet({
 
       if (res.statusCode === 200) {
         toast.success("Update data success!");
-        router.push("/outlet");
-        console.log(values);
-        console.log(res.data);
+        router.push("/outlet"); 
       }
       setLoading(false);
     },
@@ -355,7 +351,6 @@ export default function UpdateOutlet({
           value: `${i.subdistrict_id}--${i.subdistrict_name}`,
         };
       });
-      console.log(city_id === formik.values.city.split("--")[0]);
 
       if (isupdate) {
         formik.setFieldValue("district", maping[0].value.split("--")[1]);
@@ -374,7 +369,6 @@ export default function UpdateOutlet({
     const data = {
       area_id: id,
     };
-    console.log(data);
 
     const res = await PostWithToken<MyResponse>({
       router: router,
@@ -634,7 +628,6 @@ export default function UpdateOutlet({
               label={"Opening Schedule"}
               defaultDate={new Date(formik.values.opening_schedule)}
               onChange={(v) => {
-                console.log(v);
                 formik.setFieldValue("opening_schedule", v);
                 setStartDate(v);
               }}
