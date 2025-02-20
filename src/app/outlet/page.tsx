@@ -101,7 +101,8 @@ export default function OutletPage() {
         url: "/api/outlet/got/forme",
         token: `${auth.auth.access_token}`
       })
-
+      console.log(res.data);
+      
       if (res?.statusCode === 200) {
         const maping: Area[] = []
         for (const i of res.data) {
