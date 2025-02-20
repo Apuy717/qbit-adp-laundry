@@ -262,7 +262,7 @@ export default function Product() {
       dryer_duration: 0,
       machine_iron: false,
       iron_duration: 0,
-      quantity_decimal: false,
+      is_quantity_decimal: false,
 
       sku_id: "",
     },
@@ -346,6 +346,8 @@ export default function Product() {
               machine_iron: values.machine_iron,
               iron_duration: values.iron_duration,
               is_deleted: values.is_deleted,
+              is_self_service: values.is_self_service,
+              is_quantity_decimal: values.is_quantity_decimal,
             },
             token: `${auth.auth.access_token}`,
           });
@@ -370,6 +372,7 @@ export default function Product() {
               machine_iron: values.machine_iron,
               iron_duration: values.iron_duration,
               is_deleted: values.is_deleted,
+              is_quantity_decimal: values.is_quantity_decimal,
             },
             token: `${auth.auth.access_token}`,
           });
@@ -776,6 +779,10 @@ export default function Product() {
                         "is_self_service",
                         i.is_self_service,
                       );
+                      formik.setFieldValue(
+                        "is_self_service",
+                        i.is_quantity_decimal,
+                      );
                       setSelectedRadio(i.is_self_service);
 
                       setUpdateModal(true);
@@ -860,7 +867,9 @@ export default function Product() {
                 formik.setFieldValue("iron_duration", 0);
                 formik.setFieldValue("is_deleted", false);
                 formik.setFieldValue(`is_self_service`, false);
-
+                formik.setFieldValue(`is_quantity_decimal`, false);
+                console.log(formik.values.is_quantity_decimal);
+                
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
                 setaddSkuModal(true);
@@ -1196,37 +1205,70 @@ export default function Product() {
               }
             />
 
-            {/* Pilihan Ya */}
-            <label className="flex cursor-pointer items-center space-x-2">
-              <input
-                type="radio"
-                name="addSkuSelect"
-                value="false"
-                checked={selectedRadio === false}
-                onChange={() => {
-                  setSelectedRadio(false);
-                  formik.setFieldValue(`is_self_service`, false);
-                }}
-                className="h-5 w-5 checked:bg-blue-600"
-              />
-              <span className="text-lg">Full Service</span>
-            </label>
+            <div className="my-4 flex gap-4 p-2">
+              {/* Pilihan Ya */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name="addSku"
+                  value="false"
+                  checked={formik.values.is_self_service === false}
+                  onChange={() => {
+                    setSelectedRadio(false);
+                    formik.setFieldValue(`is_self_service`, false);
+                  }}
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Full Service</span>
+              </label>
 
-            {/* Pilihan Tidak */}
-            <label className="flex cursor-pointer items-center space-x-2">
-              <input
-                type="radio"
-                name="addSkuSelect"
-                value="true"
-                checked={selectedRadio === true}
-                onChange={() => {
-                  setSelectedRadio(true);
-                  formik.setFieldValue(`is_self_service`, true);
-                }}
-                className="h-5 w-5 checked:bg-blue-600"
-              />
-              <span className="text-lg">Self Service</span>
-            </label>
+              {/* Pilihan Tidak */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name="addSku"
+                  value="true"
+                  checked={formik.values.is_self_service === true}
+                  onChange={() => {
+                    setSelectedRadio(true);
+                    formik.setFieldValue(`is_self_service`, true);
+                  }}
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Self Service</span>
+              </label>
+            </div>
+            <div className="my-4 flex gap-4 p-2">
+              {/* Pilihan Non Decimal */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`isDecimalAddSku`} // tetap unik per index
+                  value="false"
+                  checked={formik.values.is_quantity_decimal === false}
+                  onChange={() =>
+                    formik.setFieldValue(`is_quantity_decimal`, false)
+                  }
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Order Qty Non Decimal</span>
+              </label>
+
+              {/* Pilihan Decimal */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`isDecimalAddSku`}
+                  value="true"
+                  checked={formik.values.is_quantity_decimal === true}
+                  onChange={() =>
+                    formik.setFieldValue(`is_quantity_decimal`, true)
+                  }
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Order Qty Decimal</span>
+              </label>
+            </div>
 
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
               <InputToggle
@@ -1320,6 +1362,7 @@ export default function Product() {
 
       <Modal isOpen={updateModal}>
         {productOrSku ? (
+          //UPDATE PRODUCT
           <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
             <div
               className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
@@ -1424,7 +1467,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -1440,7 +1483,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Self Service</span>
                 </label>
               </div>
 
@@ -1461,6 +1504,7 @@ export default function Product() {
             </button>
           </div>
         ) : (
+          //UPDATE SKU
           <div className="relative w-[90%] rounded-md bg-white p-4  shadow dark:bg-boxdark md:w-[50%] ">
             <div
               className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
@@ -1615,7 +1659,7 @@ export default function Product() {
                   }
                 />
               </div>
-              <div className="pt-6">
+              <div className="my-4 flex gap-4 p-2">
                 {/* Pilihan Ya */}
                 <label className="flex cursor-pointer items-center space-x-2">
                   <input
@@ -1629,7 +1673,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -1645,7 +1689,38 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Self Service</span>
+                </label>
+              </div>
+              <div className="my-4 flex gap-4 p-2">
+                {/* Pilihan Non Decimal */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`isDecimal`} // tetap unik per index
+                    value="false"
+                    checked={formik.values.is_quantity_decimal === false}
+                    onChange={() =>
+                      formik.setFieldValue(`is_quantity_decimal`, false)
+                    }
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-sm">Order Qty Non Decimal</span>
+                </label>
+
+                {/* Pilihan Decimal */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`isDecimal`}
+                    value="true"
+                    checked={formik.values.is_quantity_decimal === true}
+                    onChange={() =>
+                      formik.setFieldValue(`is_quantity_decimal`, true)
+                    }
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-sm">Order Quantity Decimal</span>
                 </label>
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">

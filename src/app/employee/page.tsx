@@ -1,22 +1,23 @@
-'use client'
+"use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Input } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
-import { Employee } from "@/types/employee";
+import { EDepartmentEmployee, Employee } from "@/types/employee";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FiEdit, FiEye, FiLock } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import * as Yup from 'yup';
+import * as Yup from "yup";
 
 interface iResponseEmployee {
   statusCode: number;
@@ -26,34 +27,48 @@ interface iResponseEmployee {
   err: string | string[];
 }
 
-
 export default function PageEmployee() {
   const [currentPage, setCurrentPage] = useState(1);
-  const credential = useSelector((s: RootState) => s.auth)
-  const router = useRouter()
+  const credential = useSelector((s: RootState) => s.auth);
+  const router = useRouter();
 
-  const [employee, setEmployee] = useState<Employee[]>([])
-  const [totalEmployee, setTotalEmployee] = useState<number>(0)
-  const [showDetailOutlet, setShowDetailOutlet] = useState<number>()
-
+  const [employee, setEmployee] = useState<Employee[]>([]);
+  const [totalEmployee, setTotalEmployee] = useState<number>(0);
+  const [showDetailOutlet, setShowDetailOutlet] = useState<number>();
 
   const [search, setSearch] = useState<string>("");
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
 
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
 
   useEffect(() => {
+    console.log(credential.department);
+
     async function GotAllEmployee() {
       let urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}`;
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
+      console.log(urlwithQuery);
 
-      const res = await GetWithToken<iResponseEmployee>({
-        router: router, url: urlwithQuery,
-        token: `${credential.auth.access_token}`
-      })
+      const res = await PostWithToken<iResponseEmployee>({
+        router: router,
+        url: urlwithQuery,
+        token: `${credential.auth.access_token}`,
+        data: {
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : credential.department !== EDepartmentEmployee.HQ &&
+                  credential.role.name !== ERoles.PROVIDER
+                ? defaultSelectedOutlet.map((o) => o.outlet_id)
+                : [],
+        },
+      });
 
       if (res?.statusCode === 200) {
         setTotalEmployee(res.total);
@@ -63,10 +78,21 @@ export default function PageEmployee() {
         setLoadingSearch(false);
       }, 100);
     }
-
-    GotAllEmployee()
-  }, [currentPage, fixValueSearch, refresh, credential.auth.access_token, router])
-
+    if (!modal && credential) {
+      console.log(currentPage, defaultSelectedOutlet);
+      GotAllEmployee();
+    }
+  }, [
+    currentPage,
+    fixValueSearch,
+    refresh,
+    credential.auth.access_token,
+    router,
+    modal,
+    defaultSelectedOutlet,
+    selectedOutlets,
+    credential,
+  ]);
 
   const handleSearch = async () => {
     if (search.length === 0) {
@@ -85,14 +111,14 @@ export default function PageEmployee() {
     }
   };
 
-  const [modal, setModal] = useState<boolean>(false);
+  const [modalEdit, setModalEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const formik = useFormik({
     initialValues: {
       id: "",
       password: "",
-      cPassword: ""
+      cPassword: "",
     },
     validationSchema: Yup.object({
       password: Yup.string()
@@ -101,16 +127,16 @@ export default function PageEmployee() {
         .max(50, "password max 50 character!"),
       cPassword: Yup.string()
         .required("Confirm password required!")
-        .oneOf([Yup.ref('password'), ""], "Passwords do not match!")
+        .oneOf([Yup.ref("password"), ""], "Passwords do not match!"),
     }),
     onSubmit: async (values) => {
       if (formik.values.id.length === 0) {
-        toast("user not selected, please try again!")
-        setModal(false)
+        toast("user not selected, please try again!");
+        setModalEdit(false);
       }
 
-      if (loading) return
-      setLoading(true)
+      if (loading) return;
+      setLoading(true);
       const res = await PostWithToken<iResponse<any>>({
         router: router,
         url: "/api/auth/bind-reset-password",
@@ -121,24 +147,25 @@ export default function PageEmployee() {
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
-          if (field.length >= 1) formik.setFieldError(field[0].toLowerCase(), i);
+          if (field.length >= 1)
+            formik.setFieldError(field[0].toLowerCase(), i);
         });
       }
 
       if (res.statusCode === 200) {
         toast.success("Berhasil merubah data!");
-        formik.resetForm()
-        setModal(false)
+        formik.resetForm();
+        setModalEdit(false);
       }
 
-      setTimeout(() => setLoading(false), 1000)
-    }
-  })
+      setTimeout(() => setLoading(false), 1000);
+    },
+  });
   return (
     <>
       <Breadcrumb pageName="Employee" />
-      <div className="w-full bg-white dark:bg-boxdark p-4 mb-4 rounded-lg">
-        <div className="lg:flex lg:flex-row items-center lg:space-x-2 lg:space-y-0 space-y-2">
+      <div className="mb-4 w-full rounded-lg bg-white p-4 dark:bg-boxdark">
+        <div className="items-center space-y-2 lg:flex lg:flex-row lg:space-x-2 lg:space-y-0">
           <div className="lg:w-90">
             <Input
               label={"Search Employee"}
@@ -151,72 +178,90 @@ export default function PageEmployee() {
           </div>
           <button
             onClick={handleSearch}
-            className={`lg:w-auto w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
-              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center 
+              font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
           >
             Search
           </button>
           <Link
             href={"/employee/create"}
-            className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white lg:w-auto w-full
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex w-full 
+            items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90
+            lg:w-auto lg:px-8 xl:px-10`}
           >
             Add Employee
           </Link>
         </div>
       </div>
       <Table
-        colls={["Full Name", "Phone Number", "Email", "Role", "Outlet", "Status", "Action"]}
+        colls={
+          credential.department === EDepartmentEmployee.OWNER
+            ? ["Full Name", "Phone Number", "Email", "Role", "Outlet", "Status"]
+            : [
+                "Full Name",
+                "Phone Number",
+                "Email",
+                "Role",
+                "Outlet",
+                "Status",
+                "Action",
+              ]
+        }
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}
-        totalItem={totalEmployee}>
+        totalItem={totalEmployee}
+      >
         {employee.map((i, k) => (
-          <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
+          <tr
+            className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
         dark:bg-gray-800 dark:hover:bg-gray-600"
-            key={k}>
-            <td className="whitespace-nowrap px-6 py-4">
-              {i.fullname}
-            </td>
+            key={k}
+          >
+            <td className="whitespace-nowrap px-6 py-4">{i.fullname}</td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.dial_code} {i.phone_number}
             </td>
-            <td className="whitespace-nowrap px-6 py-4">
-              {i.email}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              {i.role.name}
-            </td>
-            <td className="px-6 py-4 flex flex-wrap space-x-2">
+            <td className="whitespace-nowrap px-6 py-4">{i.email}</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.role.name}</td>
+            <td className="flex flex-wrap space-x-2 px-6 py-4">
               {showDetailOutlet == k ? (
                 i.employee_outlets.map((i, key) => (
-                  <button className={`p-1 bg-gray-300 dark:bg-boxdark rounded-lg text-center m-2  hover:bg-green-500 hover:text-white`} key={key}
-                    onClick={() => setShowDetailOutlet(-1)}>
+                  <button
+                    className={`m-2 rounded-lg bg-gray-300 p-1 text-center hover:bg-green-500  hover:text-white dark:bg-boxdark`}
+                    key={key}
+                    onClick={() => setShowDetailOutlet(-1)}
+                  >
                     <p>{i.outlet.name}</p>
                   </button>
                 ))
-              ) :
-                (
-                  <button className={`px-2 bg-gray-300 dark:bg-boxdark rounded-lg text-center my-2 hover:bg-green-500 hover:text-white`}
-                    onClick={() => setShowDetailOutlet(k)}>
-                    <p>Show</p>
-                  </button>
-                )
-              }
+              ) : (
+                <button
+                  className={`my-2 rounded-lg bg-gray-300 px-2 text-center hover:bg-green-500 hover:text-white dark:bg-boxdark`}
+                  onClick={() => setShowDetailOutlet(k)}
+                >
+                  <p>Show</p>
+                </button>
+              )}
             </td>
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
-                <div className="px-2 bg-red-500 rounded-xl text-center">
+                <div className="rounded-xl bg-red-500 px-2 text-center">
                   <p className="text-white">inactive</p>
                 </div>
               ) : (
-                <div className="px-2 bg-green-500 rounded-xl text-center">
+                <div className="rounded-xl bg-green-500 px-2 text-center">
                   <p className="text-white">active</p>
                 </div>
               )}
             </td>
-            <td className="flex items-center px-6 py-4 whitespace-nowrap space-x-2">
-              <div className="relative group">
+            <td
+              className={
+                credential.department !== EDepartmentEmployee.OWNER
+                  ? `flex items-center space-x-2 whitespace-nowrap px-6 py-4`
+                  : `hidden`
+              }
+            >
+              <div className="group relative">
                 <button
                   className="cursor-pointer"
                   onClick={() => {
@@ -225,11 +270,11 @@ export default function PageEmployee() {
                 >
                   <FiEye size={23} />
                 </button>
-                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                   View detail
                 </div>
               </div>
-              <div className="relative group">
+              <div className="group relative">
                 <button
                   onClick={() => {
                     router.push(`/employee/${i.id}`);
@@ -237,20 +282,20 @@ export default function PageEmployee() {
                 >
                   <FiEdit size={23} />
                 </button>
-                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                   Edit employee
                 </div>
               </div>
-              <div className="relative group">
+              <div className="group relative">
                 <button
                   onClick={() => {
-                    formik.setFieldValue("id", i.id)
-                    setModal(true)
+                    formik.setFieldValue("id", i.id);
+                    setModalEdit(true);
                   }}
                 >
                   <FiLock size={23} />
                 </button>
-                <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                   Reset password
                 </div>
               </div>
@@ -258,13 +303,15 @@ export default function PageEmployee() {
           </tr>
         ))}
       </Table>
-      <Modal isOpen={modal}>
-        <div className="relative bg-white dark:bg-gray-800 shadow rounded-md h-min 
-        md:h-min w-[90%] md:w-[50%] p-4">
+      <Modal isOpen={modalEdit}>
+        <div
+          className="relative h-min w-[90%] rounded-md bg-white p-4 
+        shadow dark:bg-gray-800 md:h-min md:w-[50%]"
+        >
           <div
-            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
-              setModal(false)
+              setModalEdit(false);
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -301,14 +348,13 @@ export default function PageEmployee() {
             />
             <button
               onClick={formik.submitForm}
-              className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
               Submit
             </button>
           </div>
-
         </div>
       </Modal>
     </>
-  )
+  );
 }
