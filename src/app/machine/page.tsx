@@ -377,7 +377,7 @@ export default function PageMachine() {
 
       <Table colls={role.name === ERoles.PROVIDER ? [
         "#", "Name", "Esp ID", "IP", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Switch", "Status", "Action"] :
-        ["#", "Name", "Esp ID", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status", "Action"]}
+        ["#", "Name", "Esp ID", "Type", "Outlet", "Relay Cycle", "Machine Cycle", "Status"]}
         currentPage={currentPage} totalItem={totalItem} onPaginate={(page) => setCurrentPage(page)} showing={100}>
 
         {items.map((i, k) => (
@@ -425,9 +425,9 @@ export default function PageMachine() {
                 </div>
               )}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap space-x-4">
+            <td className={`px-6 py-4 whitespace-nowrap space-x-4 ${role.name === ERoles.PROVIDER || role.name === ERoles.TECHNICIAN && 'block'} hidden`}>
               <button
-                className="bg-blue-500 p-2 rounded"
+                className={`bg-blue-500 p-2 rounded`}
                 onClick={() => {
                   formik.setFieldValue("id", i.id)
                   formik.setFieldValue("name", i.name)
@@ -443,7 +443,7 @@ export default function PageMachine() {
               >
                 <FiEdit size={18} color="white" />
               </button>
-              <button className="bg-green-500 p-2 rounded" onClick={() => {
+              <button className={`bg-green-500 p-2 rounded`} onClick={() => {
                 formik.setFieldValue("id", i.id)
                 formik.setFieldValue("name", i.name)
                 formik.setFieldValue("ip", i.ip)
