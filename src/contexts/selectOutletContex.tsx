@@ -79,7 +79,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
     async function GotAllOutlet() {
       const res = await GetWithToken<iResponse<Outlet[]>>({
         router: router,
-        url: "/api/outlet/got/forme",
+        url: "/api/outlet/got/forme?is_deleted=false",
         token: `${auth.access_token}`
       })
 

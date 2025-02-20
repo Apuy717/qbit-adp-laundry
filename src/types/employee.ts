@@ -9,7 +9,8 @@ export enum EDepartmentEmployee {
   HO = "head office",
   IS = "iron staff",
   SV = "server",
-
+  OWNER ="owner",
+  TECHNICIAN ="technician",
 }
 
 export type EmployeeOutlet = {

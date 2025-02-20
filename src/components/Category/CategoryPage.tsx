@@ -39,7 +39,6 @@ const CategoryPage: React.FC = () => {
         url: "/api/outlet",
         token: `${auth.access_token}`
       })
-      console.log(res);
       if (res?.statusCode === 200) {
         const outletMaping = res.data.map(i => {
           const city = i.city.split("--")

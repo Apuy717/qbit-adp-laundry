@@ -42,6 +42,9 @@ export default function CreateProduct() {
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown);
   const [showImage, setShowImage] = useState<string>("");
   const [isSelfService, setIsSelfService] = useState<boolean>(false);
+  const [isQtyDecimal, setIsQtyDecimal] = useState<boolean>(false);
+  const [selectedRadioDecimal, setSelectedRadioDecimal] =
+    useState<boolean>(false);
   const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
 
   const auth = useSelector((s: RootState) => s.auth);
@@ -76,10 +79,10 @@ export default function CreateProduct() {
         };
       });
       mapingOutlet.unshift(allOutlet);
-      console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         setOutlets(mapingOutlet);
+        formik.setFieldValue(`variants[${0}].outlet_id`, mapingOutlet[0].value);
       }
     };
     GotOutlets();
@@ -111,6 +114,7 @@ export default function CreateProduct() {
           machine_iron: false,
           iron_duration: 0,
           is_self_service: isSelfService,
+          is_quantity_decimal: false,
         },
       ],
     },
@@ -164,7 +168,6 @@ export default function CreateProduct() {
       if (res.statusCode === 200) {
         toast.success("Success create product!");
         router.push("/product");
-        // console.log(res.data);
       }
       setLoading(false);
     },
@@ -188,6 +191,7 @@ export default function CreateProduct() {
         dryer_duration: 0,
         machine_iron: false,
         iron_duration: 0,
+        is_quantity_decimal: false,
       },
     ]);
   };
@@ -307,19 +311,13 @@ export default function CreateProduct() {
                     type="radio"
                     name="agreement"
                     value="false"
-                    checked={selectedRadio === false}
+                    checked={formik.values.is_self_service === false}
                     onChange={() => {
-                      setSelectedRadio(false);
-                      formik.values.variants.map((variant, index) => {
-                        formik.setFieldValue(
-                          `variants[${index}].is_self_service`,
-                          false,
-                        );
-                      });
+                      formik.setFieldValue(`is_self_service`, false);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Order Qty Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -328,19 +326,13 @@ export default function CreateProduct() {
                     type="radio"
                     name="agreement"
                     value="true"
-                    checked={selectedRadio === true}
+                    checked={formik.values.is_self_service === true}
                     onChange={() => {
-                      setSelectedRadio(true);
-                      formik.values.variants.map((variant, index) => {
-                        formik.setFieldValue(
-                          `variants[${index}].is_self_service`,
-                          true,
-                        );
-                      });
+                      formik.setFieldValue(`is_self_service`, true);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Order Qty Self Service</span>
                 </label>
               </div>
               {/* <InputToggle
@@ -528,7 +520,11 @@ export default function CreateProduct() {
                   label={"Outlets*"}
                   name={"Outlets"}
                   id={"Outlets"}
-                  value={formik.values.variants[index].outlet_id===""?outlets[0].value:formik.values.variants[index].outlet_id}
+                  value={
+                    formik.values.variants[index].outlet_id === ""
+                      ? outlets[0].value
+                      : formik.values.variants[index].outlet_id
+                  }
                   onChange={(v) =>
                     formik.setFieldValue(`variants[${index}].outlet_id`, v)
                   }
@@ -557,7 +553,51 @@ export default function CreateProduct() {
                       : null
                   }
                 />
+                <div className="flex gap-4">
+                  {/* Pilihan Non Decimal */}
+                  <label className="flex cursor-pointer items-center space-x-2">
+                    <input
+                      type="radio"
+                      name={`isDecimal${index}`} // tetap unik per index
+                      value="false"
+                      checked={
+                        formik.values.variants[index].is_quantity_decimal ===
+                        false
+                      }
+                      onChange={() =>
+                        formik.setFieldValue(
+                          `variants[${index}].is_quantity_decimal`,
+                          false,
+                        )
+                      }
+                      className="h-5 w-5 checked:bg-blue-600"
+                    />
+                    <span className="text-sm">Order Qty Non Decimal</span>
+                  </label>
+
+                  {/* Pilihan Decimal */}
+                  <label className="flex cursor-pointer items-center space-x-2">
+                    <input
+                      type="radio"
+                      name={`isDecimal${index}`}
+                      value="true"
+                      checked={
+                        formik.values.variants[index].is_quantity_decimal ===
+                        true
+                      }
+                      onChange={() =>
+                        formik.setFieldValue(
+                          `variants[${index}].is_quantity_decimal`,
+                          true,
+                        )
+                      }
+                      className="h-5 w-5 checked:bg-blue-600"
+                    />
+                    <span className="text-sm">Order Qty Decimal</span>
+                  </label>
+                </div>
               </div>
+
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
                 <InputToggle
                   value={formik.values.variants[index].machine_washer}
@@ -688,7 +728,15 @@ export default function CreateProduct() {
           </div>
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-6 md:grid-cols-1">
             <button
-              onClick={formik.submitForm}
+              onClick={() => {
+                formik.values.variants.map((i, index) => {
+                  formik.setFieldValue(
+                    `variants[${index}].is_self_service`,
+                    formik.values.is_self_service,
+                  );
+                });
+                formik.submitForm();
+              }}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
               Submit

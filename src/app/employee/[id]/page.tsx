@@ -41,17 +41,22 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const auth = useSelector((s: RootState) => s.auth);
-  const [listOutlet, setListOutlet] = useState<{ area_id: string | null, outlet: string, outlet_id: string }[]>([]);
-  const [roles, setRoles] = useState<iDropdown[]>([])
-  const [outlets, setOutlets] = useState<Outlet[]>([])
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false)
+  const [listOutlet, setListOutlet] = useState<
+    { area_id: string | null; outlet: string; outlet_id: string }[]
+  >([]);
+  const [roles, setRoles] = useState<iDropdown[]>([]);
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  const [modalOutlet, setModalOutlet] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [searchOutlet, setSearchOutlet] = useState<string>("")
-
+  const [searchOutlet, setSearchOutlet] = useState<string>("");
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.SUPER_ADMIN && auth.role.name !== ERoles.PROVIDER && auth.role.name!== ERoles.OUTLET_ADMIN)
+    if (
+      auth.role.name !== ERoles.SUPER_ADMIN &&
+      auth.role.name !== ERoles.PROVIDER &&
+      auth.role.name !== ERoles.OUTLET_ADMIN
+    )
       router.push("/employee");
   }, [auth.role.name, router]);
 
@@ -70,7 +75,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       email: "",
       is_deleted: false,
       roles_id: "",
-      department: EDepartmentEmployee.AM
+      department: EDepartmentEmployee.AM,
     },
     validationSchema: Yup.object({
       fullname: Yup.string()
@@ -95,13 +100,26 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       is_deleted: Yup.boolean().required("Harus diisi!"),
     }),
     onSubmit: async (values) => {
-      if (listOutlet.length === 0 && roles.find(f => f.label.toLowerCase() === "super admin")) {
+      if (
+        listOutlet.length === 0 &&
+        roles.find((f) => f.label.toLowerCase() === "super admin") &&
+        values.department !== EDepartmentEmployee.TECHNICIAN &&
+        values.department !== EDepartmentEmployee.HQ
+      ) {
         toast.error("Karyawan harus ditempatkan di outlet!");
         return;
       }
-      if (loading) return
-      setLoading(true)
-      Object.assign(values, { outlet_id: listOutlet.map(i => i.outlet_id) })
+      if (loading) return;
+      setLoading(true);
+      if (values.department === EDepartmentEmployee.TECHNICIAN) {
+        Object.assign(values, {
+          outlet_id: [],
+        });
+      } else {
+        Object.assign(values, {
+          outlet_id: listOutlet.map((i) => i.outlet_id),
+        });
+      }
 
       const res = await PostWithToken<iResponse<any>>({
         router: router,
@@ -113,7 +131,8 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
-          if (field.length >= 1) formik.setFieldError(field[0].toLowerCase(), i);
+          if (field.length >= 1)
+            formik.setFieldError(field[0].toLowerCase(), i);
         });
       }
 
@@ -122,23 +141,25 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         router.push("/employee");
       }
 
-      setTimeout(() => setLoading(false), 1000)
+      setTimeout(() => setLoading(false), 1000);
     },
   });
 
-  const [isMount, setIsMount] = useState<boolean>(false)
+  const [isMount, setIsMount] = useState<boolean>(false);
   useEffect(() => {
-    setIsMount(true)
-  }, [])
-
+    setIsMount(true);
+  }, []);
 
   useEffect(() => {
     if (roles.length >= 1) {
-      formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
-      setLoading(false)
+      formik.setFieldValue(
+        "roles_id",
+        roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))?.value,
+      );
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roles])
+  }, [roles]);
 
   useEffect(() => {
     if (!isMount) return;
@@ -150,49 +171,58 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       });
 
       if (res?.statusCode === 200) {
-        formik.setFieldValue("id", `${res.data.id}`)
-        formik.setFieldValue("fullname", `${res.data.fullname}`)
-        formik.setFieldValue("country", `${res.data.country}`)
-        formik.setFieldValue("province", `${res.data.province}`)
-        formik.setFieldValue("city", `${res.data.city}`)
-        formik.setFieldValue("district", `${res.data.district}`)
-        formik.setFieldValue("postal_code", `${res.data.postal_code}`)
-        formik.setFieldValue("address", `${res.data.address}`)
-        formik.setFieldValue("dial_code", `${res.data.dial_code}`)
-        formik.setFieldValue("phone_number", `${res.data.phone_number}`)
-        formik.setFieldValue("email", `${res.data.email}`)
-        formik.setFieldValue("is_deleted", res.data.is_deleted)
-        formik.setFieldValue("roles_id", `${res.data.roles_id}`)
-        formik.setFieldValue("department", `${res.data.department}`)
+        formik.setFieldValue("id", `${res.data.id}`);
+        formik.setFieldValue("fullname", `${res.data.fullname}`);
+        formik.setFieldValue("country", `${res.data.country}`);
+        formik.setFieldValue("province", `${res.data.province}`);
+        formik.setFieldValue("city", `${res.data.city}`);
+        formik.setFieldValue("district", `${res.data.district}`);
+        formik.setFieldValue("postal_code", `${res.data.postal_code}`);
+        formik.setFieldValue("address", `${res.data.address}`);
+        formik.setFieldValue("dial_code", `${res.data.dial_code}`);
+        formik.setFieldValue("phone_number", `${res.data.phone_number}`);
+        formik.setFieldValue("email", `${res.data.email}`);
+        formik.setFieldValue("is_deleted", res.data.is_deleted);
+        formik.setFieldValue("roles_id", `${res.data.roles_id}`);
+        formik.setFieldValue("department", `${res.data.department}`);
 
-        GotProvince()
+        GotProvince();
         if (res.data.province && res.data.province.split("--").length >= 2)
-          GotCity(res.data.province.split("--")[0])
+          GotCity(res.data.province.split("--")[0]);
 
         if (res.data.city && res.data.city.split("--").length >= 2)
-          GotSubDistrict(res.data.city.split("--")[0])
+          GotSubDistrict(res.data.city.split("--")[0]);
 
-        const employeeOutlet = res.data.employee_outlets.map(i => {
-          const input = document.getElementById(i.outlet.id) as HTMLInputElement | null
+        const employeeOutlet = res.data.employee_outlets.map((i) => {
+          const input = document.getElementById(
+            i.outlet.id,
+          ) as HTMLInputElement | null;
           if (input && input.getAttribute("type") === "checkbox")
-            input.checked = true
-          const district = i.outlet.district.split("--")
+            input.checked = true;
+          const district = i.outlet.district.split("--");
           // return `${i.outlet.id}//${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`
           return {
             area_id: "",
             outlet: `${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`,
-            outlet_id: i.outlet_id
-          }
-        })
-        setListOutlet(employeeOutlet)
+            outlet_id: i.outlet_id,
+          };
+        });
+        setListOutlet(employeeOutlet);
       }
     }
 
     async function GotProvince() {
       const res = await GET<iResponse<any>>({ url: "/api/address/province" });
-      if (res.statusCode === 200 && res?.data?.rajaongkir && res?.data?.rajaongkir?.results) {
+      if (
+        res.statusCode === 200 &&
+        res?.data?.rajaongkir &&
+        res?.data?.rajaongkir?.results
+      ) {
         const maping = (
-          res?.data?.rajaongkir?.results as { province: string; province_id: string; }[]
+          res?.data?.rajaongkir?.results as {
+            province: string;
+            province_id: string;
+          }[]
         ).map((i) => {
           return {
             label: i.province,
@@ -207,14 +237,13 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       const res = await GET<iResponse<TRole[]>>({ url: "/api/auth/roles" });
       if (res.statusCode === 200) {
         const mapingRoleToDropdown = res.data.map((i, k) => {
-          if (k === 0)
-            formik.setFieldValue("roles_id", i.id)
+          if (k === 0) formik.setFieldValue("roles_id", i.id);
           return {
             label: i.name,
-            value: i.id
-          }
-        })
-        setRoles(mapingRoleToDropdown)
+            value: i.id,
+          };
+        });
+        setRoles(mapingRoleToDropdown);
       }
     }
 
@@ -230,8 +259,8 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       }
     }
 
-    GotRoles()
-    GotOutlets().then(() => GotDetailEmployee())
+    GotRoles();
+    GotOutlets().then(() => GotDetailEmployee());
 
     const country = CountryList.getAll();
     country.map((i) => {
@@ -267,7 +296,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         };
       });
       if (maping.length >= 1 && withUpdate) {
-        formik.setFieldValue("city", maping[0].value)
+        formik.setFieldValue("city", maping[0].value);
         GotSubDistrict(maping[0].value, true);
       }
       setCity(maping);
@@ -279,10 +308,15 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
 
-    if (res?.statusCode === 200 && res?.data?.rajaongkir && res?.data?.rajaongkir?.results) {
+    if (
+      res?.statusCode === 200 &&
+      res?.data?.rajaongkir &&
+      res?.data?.rajaongkir?.results
+    ) {
       const maping = (
         res?.data?.rajaongkir?.results as {
-          subdistrict_name: string; subdistrict_id: string;
+          subdistrict_name: string;
+          subdistrict_id: string;
         }[]
       ).map((i) => {
         return {
@@ -291,7 +325,8 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         };
       });
 
-      if (maping.length >= 1 && withUpdate) formik.setFieldValue("district", maping[0].value)
+      if (maping.length >= 1 && withUpdate)
+        formik.setFieldValue("district", maping[0].value);
       setSubDistrict(maping);
     }
   }
@@ -303,7 +338,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
-        <div className="mb-8 border-b-2 py-6 px-10">
+        <div className="mb-8 border-b-2 px-10 py-6">
           <p className="font-semibold">Form Update Employee</p>
         </div>
         <div className="px-10">
@@ -452,36 +487,88 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
               onChange={(v) => {
                 switch (v) {
                   case EDepartmentEmployee.HQ:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.SUPER_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.SUPER_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.FINANCE:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.FINANCE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.FINANCE))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.AUDITOR:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.AM:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.SPV:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.HO:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
+                    break;
+                  case EDepartmentEmployee.OWNER:
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
+                    break;
+                  case EDepartmentEmployee.TECHNICIAN:
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.TECHNICIAN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.SV:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.IS:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
                     break;
                   default:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
                     break;
                 }
-                formik.setFieldValue("department", v)
+                formik.setFieldValue("department", v);
               }}
-              options={Object.values(EDepartmentEmployee).map((i) => { return { label: i, value: i } })}
+              options={Object.values(EDepartmentEmployee).map((i) => {
+                return { label: i, value: i };
+              })}
               error={
                 formik.touched.department && formik.errors.department
                   ? formik.errors.department
@@ -524,40 +611,50 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
                   : null
               }
             />
-
           </div>
           {listOutlet.map((i, k) => (
             <div className="flex flex-row pt-8" key={k}>
-              <div className="w-full p-3 border-2 rounded relative">
+              <div className="relative w-full rounded border-2 p-3">
                 <p>{i.outlet}</p>
                 <label
-
-                  className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800 -top-3`}
+                  className={`text-md absolute -top-3 bg-white transition-all duration-500 dark:bg-gray-800`}
                 >
                   Outlet {k + 1}
                 </label>
               </div>
             </div>
           ))}
-          <div className="mb-5 mt-2" >
-            <button className={`bg-green-700 p-2 text-sm rounded text-white`} onClick={() => setModalOutlet(true)}>
-              Outlet
+          <div
+            className={
+              formik.values.department === EDepartmentEmployee.TECHNICIAN ||
+              (formik.values.department === EDepartmentEmployee.HQ &&
+                listOutlet.length === 0)
+                ? `hidden`
+                : `mb-5 mt-2`
+            }
+          >
+            <button
+              className={`rounded bg-green-700 p-2 text-sm text-white`}
+              onClick={() => setModalOutlet(true)}
+            >
+              Select Outlet
             </button>
           </div>
           <button
             onClick={formik.submitForm}
-            className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
             Submit
           </button>
         </div>
       </div>
       {listOutlet.length >= 1 && (
-        <ModalSelectOutlet modal={modalOutlet}
+        <ModalSelectOutlet
+          modal={modalOutlet}
           defaultSelected={listOutlet}
           closeModal={() => {
-            setListOutlet([])
-            setModalOutlet(false)
+            setListOutlet([]);
+            setModalOutlet(false);
           }}
           onSubmit={(d) => {
             setModalOutlet(false);

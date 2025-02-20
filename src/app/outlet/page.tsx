@@ -101,7 +101,7 @@ export default function OutletPage() {
         url: "/api/outlet/got/forme",
         token: `${auth.auth.access_token}`
       })
-
+      
       if (res?.statusCode === 200) {
         const maping: Area[] = []
         for (const i of res.data) {
@@ -197,7 +197,6 @@ export default function OutletPage() {
       if (mapingArea.length >= 1) {
         formikGrouping.setFieldValue(`groupings[${0}].outlet_area_id`, mapingArea[0].value)
         setMapingGroupArea(mapingArea)
-        // console.log(mapingArea);
       }
     };
     GotGroupingOutlets();
@@ -234,9 +233,6 @@ export default function OutletPage() {
 
       let data: any = values
       let url = "api/outlet/create-or-update-area"
-      console.log(url);
-      console.log(values);
-
       if (values.area_id != "" && values.name != "") {
         data = {
           name: values.name,
@@ -250,7 +246,6 @@ export default function OutletPage() {
         data: data,
         token: `${auth.auth.access_token}`
       })
-      console.log(res.data);
 
       if (res?.statusCode === 200) {
         toast.success("Data changed success!");
@@ -279,11 +274,9 @@ export default function OutletPage() {
       ),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
 
       const checkDuplicate = hasDuplicateOutletId(values.groupings)
-      console.log(checkDuplicate);
 
       if (checkDuplicate) return toast.warning("Forbidden to grouping same outlet, check your form and retry to submit")
 
@@ -312,7 +305,6 @@ export default function OutletPage() {
     const data = {
       area_id: id
     }
-    console.log(data);
 
     const res = await PostWithToken<MyResponse>({
       router: router,
@@ -342,7 +334,6 @@ export default function OutletPage() {
           outlet_area_id: mapingGroupArea[0].value,
         },
       ]);
-      console.log(formikGrouping.values);
     }
 
   };

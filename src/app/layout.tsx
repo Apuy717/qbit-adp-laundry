@@ -25,8 +25,6 @@ export default function RootLayout({
   // const pathname = usePathname();
 
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_APP_ENV);
-
     setTimeout(() => setLoading(false), 1000);
   }, []);
 

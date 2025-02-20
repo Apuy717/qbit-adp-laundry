@@ -104,7 +104,6 @@ export default function Product() {
         };
       });
       mapingOutlet.unshift(allOutlet);
-      console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
@@ -137,11 +136,9 @@ export default function Product() {
         };
       });
       // setProductId(productMap[0].label);
-      // console.log(productId);
 
       if (productMap.length >= 1) {
         setMapingProduct(productMap);
-        console.log(res.data);
       }
       if (res?.statusCode === 200) {
         if (res.total) setTotalProduct(res.total);
@@ -151,7 +148,6 @@ export default function Product() {
           item.skus.map((skuItem) => skuItem),
         );
         setTotalSkus(mapSku);
-        console.log(mapSku);
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -178,7 +174,6 @@ export default function Product() {
     };
     GotProduct();
     GotCategorys();
-    // console.log(products[skusIdx].skus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
@@ -219,7 +214,6 @@ export default function Product() {
   }, [skuId, addpriceSku, auth.auth.access_token]);
 
   const handleSearch = async () => {
-    // console.log(products);
 
     if (search.length === 0) {
       setCurrentPage(1);
@@ -235,7 +229,6 @@ export default function Product() {
         setCurrentPage(1);
       }
     }
-    // console.log(search);
   };
 
   const formik = useFormik({
@@ -262,6 +255,7 @@ export default function Product() {
       dryer_duration: 0,
       machine_iron: false,
       iron_duration: 0,
+      is_quantity_decimal: false,
 
       sku_id: "",
     },
@@ -300,7 +294,6 @@ export default function Product() {
       if (!values.machine_iron) {
         Object.assign(values, { iron_duration: null });
       }
-      // console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -345,6 +338,8 @@ export default function Product() {
               machine_iron: values.machine_iron,
               iron_duration: values.iron_duration,
               is_deleted: values.is_deleted,
+              is_self_service: values.is_self_service,
+              is_quantity_decimal: values.is_quantity_decimal,
             },
             token: `${auth.auth.access_token}`,
           });
@@ -369,6 +364,7 @@ export default function Product() {
               machine_iron: values.machine_iron,
               iron_duration: values.iron_duration,
               is_deleted: values.is_deleted,
+              is_quantity_decimal: values.is_quantity_decimal,
             },
             token: `${auth.auth.access_token}`,
           });
@@ -447,7 +443,7 @@ export default function Product() {
 
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
-          <InputDropdown
+          {/* <InputDropdown
             label={"Filter By Category"}
             name={"filterByCategory"}
             id={"filterByCategory"}
@@ -455,7 +451,7 @@ export default function Product() {
             onChange={(e) => setFilterByCategory(e)}
             error={null}
             options={[{ label: "All", value: "all" }].concat(categorys)}
-          />
+          /> */}
           <div className="w-full md:w-96">
             <Input
               label={"Search"}
@@ -569,7 +565,6 @@ export default function Product() {
                           (f: any) => f.id == prod.id,
                         );
                         setfilterSkus(filter[0].skus);
-                        console.log(filter);
                       }}
                     >
                       <FiEye size={18} />
@@ -596,12 +591,9 @@ export default function Product() {
                           prod.is_self_service,
                         );
                         setSelectedRadio(prod.is_self_service);
-                        console.log(prod.is_self_service);
 
                         setUpdateModal(true);
                         setProductOrSku(true);
-                        // console.log(formik.values.outlet_id);
-                        // console.log(formik.values.category_id);
                       }}
                     >
                       <FiEdit size={18} />
@@ -775,13 +767,15 @@ export default function Product() {
                         "is_self_service",
                         i.is_self_service,
                       );
+                      formik.setFieldValue(
+                        "is_self_service",
+                        i.is_quantity_decimal,
+                      );
                       setSelectedRadio(i.is_self_service);
 
                       setUpdateModal(true);
                       setUpdateOrAddSku(true);
-                      setProductOrSku(false);
-                      console.log(formik.values.outlet_id);
-                      console.log(formik.values.product_id);
+                      setProductOrSku(false); 
                     }}
                   >
                     <FiEdit size={18} />
@@ -794,7 +788,6 @@ export default function Product() {
                 {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
                     formik.setFieldValue("sku_id", i.id)
                     setAddpriceSku(true)
-                    console.log(i.id);
                   }}>
                     <p className="text-white">add price</p>
                   </button> */}
@@ -859,7 +852,8 @@ export default function Product() {
                 formik.setFieldValue("iron_duration", 0);
                 formik.setFieldValue("is_deleted", false);
                 formik.setFieldValue(`is_self_service`, false);
-
+                formik.setFieldValue(`is_quantity_decimal`, false);
+                
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
                 setaddSkuModal(true);
@@ -1029,7 +1023,6 @@ export default function Product() {
                   {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
                     formik.setFieldValue("sku_id", i.id)
                     setAddpriceSku(true)
-                    console.log(i.id);
                   }}>
                     <p className="text-white">add price</p>
                   </button> */}
@@ -1195,37 +1188,70 @@ export default function Product() {
               }
             />
 
-            {/* Pilihan Ya */}
-            <label className="flex cursor-pointer items-center space-x-2">
-              <input
-                type="radio"
-                name="addSkuSelect"
-                value="false"
-                checked={selectedRadio === false}
-                onChange={() => {
-                  setSelectedRadio(false);
-                  formik.setFieldValue(`is_self_service`, false);
-                }}
-                className="h-5 w-5 checked:bg-blue-600"
-              />
-              <span className="text-lg">Full Service</span>
-            </label>
+            <div className="my-4 flex gap-4 p-2">
+              {/* Pilihan Ya */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name="addSku"
+                  value="false"
+                  checked={formik.values.is_self_service === false}
+                  onChange={() => {
+                    setSelectedRadio(false);
+                    formik.setFieldValue(`is_self_service`, false);
+                  }}
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Full Service</span>
+              </label>
 
-            {/* Pilihan Tidak */}
-            <label className="flex cursor-pointer items-center space-x-2">
-              <input
-                type="radio"
-                name="addSkuSelect"
-                value="true"
-                checked={selectedRadio === true}
-                onChange={() => {
-                  setSelectedRadio(true);
-                  formik.setFieldValue(`is_self_service`, true);
-                }}
-                className="h-5 w-5 checked:bg-blue-600"
-              />
-              <span className="text-lg">Self Service</span>
-            </label>
+              {/* Pilihan Tidak */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name="addSku"
+                  value="true"
+                  checked={formik.values.is_self_service === true}
+                  onChange={() => {
+                    setSelectedRadio(true);
+                    formik.setFieldValue(`is_self_service`, true);
+                  }}
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Self Service</span>
+              </label>
+            </div>
+            <div className="my-4 flex gap-4 p-2">
+              {/* Pilihan Non Decimal */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`isDecimalAddSku`} // tetap unik per index
+                  value="false"
+                  checked={formik.values.is_quantity_decimal === false}
+                  onChange={() =>
+                    formik.setFieldValue(`is_quantity_decimal`, false)
+                  }
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Order Qty Non Decimal</span>
+              </label>
+
+              {/* Pilihan Decimal */}
+              <label className="flex cursor-pointer items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`isDecimalAddSku`}
+                  value="true"
+                  checked={formik.values.is_quantity_decimal === true}
+                  onChange={() =>
+                    formik.setFieldValue(`is_quantity_decimal`, true)
+                  }
+                  className="h-5 w-5 checked:bg-blue-600"
+                />
+                <span className="text-sm">Order Qty Decimal</span>
+              </label>
+            </div>
 
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
               <InputToggle
@@ -1319,6 +1345,7 @@ export default function Product() {
 
       <Modal isOpen={updateModal}>
         {productOrSku ? (
+          //UPDATE PRODUCT
           <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
             <div
               className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
@@ -1423,7 +1450,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -1439,7 +1466,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Self Service</span>
                 </label>
               </div>
 
@@ -1460,6 +1487,7 @@ export default function Product() {
             </button>
           </div>
         ) : (
+          //UPDATE SKU
           <div className="relative w-[90%] rounded-md bg-white p-4  shadow dark:bg-boxdark md:w-[50%] ">
             <div
               className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
@@ -1614,7 +1642,7 @@ export default function Product() {
                   }
                 />
               </div>
-              <div className="pt-6">
+              <div className="my-4 flex gap-4 p-2">
                 {/* Pilihan Ya */}
                 <label className="flex cursor-pointer items-center space-x-2">
                   <input
@@ -1628,7 +1656,7 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -1644,7 +1672,38 @@ export default function Product() {
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Self Service</span>
+                </label>
+              </div>
+              <div className="my-4 flex gap-4 p-2">
+                {/* Pilihan Non Decimal */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`isDecimal`} // tetap unik per index
+                    value="false"
+                    checked={formik.values.is_quantity_decimal === false}
+                    onChange={() =>
+                      formik.setFieldValue(`is_quantity_decimal`, false)
+                    }
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-sm">Order Qty Non Decimal</span>
+                </label>
+
+                {/* Pilihan Decimal */}
+                <label className="flex cursor-pointer items-center space-x-2">
+                  <input
+                    type="radio"
+                    name={`isDecimal`}
+                    value="true"
+                    checked={formik.values.is_quantity_decimal === true}
+                    onChange={() =>
+                      formik.setFieldValue(`is_quantity_decimal`, true)
+                    }
+                    className="h-5 w-5 checked:bg-blue-600"
+                  />
+                  <span className="text-sm">Order Quantity Decimal</span>
                 </label>
               </div>
               <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">

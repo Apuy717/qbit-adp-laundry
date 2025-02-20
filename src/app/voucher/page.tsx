@@ -280,13 +280,6 @@ export default function Vouchers() {
                     formik.setFieldValue("discount", vou.discount)
                     formik.setFieldValue("discount_type", vou.discount_type)
                     formik.setFieldValue("is_deleted", vou.is_deleted)
-
-                    // console.log("formik " + formik.values.started_at.split(".")[0]);
-                    // console.log("start " + startDate);
-                    // console.log("end " + endDate);
-                    // console.log("startvou " + vou.started_at);
-                    // console.log(updateOrAddVoucher);
-
                     setUpdateModal(true)
                     setUpdateOrAddVoucher(true)
                   }}

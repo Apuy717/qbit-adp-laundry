@@ -20,7 +20,7 @@ import * as Yup from "yup";
 const SignIn: React.FC = () => {
   const dispatch = useDispatch();
   const auth = useSelector((s: RootState) => s.auth);
-  const { replace } = useRouter()
+  const { replace } = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -69,23 +69,29 @@ const SignIn: React.FC = () => {
       if (res?.statusCode === 200) {
         const data = res.data as iAuthRedux;
         if (data.role.name === ERoles.EMPLOYEE) {
-          toast.warn("Forbidden to signin, please try with other account")
+          toast.warn("Forbidden to signin, please try with other account");
         } else {
-        dispatch(
-          setLogin({
-            id: data.id,
-            outlet_id: data.outlet_id,
-            fullname: data.fullname,
-            dial_code: data.dial_code,
-            phone_number: data.phone_number,
-            email: data.email,
-            role: data.role,
-            department: data.department,
-            auth: data.auth,
-          }),
-        );
-        replace("/")
-      }}
+          dispatch(
+            setLogin({
+              id: data.id,
+              outlet_id: data.outlet_id,
+              fullname: data.fullname,
+              dial_code: data.dial_code,
+              phone_number: data.phone_number,
+              email: data.email,
+              role: data.role,
+              department: data.department,
+              auth: data.auth,
+            }),
+          );
+
+          if (data.role.name === ERoles.TECHNICIAN) {
+            replace("/machine");
+          } else {
+            replace("/");
+          }
+        }
+      }
     },
   });
   return (
@@ -94,7 +100,7 @@ const SignIn: React.FC = () => {
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="px-26 py-17.5 text-center">
-              <Link className="inline-block mr-9" href="/">
+              <Link className="mr-9 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
                   src={"/images/logo_header.png"}
@@ -254,9 +260,12 @@ const SignIn: React.FC = () => {
                       name={"emailOrPhoneNumber"}
                       id={"emailOrPhoneNumber"}
                       value={formik.values.emailOrPhoneNumber}
-                      onChange={(val) => formik.setFieldValue("emailOrPhoneNumber", val)}
+                      onChange={(val) =>
+                        formik.setFieldValue("emailOrPhoneNumber", val)
+                      }
                       error={
-                        formik.touched.emailOrPhoneNumber && formik.errors.emailOrPhoneNumber
+                        formik.touched.emailOrPhoneNumber &&
+                        formik.errors.emailOrPhoneNumber
                           ? formik.errors.emailOrPhoneNumber
                           : null
                       }
@@ -308,7 +317,9 @@ const SignIn: React.FC = () => {
                   />
                 </div>
               </form>
-              <button onClick={()=>replace("/auth/req-forgot-password")}>Forgot password?</button>
+              <button onClick={() => replace("/auth/req-forgot-password")}>
+                Forgot password?
+              </button>
             </div>
           </div>
         </div>

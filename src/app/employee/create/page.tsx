@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import {
   Input,
   InputDropdown,
-  InputTextArea
+  InputTextArea,
 } from "@/components/Inputs/InputComponent";
 import ModalSelectOutlet from "@/components/Outlets/ModalOutlet";
 import { GET, GetWithToken, PostWithToken } from "@/libs/FetchData";
@@ -40,16 +40,22 @@ export default function CreateEmployee() {
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const auth = useSelector((s: RootState) => s.auth);
-  const [listOutlet, setListOutlet] = useState<{ area_id: string | null, outlet: string, outlet_id: string }[]>([])
-  const [roles, setRoles] = useState<iDropdown[]>([])
-  const [outlets, setOutlets] = useState<Outlet[]>([])
-  const [modalOutlet, setModalOutlet] = useState<boolean>(false)
+  const [listOutlet, setListOutlet] = useState<
+    { area_id: string | null; outlet: string; outlet_id: string }[]
+  >([]);
+  const [roles, setRoles] = useState<iDropdown[]>([]);
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  const [modalOutlet, setModalOutlet] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const [searchOutlet, setSearchOutlet] = useState<string>("")
+  const [searchOutlet, setSearchOutlet] = useState<string>("");
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.PROVIDER && ERoles.SUPER_ADMIN) router.push("/employee");
+    if (
+      auth.role.name !== ERoles.PROVIDER &&
+      auth.role.name !== ERoles.SUPER_ADMIN
+    )
+      router.push("/employee");
   }, [auth.role.name, router]);
 
   const formik = useFormik({
@@ -68,7 +74,7 @@ export default function CreateEmployee() {
       roles_id: "",
       department: EDepartmentEmployee.AM,
       password: "",
-      cPassword: ""
+      cPassword: "",
     },
     validationSchema: Yup.object({
       fullname: Yup.string()
@@ -91,19 +97,34 @@ export default function CreateEmployee() {
         .optional()
         .email("Format email tidak valid!"),
       is_deleted: Yup.boolean().required("Harus diisi!"),
-      password: Yup.string().required("password required!").min(6, "password min 6 character!").max(50, "password max 50 character!"),
+      password: Yup.string()
+        .required("password required!")
+        .min(6, "password min 6 character!")
+        .max(50, "password max 50 character!"),
       cPassword: Yup.string()
         .required("Confirm password required!")
-        .oneOf([Yup.ref('password'), ""], "Passwords do not match!")
+        .oneOf([Yup.ref("password"), ""], "Passwords do not match!"),
     }),
     onSubmit: async (values) => {
-      if (listOutlet.length === 0) {
+      if (
+        listOutlet.length === 0 &&
+        values.department !== EDepartmentEmployee.TECHNICIAN &&
+        values.department !== EDepartmentEmployee.HQ
+      ) {
         toast.error("Karyawan harus ditempatkan di outlet!");
         return;
       }
-      if (loading) return
-      setLoading(true)
-      Object.assign(values, { outlet_id: listOutlet.map(i => i.outlet_id) })
+      if (loading) return;
+      setLoading(true);
+      if (values.department === EDepartmentEmployee.TECHNICIAN) {
+        Object.assign(values, {
+          outlet_id: [],
+        });
+      } else {
+        Object.assign(values, {
+          outlet_id: listOutlet.map((i) => i.outlet_id),
+        });
+      }
 
       const res = await PostWithToken<iResponse<any>>({
         router: router,
@@ -115,7 +136,8 @@ export default function CreateEmployee() {
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
           const field = i.split(" ");
-          if (field.length >= 1) formik.setFieldError(field[0].toLowerCase(), i);
+          if (field.length >= 1)
+            formik.setFieldError(field[0].toLowerCase(), i);
         });
       }
 
@@ -124,24 +146,34 @@ export default function CreateEmployee() {
         router.push("/employee");
       }
 
-      setTimeout(() => setLoading(false), 1000)
+      setTimeout(() => setLoading(false), 1000);
     },
   });
 
   useEffect(() => {
     if (roles.length >= 1) {
-      formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
-      setLoading(false)
+      formik.setFieldValue(
+        "roles_id",
+        roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))?.value,
+      );
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roles])
+  }, [roles]);
 
   useEffect(() => {
     async function GotProvince() {
       const res = await GET<iResponse<any>>({ url: "/api/address/province" });
-      if (res.statusCode === 200 && res?.data?.rajaongkir && res?.data?.rajaongkir?.results) {
+      if (
+        res.statusCode === 200 &&
+        res?.data?.rajaongkir &&
+        res?.data?.rajaongkir?.results
+      ) {
         const maping = (
-          res?.data?.rajaongkir?.results as { province: string; province_id: string; }[]
+          res?.data?.rajaongkir?.results as {
+            province: string;
+            province_id: string;
+          }[]
         ).map((i) => {
           return {
             label: i.province,
@@ -151,7 +183,7 @@ export default function CreateEmployee() {
         if (maping.length >= 1) {
           formik.setFieldValue("province", `${maping[0].value}`);
           if (maping[0].value.split("--").length >= 2)
-            GotCity(maping[0].value.split("--")[0])
+            GotCity(maping[0].value.split("--")[0]);
         }
 
         setProvince(maping);
@@ -162,14 +194,13 @@ export default function CreateEmployee() {
       const res = await GET<iResponse<TRole[]>>({ url: "/api/auth/roles" });
       if (res.statusCode === 200) {
         const mapingRoleToDropdown = res.data.map((i, k) => {
-          if (k === 0)
-            formik.setFieldValue("roles_id", i.id)
+          if (k === 0) formik.setFieldValue("roles_id", i.id);
           return {
             label: i.name,
-            value: i.id
-          }
-        })
-        setRoles(mapingRoleToDropdown)
+            value: i.id,
+          };
+        });
+        setRoles(mapingRoleToDropdown);
       }
     }
 
@@ -225,7 +256,7 @@ export default function CreateEmployee() {
       if (maping.length >= 1) {
         formik.setFieldValue("city", `${maping[0].value}`);
         if (maping[0].value.split("--").length >= 2)
-          GotSubDistrict(maping[0].value.split("--")[0])
+          GotSubDistrict(maping[0].value.split("--")[0]);
       }
       setCity(maping);
     }
@@ -236,10 +267,15 @@ export default function CreateEmployee() {
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
 
-    if (res?.statusCode === 200 && res?.data?.rajaongkir && res?.data?.rajaongkir?.results) {
+    if (
+      res?.statusCode === 200 &&
+      res?.data?.rajaongkir &&
+      res?.data?.rajaongkir?.results
+    ) {
       const maping = (
         res?.data?.rajaongkir?.results as {
-          subdistrict_name: string; subdistrict_id: string;
+          subdistrict_name: string;
+          subdistrict_id: string;
         }[]
       ).map((i) => {
         return {
@@ -247,16 +283,19 @@ export default function CreateEmployee() {
           value: `${i.subdistrict_id}--${i.subdistrict_name}`,
         };
       });
-      if (maping.length >= 1) formik.setFieldValue("district", `${maping[0].value}`);
+      if (maping.length >= 1)
+        formik.setFieldValue("district", `${maping[0].value}`);
       setSubDistrict(maping);
     }
   }
 
   function filterOutlet() {
     if (searchOutlet.length >= 3)
-      return outlets.filter(f => f.name.toLowerCase().includes(searchOutlet.toLowerCase()))
+      return outlets.filter((f) =>
+        f.name.toLowerCase().includes(searchOutlet.toLowerCase()),
+      );
 
-    return outlets
+    return outlets;
   }
 
   return (
@@ -266,7 +305,7 @@ export default function CreateEmployee() {
         className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
       >
-        <div className="mb-8 border-b-2 py-6 px-10">
+        <div className="mb-8 border-b-2 px-10 py-6">
           <p className="font-semibold">Form to add employee data</p>
         </div>
         <div className="px-10">
@@ -408,36 +447,88 @@ export default function CreateEmployee() {
               onChange={(v) => {
                 switch (v) {
                   case EDepartmentEmployee.HQ:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.SUPER_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.SUPER_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.FINANCE:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.FINANCE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.FINANCE))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.AUDITOR:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.AM:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.SPV:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.HO:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.OUTLET_ADMIN))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.SV:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
                     break;
                   case EDepartmentEmployee.IS:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
+                    break;
+                  case EDepartmentEmployee.TECHNICIAN:
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.TECHNICIAN))
+                        ?.value,
+                    );
+                    break;
+                  case EDepartmentEmployee.OWNER:
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.OUTLET_ADMIN))
+                        ?.value,
+                    );
                     break;
                   default:
-                    formik.setFieldValue("roles_id", roles.find(f => f.label.includes(ERoles.EMPLOYEE))?.value)
+                    formik.setFieldValue(
+                      "roles_id",
+                      roles.find((f) => f.label.includes(ERoles.EMPLOYEE))
+                        ?.value,
+                    );
                     break;
                 }
-                formik.setFieldValue("department", v)
+                formik.setFieldValue("department", v);
               }}
-              options={Object.values(EDepartmentEmployee).map((i) => { return { label: i, value: i } })}
+              options={Object.values(EDepartmentEmployee).map((i) => {
+                return { label: i.toUpperCase(), value: i };
+              })}
               error={
                 formik.touched.department && formik.errors.department
                   ? formik.errors.department
@@ -457,7 +548,6 @@ export default function CreateEmployee() {
                   : null
               }
             /> */}
-
 
             <Input
               label={"Password*"}
@@ -486,7 +576,6 @@ export default function CreateEmployee() {
                   : null
               }
             />
-
           </div>
 
           <div className="mt-6">
@@ -505,38 +594,51 @@ export default function CreateEmployee() {
           </div>
           {listOutlet.map((i, k) => (
             <div className="flex flex-row pt-8" key={k}>
-              <div className="w-full p-3 border-2 rounded relative">
+              <div className="relative w-full rounded border-2 p-3">
                 <p>{i.outlet}</p>
                 <label
-
-                  className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800 -top-3`}
+                  className={`text-md absolute -top-3 bg-white transition-all duration-500 dark:bg-gray-800`}
                 >
                   Outlet {k + 1}
                 </label>
               </div>
             </div>
           ))}
-          <div className="mb-5 mt-2" >
-            <button className={`bg-green-700 p-2 text-sm rounded text-white`} onClick={() => setModalOutlet(true)}>
-              Outlet
+          <div
+            className={
+              formik.values.department === EDepartmentEmployee.TECHNICIAN ||
+              formik.values.department === EDepartmentEmployee.HQ
+                ? `hidden`
+                : `mb-5 mt-2`
+            }
+          >
+            <button
+              className={`rounded bg-green-700 p-2 text-sm text-white`}
+              onClick={() => setModalOutlet(true)}
+            >
+              Select Outlet
             </button>
           </div>
           <button
             onClick={formik.submitForm}
-            className="w-full inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
             Submit
           </button>
         </div>
-      </div >
+      </div>
 
-      <ModalSelectOutlet modal={modalOutlet} closeModal={(d) => {
-        setListOutlet([]);
-        setModalOutlet(false)
-      }} onSubmit={(d) => {
-        setModalOutlet(false);
-        setListOutlet(d);
-      }} />
+      <ModalSelectOutlet
+        modal={modalOutlet}
+        closeModal={(d) => {
+          setListOutlet([]);
+          setModalOutlet(false);
+        }}
+        onSubmit={(d) => {
+          setModalOutlet(false);
+          setListOutlet(d);
+        }}
+      />
     </>
   );
 }

@@ -14,6 +14,7 @@ import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import {
   FaUsers
 } from "react-icons/fa";
+import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
@@ -51,6 +52,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
+            { label: "Group by CV", route: "/group-by-cv" },
           ],
         },
         {
@@ -100,15 +102,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
         },
         {
-          icon: <BiSolidWasher size={23} />,
-          label: "Machine",
-          route: "/machine",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          icon: <BiSolidWasher size={24} />,
+          label: "Machines",
+          route: "#",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.TECHNICIAN],
+          children: [
+            { label: "Machine", route: "/machine" },
+            { label: "Empty Wash", route: "/empty-wash" },
+          ],
         },
         {
           icon: <MdPayment size={22} />,
           label: "Payment Method",
           route: "/payment-method",
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+        {
+          icon: <GrDocumentText size={22} />,
+          label: "Terms And Conditions",
+          route: "/terms-and-conditions",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
         },
 

@@ -1,9 +1,10 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import {
   Input,
   InputDropdown,
-  InputTextArea
+  InputTextArea,
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
@@ -35,9 +36,9 @@ interface MyResponse {
 }
 
 export default function CreateOutlet() {
-  const [areas, setAreas] = useState<any[]>([])
-  const [areaModal, setAreaModal] = useState<boolean>(false)
-  const [mapingGroupArea, setMapingGroupArea] = useState<any[]>([])
+  const [areas, setAreas] = useState<any[]>([]);
+  const [areaModal, setAreaModal] = useState<boolean>(false);
+  const [mapingGroupArea, setMapingGroupArea] = useState<any[]>([]);
   const [province, setProvince] = useState<iDropdown[]>([]);
   const [city, setCity] = useState<iDropdown[]>([]);
   const [subdistrict, setSubDistrict] = useState<iDropdown[]>([]);
@@ -48,9 +49,34 @@ export default function CreateOutlet() {
 
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
+  let startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+  );
+  let endOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate() + 1,
+  );
+
+  endOfMonth.setHours(6, 59, 59, 0);
+  const offsetInMinutes = 7 * 60;
+  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+
+  const [startDate, setStartDate] = useState<Date | string>(
+    startOfMonth.toISOString().split(".")[0],
+  );
+  const [endDate, setEndDate] = useState<Date | string>(
+    endOfMonth.toISOString().split(".")[0],
+  );
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN) router.push("/outlet");
+    if (
+      auth.role.name !== ERoles.PROVIDER &&
+      auth.role.name !== ERoles.SUPER_ADMIN
+    )
+      router.push("/outlet");
   }, [auth.role.name, router]);
 
   const formikArea = useFormik({
@@ -62,32 +88,31 @@ export default function CreateOutlet() {
       name: Yup.string().required("Area name shouldn't empty"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
-      let data = {}
+      let data = {};
       if (values.id != "" && values.name != "") {
         data = {
           name: values.name,
-          id: values.id
-        }
+          id: values.id,
+        };
       } else {
         data = {
           name: values.name,
-        }
+        };
       }
       const res = await PostWithToken<MyResponse>({
         router: router,
         url: "/api/outlet/create-or-update-area",
         data: data,
-        token: `${auth.auth.access_token}`
-      })
+        token: `${auth.auth.access_token}`,
+      });
 
       if (res?.statusCode === 200) {
         toast.success("create area success!");
-        setAreaModal(false)
-        formikArea.setFieldValue("name", "")
+        setAreaModal(false);
+        formikArea.setFieldValue("name", "");
       }
     },
-  })
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -102,7 +127,10 @@ export default function CreateOutlet() {
       dial_code: "+62",
       phone_number: "",
       email: "",
-      is_deleted: true
+      is_deleted: true,
+      opening_schedule: new Date(startDate),
+      total_washer: 0,
+      total_dryer: 0,
     },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -123,7 +151,8 @@ export default function CreateOutlet() {
         .max(100, "Max 100 character")
         .optional()
         .email("Email is not valid!"),
-      is_deleted: Yup.boolean().required("Must be filled!"),
+      total_washer: Yup.number().required("Must be filled!"),
+      total_dryer: Yup.number().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
       if (loading) return;
@@ -146,8 +175,6 @@ export default function CreateOutlet() {
         toast.success("Sucess update data!");
         router.push("/outlet");
       }
-      console.log(res.data);
-
       setLoading(false);
     },
   });
@@ -173,21 +200,20 @@ export default function CreateOutlet() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
       });
-      const mapingArea = (res.data).map((i: any) => {
+      const mapingArea = res.data.map((i: any) => {
         return {
           label: i.name,
           value: i.id,
         };
-      })
+      });
 
       if (mapingArea.length >= 1) {
-        formik.setFieldValue(`area_id`, mapingArea[0].value)
-        setMapingGroupArea(mapingArea)
-        // console.log(mapingArea);
+        formik.setFieldValue(`area_id`, mapingArea[0].value);
+        setMapingGroupArea(mapingArea);
       }
     };
     GotGroupingAreas();
-    GotAreas()
+    GotAreas();
   }, [auth.auth.access_token, router, areaModal, refresh]);
 
   useEffect(() => {
@@ -213,11 +239,9 @@ export default function CreateOutlet() {
           // formik.setFieldValue("province", `${maping[0].value.split("--")[1]}`);
           formik.setFieldValue("province", `${maping[0].value}`);
           if (maping[0].value.split("--").length >= 2)
-            GotCity(maping[0].value.split("--")[0])
+            GotCity(maping[0].value.split("--")[0]);
         }
-        setProvince(maping);
-        console.log(`province ` + maping[0].value.split("--")[0]);
-        console.log(`province ` + maping[0].value.split("--")[1]);
+        setProvince(maping); 
       }
     }
 
@@ -260,9 +284,8 @@ export default function CreateOutlet() {
         // formik.setFieldValue("city", `${maping[0].value.split("--")[1]}`);
         formik.setFieldValue("city", `${maping[0].value}`);
         if (maping[0].value.split("--").length >= 2)
-          GotSubDistrict(maping[0].value.split("--")[0])
+          GotSubDistrict(maping[0].value.split("--")[0]);
       }
-      console.log(`city ` + maping[0].value.split("--")[1]);
 
       setCity(maping);
     }
@@ -289,56 +312,54 @@ export default function CreateOutlet() {
           value: `${i.subdistrict_id}--${i.subdistrict_name}`,
         };
       });
-      if (maping.length >= 1) formik.setFieldValue("district", `${maping[0].value.split("--")[1]}`);
+      if (maping.length >= 1)
+        formik.setFieldValue("district", `${maping[0].value.split("--")[1]}`);
       setSubDistrict(maping);
-      console.log(`district ` + maping[0].value.split("--")[1]);
-
     }
   }
 
   const deleteArea = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure you want to delete this Area?");
+    const userConfirmed = window.confirm(
+      "Are you sure you want to delete this Area?",
+    );
     if (!userConfirmed) {
       return;
     }
     const data = {
-      area_id: id
-    }
-    console.log(data);
+      area_id: id,
+    };
 
     const res = await PostWithToken<MyResponse>({
       router: router,
       url: "/api/outlet/remove-area",
       data: data,
-      token: `${auth.auth.access_token}`
-    })
+      token: `${auth.auth.access_token}`,
+    });
     if (res?.statusCode === 200) {
       toast.success("Data changed success!");
-      formik.setFieldValue("name", "")
-      formik.setFieldValue("area_id", "")
-      setRefresh(true)
+      formik.setFieldValue("name", "");
+      formik.setFieldValue("area_id", "");
+      setRefresh(true);
     }
-
-  }
+  };
 
   return (
     <>
-      <div >
+      <div>
         <Breadcrumb pageName="Outlet" />
         <div
           className="relative overflow-x-auto border-t border-white bg-white pb-10 shadow-md 
         dark:border-gray-800 dark:bg-gray-800 sm:rounded-lg"
         >
-          <div className="flex mb-8 border-b-2 py-6 px-10 space-x-4">
-            <button onClick={() => {
-              router.push("/outlet")
-            }}>
+          <div className="mb-8 flex space-x-4 border-b-2 px-10 py-6">
+            <button
+              onClick={() => {
+                router.push("/outlet");
+              }}
+            >
               <FaArrowLeft size={20} />
             </button>
-            <button
-              className={`font-semibold`}>
-              Request Outlet Form
-            </button>
+            <button className={`font-semibold`}>Request Outlet Form</button>
           </div>
           <div className="px-10">
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 ">
@@ -411,8 +432,7 @@ export default function CreateOutlet() {
                   id={"area"}
                   value={formik.values.area_id}
                   onChange={(v) => {
-                    formik.setFieldValue("area_id", v)
-                    console.log(formik.values.area_id);
+                    formik.setFieldValue("area_id", v);
                   }}
                   options={mapingGroupArea}
                   error={
@@ -423,12 +443,11 @@ export default function CreateOutlet() {
                 />
                 <button
                   onClick={() => {
-                    setAreaModal(true)
-                    console.log(areas);
+                    setAreaModal(true);
                   }}
                   className={`inline-flex items-center 
-            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400
-            hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90
+            dark:text-gray-400 lg:px-8 xl:px-10`}
                 >
                   Create Area
                 </button>
@@ -496,7 +515,6 @@ export default function CreateOutlet() {
                 error={null}
               />
 
-
               <InputTextArea
                 label={"Address"}
                 name={"address"}
@@ -508,6 +526,46 @@ export default function CreateOutlet() {
                     ? formik.errors.address
                     : null
                 }
+              />
+              <Input
+                label={"Total Washer*"}
+                name={"total_washer"}
+                id={"total_washer"}
+                value={
+                  formik.values.total_washer ? formik.values.total_washer : ""
+                }
+                onChange={(v) =>
+                  formik.setFieldValue("total_washer", parseInt(v))
+                }
+                error={
+                  formik.touched.total_washer && formik.errors.total_washer
+                    ? formik.errors.total_washer
+                    : null
+                }
+              />
+              <Input
+                label={"Total Dryer*"}
+                name={"total_dryer"}
+                id={"total_dryer"}
+                value={
+                  formik.values.total_dryer ? formik.values.total_dryer : ""
+                }
+                onChange={(v) =>
+                  formik.setFieldValue("total_dryer", parseInt(v))
+                }
+                error={
+                  formik.touched.total_dryer && formik.errors.total_dryer
+                    ? formik.errors.total_dryer
+                    : null
+                }
+              />
+              <DatePickerOne
+                label={"Start"}
+                defaultDate={new Date(startDate)}
+                onChange={(v) => {
+                  formik.setFieldValue("opening_schedule", v);
+                  setStartDate(v);
+                }}
               />
 
               <button
@@ -522,13 +580,13 @@ export default function CreateOutlet() {
       </div>
 
       <Modal isOpen={areaModal}>
-        <div className="relative bg-white dark:bg-boxdark shadow rounded-md w-[90%] md:w-[50%] p-4">
+        <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
           <div
-            className="z-50 absolute -top-3 -right-3 bg-red-500 p-1 rounded-full border-white shadow border-2 cursor-pointer"
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
-              formikArea.setFieldValue("id", "")
-              formikArea.setFieldValue("name", "")
-              setAreaModal(false)
+              formikArea.setFieldValue("id", "");
+              formikArea.setFieldValue("name", "");
+              setAreaModal(false);
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -539,7 +597,7 @@ export default function CreateOutlet() {
           </div>
 
           <div className="">
-            <div className="flex justify-between items-center space-x-4">
+            <div className="flex items-center justify-between space-x-4">
               <Input
                 label={"Area Name*"}
                 name={"area_name"}
@@ -554,28 +612,28 @@ export default function CreateOutlet() {
               />
               <button
                 onClick={formikArea.submitForm}
-                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
+                className="inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              >
                 Submit
               </button>
             </div>
 
-
-            <div className="h-70 overflow-y-auto mt-4">
+            <div className="mt-4 h-70 overflow-y-auto">
               <Table
                 colls={["#", "Name", "Action"]}
                 onPaginate={() => null}
                 currentPage={0}
-                totalItem={0}>
+                totalItem={0}
+              >
                 {areas.map((i, k) => (
-                  <tr key={k} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                    <td className="px-6 py-4">
-                      {k + 1}
-                    </td>
-                    <td className="px-6 py-4">
-                      {i.name}
-                    </td>
+                  <tr
+                    key={k}
+                    className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                  >
+                    <td className="px-6 py-4">{k + 1}</td>
+                    <td className="px-6 py-4">{i.name}</td>
                     <td className="flex space-x-2 px-6 py-4 ">
-                      <div className="relative group">
+                      <div className="group relative">
                         <button
                           onClick={() => {
                             formikArea.setFieldValue("name", i.name);
@@ -584,12 +642,12 @@ export default function CreateOutlet() {
                         >
                           <FiEdit size={23} />
                         </button>
-                        <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                           Edit Area
                         </div>
                       </div>
 
-                      <div className="relative group">
+                      <div className="group relative">
                         <button
                           onClick={() => {
                             deleteArea(i.id);
@@ -598,7 +656,7 @@ export default function CreateOutlet() {
                         >
                           <FiTrash size={23} />
                         </button>
-                        <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
                           Delete Area
                         </div>
                       </div>
