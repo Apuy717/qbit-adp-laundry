@@ -193,7 +193,7 @@ export default function PageEmployee() {
       <Table
         colls={
           credential.department === EDepartmentEmployee.OWNER
-            ? ["Full Name", "Phone Number", "Email", "Role", "Outlet", "Status"]
+            ? ["Full Name", "Phone Number", "Email", "Department", "Outlet", "Status"]
             : [
                 "Full Name",
                 "Phone Number",
@@ -219,7 +219,7 @@ export default function PageEmployee() {
               {i.dial_code} {i.phone_number}
             </td>
             <td className="whitespace-nowrap px-6 py-4">{i.email}</td>
-            <td className="whitespace-nowrap px-6 py-4">{i.role.name}</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.department.toUpperCase()}</td>
             <td className="flex flex-wrap space-x-2 px-6 py-4">
               {showDetailOutlet == k ? (
                 i.employee_outlets.map((i, key) => (
