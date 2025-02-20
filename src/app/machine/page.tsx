@@ -435,7 +435,7 @@ export default function PageMachine() {
             <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.machine_id}</td>
-            {role.name === ERoles.PROVIDER|| role.name === ERoles.TECHNICIAN && (
+            {(role.name === ERoles.PROVIDER|| role.name === ERoles.TECHNICIAN) && (
               <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>
             )}
             <td className="px-6 py-4">{i.type}</td>
@@ -455,7 +455,7 @@ export default function PageMachine() {
                 : 0}{" "}
               Menit
             </td>
-            {role.name === ERoles.PROVIDER || role.name === ERoles.TECHNICIAN && (
+            {(role.name === ERoles.PROVIDER || role.name === ERoles.TECHNICIAN) && (
               <td className="whitespace-nowrap px-6 py-4">
                 {switchMachine.length >= 1 &&
                 switchMachine.find((f) => f.machine_id === i.machine_id) ? (
