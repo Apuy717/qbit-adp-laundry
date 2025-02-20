@@ -88,7 +88,6 @@ export default function CreateOutlet() {
       name: Yup.string().required("Area name shouldn't empty"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
       let data = {};
       if (values.id != "" && values.name != "") {
         data = {
@@ -108,8 +107,6 @@ export default function CreateOutlet() {
       });
 
       if (res?.statusCode === 200) {
-        console.log(res.data);
-
         toast.success("create area success!");
         setAreaModal(false);
         formikArea.setFieldValue("name", "");
@@ -178,7 +175,6 @@ export default function CreateOutlet() {
         toast.success("Sucess update data!");
         router.push("/outlet");
       }
-      console.log(res.data);
       setLoading(false);
     },
   });
@@ -214,7 +210,6 @@ export default function CreateOutlet() {
       if (mapingArea.length >= 1) {
         formik.setFieldValue(`area_id`, mapingArea[0].value);
         setMapingGroupArea(mapingArea);
-        // console.log(mapingArea);
       }
     };
     GotGroupingAreas();
@@ -246,9 +241,7 @@ export default function CreateOutlet() {
           if (maping[0].value.split("--").length >= 2)
             GotCity(maping[0].value.split("--")[0]);
         }
-        setProvince(maping);
-        console.log(`province ` + maping[0].value.split("--")[0]);
-        console.log(`province ` + maping[0].value.split("--")[1]);
+        setProvince(maping); 
       }
     }
 
@@ -293,7 +286,6 @@ export default function CreateOutlet() {
         if (maping[0].value.split("--").length >= 2)
           GotSubDistrict(maping[0].value.split("--")[0]);
       }
-      console.log(`city ` + maping[0].value.split("--")[1]);
 
       setCity(maping);
     }
@@ -323,7 +315,6 @@ export default function CreateOutlet() {
       if (maping.length >= 1)
         formik.setFieldValue("district", `${maping[0].value.split("--")[1]}`);
       setSubDistrict(maping);
-      console.log(`district ` + maping[0].value.split("--")[1]);
     }
   }
 
@@ -337,7 +328,6 @@ export default function CreateOutlet() {
     const data = {
       area_id: id,
     };
-    console.log(data);
 
     const res = await PostWithToken<MyResponse>({
       router: router,
@@ -443,7 +433,6 @@ export default function CreateOutlet() {
                   value={formik.values.area_id}
                   onChange={(v) => {
                     formik.setFieldValue("area_id", v);
-                    console.log(formik.values.area_id);
                   }}
                   options={mapingGroupArea}
                   error={
@@ -455,7 +444,6 @@ export default function CreateOutlet() {
                 <button
                   onClick={() => {
                     setAreaModal(true);
-                    console.log(areas);
                   }}
                   className={`inline-flex items-center 
             justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90

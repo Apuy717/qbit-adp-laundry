@@ -46,14 +46,12 @@ export default function PageEmployee() {
   );
 
   useEffect(() => {
-    console.log(credential.department);
 
     async function GotAllEmployee() {
       let urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}`;
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
-      console.log(urlwithQuery);
 
       const res = await PostWithToken<iResponseEmployee>({
         router: router,
@@ -79,7 +77,6 @@ export default function PageEmployee() {
       }, 100);
     }
     if (!modal && credential) {
-      console.log(currentPage, defaultSelectedOutlet);
       GotAllEmployee();
     }
   }, [

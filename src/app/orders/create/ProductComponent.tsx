@@ -41,17 +41,11 @@ export function ModalProductComponent(props: iModalProduct) {
         urlwithQuery = `/api/product/outlet?outlet_id=${props.outlet_id}&page=${currentPage}&limit=${10}&search=${fixValueSearch}&is_self_service=${props.isSelfService}`;
       }
 
-      console.log(urlwithQuery);
-
-
       const res = await GetWithToken<iResponse<TypeProduct[]>>({
         router: router,
         url: urlwithQuery,
         token: `${access_token}`,
       })
-
-      console.log(res);
-
 
       if (res.statusCode === 200) {
         setItems(res.data)

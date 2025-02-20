@@ -158,7 +158,6 @@ export default function OutletPage() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
       });
-      //   console.log(res.data);
       if (res.statusCode === 200) {
         setCvItems(res.data);
       }
@@ -218,7 +217,6 @@ export default function OutletPage() {
           mapingCv[0].value,
         );
         setMapingGroupCv(mapingCv);
-        // console.log(mapingCv);
       }
     };
     GotGroupingOutlets();
@@ -260,7 +258,6 @@ export default function OutletPage() {
         data: data,
         token: `${auth.auth.access_token}`,
       });
-      console.log(res.data);
 
       if (res?.statusCode === 200) {
         toast.success("Data changed success!");
@@ -287,7 +284,6 @@ export default function OutletPage() {
         data: data,
         token: `${auth.auth.access_token}`,
       });
-      console.log(res.data);
 
       if (res?.statusCode === 200) {
         toast.success("Data changed success!");
@@ -316,10 +312,8 @@ export default function OutletPage() {
       ),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
       const checkDuplicate = hasDuplicateOutletId(values.groupings);
-      console.log(checkDuplicate);
 
       if (checkDuplicate)
         return toast.warning(
@@ -351,7 +345,6 @@ export default function OutletPage() {
       outlet_goruping_master_id: Yup.string(),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
       let url = "api/outlet-grouping/group/change";
       const res = await PostWithToken<MyResponse>({
@@ -404,7 +397,6 @@ export default function OutletPage() {
           outlet_area_id: mapingGroupCv[0].value,
         },
       ]);
-      console.log(formikGrouping.values);
     }
   };
 
@@ -529,7 +521,6 @@ export default function OutletPage() {
                                 i.cv_id,
                               );
                               setGroupingModal(true);
-                              console.log(o.outlet_id);
                             } else {
                               formikGrouping.setFieldValue(
                                 `groupings[${0}].outlet_id`,

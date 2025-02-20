@@ -104,7 +104,6 @@ export default function Product() {
         };
       });
       mapingOutlet.unshift(allOutlet);
-      console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
@@ -137,11 +136,9 @@ export default function Product() {
         };
       });
       // setProductId(productMap[0].label);
-      // console.log(productId);
 
       if (productMap.length >= 1) {
         setMapingProduct(productMap);
-        console.log(res.data);
       }
       if (res?.statusCode === 200) {
         if (res.total) setTotalProduct(res.total);
@@ -151,7 +148,6 @@ export default function Product() {
           item.skus.map((skuItem) => skuItem),
         );
         setTotalSkus(mapSku);
-        console.log(mapSku);
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -178,7 +174,6 @@ export default function Product() {
     };
     GotProduct();
     GotCategorys();
-    // console.log(products[skusIdx].skus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
@@ -219,7 +214,6 @@ export default function Product() {
   }, [skuId, addpriceSku, auth.auth.access_token]);
 
   const handleSearch = async () => {
-    // console.log(products);
 
     if (search.length === 0) {
       setCurrentPage(1);
@@ -235,7 +229,6 @@ export default function Product() {
         setCurrentPage(1);
       }
     }
-    // console.log(search);
   };
 
   const formik = useFormik({
@@ -301,7 +294,6 @@ export default function Product() {
       if (!values.machine_iron) {
         Object.assign(values, { iron_duration: null });
       }
-      // console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -573,7 +565,6 @@ export default function Product() {
                           (f: any) => f.id == prod.id,
                         );
                         setfilterSkus(filter[0].skus);
-                        console.log(filter);
                       }}
                     >
                       <FiEye size={18} />
@@ -600,12 +591,9 @@ export default function Product() {
                           prod.is_self_service,
                         );
                         setSelectedRadio(prod.is_self_service);
-                        console.log(prod.is_self_service);
 
                         setUpdateModal(true);
                         setProductOrSku(true);
-                        // console.log(formik.values.outlet_id);
-                        // console.log(formik.values.category_id);
                       }}
                     >
                       <FiEdit size={18} />
@@ -787,9 +775,7 @@ export default function Product() {
 
                       setUpdateModal(true);
                       setUpdateOrAddSku(true);
-                      setProductOrSku(false);
-                      console.log(formik.values.outlet_id);
-                      console.log(formik.values.product_id);
+                      setProductOrSku(false); 
                     }}
                   >
                     <FiEdit size={18} />
@@ -802,7 +788,6 @@ export default function Product() {
                 {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
                     formik.setFieldValue("sku_id", i.id)
                     setAddpriceSku(true)
-                    console.log(i.id);
                   }}>
                     <p className="text-white">add price</p>
                   </button> */}
@@ -868,7 +853,6 @@ export default function Product() {
                 formik.setFieldValue("is_deleted", false);
                 formik.setFieldValue(`is_self_service`, false);
                 formik.setFieldValue(`is_quantity_decimal`, false);
-                console.log(formik.values.is_quantity_decimal);
                 
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
@@ -1039,7 +1023,6 @@ export default function Product() {
                   {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
                     formik.setFieldValue("sku_id", i.id)
                     setAddpriceSku(true)
-                    console.log(i.id);
                   }}>
                     <p className="text-white">add price</p>
                   </button> */}

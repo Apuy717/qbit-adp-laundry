@@ -79,7 +79,6 @@ export default function CreateProduct() {
         };
       });
       mapingOutlet.unshift(allOutlet);
-      console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         setOutlets(mapingOutlet);
@@ -169,10 +168,8 @@ export default function CreateProduct() {
       if (res.statusCode === 200) {
         toast.success("Success create product!");
         router.push("/product");
-        console.log(res.data);
       }
       setLoading(false);
-      // console.log(values);
     },
   });
   const addVariant = () => {

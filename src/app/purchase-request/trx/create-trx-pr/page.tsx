@@ -57,7 +57,6 @@ export default function CreateProduct() {
         setOutlets(mapingOutlet)
         setOutletId(mapingOutlet[0].value)
       }
-      console.log(outletId);
     };
     GotOutlets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,8 +79,6 @@ export default function CreateProduct() {
         })
         if (mapingPurReq.length >= 1) {
           formik.setFieldValue(`items[0].purchase_request_id`, mapingPurReq[0].value)
-          console.log(formik.values.items[0].purchase_request_id);
-
         }
         setPurReq(mapingPurReq)
       };
@@ -119,8 +116,6 @@ export default function CreateProduct() {
 
     }),
     onSubmit: async (values) => {
-      console.log(values.note_file);
-
 
       if (loading) return;
       setLoading(true);
@@ -130,8 +125,6 @@ export default function CreateProduct() {
         data: values,
         token: `${auth.auth.access_token}`,
       });
-
-      console.log(res.err);
 
 
       if (res.statusCode === 422) {
@@ -145,8 +138,6 @@ export default function CreateProduct() {
         toast.success("Berhasil menambahkan data!");
         router.push("/purchase-request/trx");
       }
-      console.log(res.data);
-
 
       setLoading(false);
     },
@@ -162,8 +153,6 @@ export default function CreateProduct() {
         sub_total: "",
       },
     ]);
-    console.log(formik.values);
-
   };
 
   const removeVariant = (index: any) => {
@@ -188,9 +177,7 @@ export default function CreateProduct() {
       reader.readAsDataURL(file);
     } else {
       callBack(undefined, "");
-    }
-    console.log(file);
-    console.log(formik.values.note_file);
+    } 
   };
   return (
     <>
@@ -228,8 +215,6 @@ export default function CreateProduct() {
               defaultDate={formik.values.trx_date}
               onChange={(val) => {
                 formik.setFieldValue("trx_date", val)
-                console.log(val);
-
               }} />
           </div>
           {!!formik.values.note_file ? (
@@ -275,7 +260,6 @@ export default function CreateProduct() {
                   onChange={
                     (v) => {
                       formik.setFieldValue(`items[${index}].purchase_request_id`, v)
-                      console.log(v);
                     }
                   }
                   options={purReq}

@@ -48,7 +48,6 @@ export default function TermsAndConditions() {
         };
       });
       mapingOutlet.unshift(allOutlet);
-      //   console.log(mapingOutlet);
 
       if (mapingOutlet.length >= 1) {
         setOutlets(mapingOutlet);
@@ -80,7 +79,6 @@ export default function TermsAndConditions() {
     }),
     onSubmit: async (values) => {
       const val = JSON.stringify(values);
-      console.log(val);
 
       if (loading) return;
       setLoading(true);
@@ -104,7 +102,6 @@ export default function TermsAndConditions() {
       if (res.statusCode === 200) {
         toast.success("Success create Terms and Conditions!");
         router.push("/terms-and-conditions");
-        console.log(res.data);
       }
       setLoading(false);
     },
@@ -209,7 +206,6 @@ export default function TermsAndConditions() {
                 //       `items[${index}].text`,
                 //       `${formik.values.items[index].text} \n`,
                 //     );
-                //     console.log(formik.values.items[index].text.toString());
                 //   }
                 // }}
                 error={
