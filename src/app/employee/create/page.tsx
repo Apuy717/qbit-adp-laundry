@@ -51,7 +51,10 @@ export default function CreateEmployee() {
   const [searchOutlet, setSearchOutlet] = useState<string>("");
 
   useEffect(() => {
-    if (auth.role.name !== ERoles.PROVIDER && ERoles.SUPER_ADMIN)
+    if (
+      auth.role.name !== ERoles.PROVIDER &&
+      auth.role.name !== ERoles.SUPER_ADMIN
+    )
       router.push("/employee");
   }, [auth.role.name, router]);
 
