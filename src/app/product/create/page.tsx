@@ -115,7 +115,7 @@ export default function CreateProduct() {
           machine_iron: false,
           iron_duration: 0,
           is_self_service: isSelfService,
-          quantity_decimal: false,
+          is_quantity_decimal: false,
         },
       ],
     },
@@ -172,6 +172,7 @@ export default function CreateProduct() {
         console.log(res.data);
       }
       setLoading(false);
+      // console.log(values);
     },
   });
   const addVariant = () => {
@@ -193,6 +194,7 @@ export default function CreateProduct() {
         dryer_duration: 0,
         machine_iron: false,
         iron_duration: 0,
+        is_quantity_decimal: false,
       },
     ]);
   };
@@ -312,19 +314,13 @@ export default function CreateProduct() {
                     type="radio"
                     name="agreement"
                     value="false"
-                    checked={selectedRadio === false}
+                    checked={formik.values.is_self_service === false}
                     onChange={() => {
-                      setSelectedRadio(false);
-                      formik.values.variants.map((variant, index) => {
-                        formik.setFieldValue(
-                          `variants[${index}].is_self_service`,
-                          false,
-                        );
-                      });
+                      formik.setFieldValue(`is_self_service`, false);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Full Service</span>
+                  <span className="text-sm">Order Qty Full Service</span>
                 </label>
 
                 {/* Pilihan Tidak */}
@@ -333,19 +329,13 @@ export default function CreateProduct() {
                     type="radio"
                     name="agreement"
                     value="true"
-                    checked={selectedRadio === true}
+                    checked={formik.values.is_self_service === true}
                     onChange={() => {
-                      setSelectedRadio(true);
-                      formik.values.variants.map((variant, index) => {
-                        formik.setFieldValue(
-                          `variants[${index}].is_self_service`,
-                          true,
-                        );
-                      });
+                      formik.setFieldValue(`is_self_service`, true);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-lg">Self Service</span>
+                  <span className="text-sm">Order Qty Self Service</span>
                 </label>
               </div>
               {/* <InputToggle
@@ -567,46 +557,46 @@ export default function CreateProduct() {
                   }
                 />
                 <div className="flex gap-4">
-                  {/* Pilihan Ya */}
+                  {/* Pilihan Non Decimal */}
                   <label className="flex cursor-pointer items-center space-x-2">
                     <input
                       type="radio"
-                      name="isDecimal"
+                      name={`isDecimal${index}`} // tetap unik per index
                       value="false"
-                      checked={selectedRadioDecimal === false}
-                      onChange={() => {
-                        setSelectedRadioDecimal(false);
-                        formik.values.variants.map((variant, index) => {
-                          formik.setFieldValue(
-                            `variants[${index}].quantity_decimal`,
-                            false,
-                          );
-                        });
-                      }}
+                      checked={
+                        formik.values.variants[index].is_quantity_decimal ===
+                        false
+                      }
+                      onChange={() =>
+                        formik.setFieldValue(
+                          `variants[${index}].is_quantity_decimal`,
+                          false,
+                        )
+                      }
                       className="h-5 w-5 checked:bg-blue-600"
                     />
-                    <span className="text-lg">Non Decimal</span>
+                    <span className="text-sm">Order Qty Non Decimal</span>
                   </label>
 
-                  {/* Pilihan Tidak */}
+                  {/* Pilihan Decimal */}
                   <label className="flex cursor-pointer items-center space-x-2">
                     <input
                       type="radio"
-                      name="isDecimal"
+                      name={`isDecimal${index}`}
                       value="true"
-                      checked={selectedRadioDecimal === true}
-                      onChange={() => {
-                        setSelectedRadioDecimal(true);
-                        formik.values.variants.map((variant, index) => {
-                          formik.setFieldValue(
-                            `variants[${index}].quantity_decimal`,
-                            true,
-                          );
-                        });
-                      }}
+                      checked={
+                        formik.values.variants[index].is_quantity_decimal ===
+                        true
+                      }
+                      onChange={() =>
+                        formik.setFieldValue(
+                          `variants[${index}].is_quantity_decimal`,
+                          true,
+                        )
+                      }
                       className="h-5 w-5 checked:bg-blue-600"
                     />
-                    <span className="text-lg">Decimal</span>
+                    <span className="text-sm">Order Qty Decimal</span>
                   </label>
                 </div>
               </div>
@@ -741,7 +731,15 @@ export default function CreateProduct() {
           </div>
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-6 md:grid-cols-1">
             <button
-              onClick={formik.submitForm}
+              onClick={() => {
+                formik.values.variants.map((i, index) => {
+                  formik.setFieldValue(
+                    `variants[${index}].is_self_service`,
+                    formik.values.is_self_service,
+                  );
+                });
+                formik.submitForm();
+              }}
               className="inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
               Submit

@@ -219,7 +219,7 @@ export default function UpdateOutlet({
       name: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Area name shouldn't empty"),
+      name: Yup.string().required("Area name shouldn't be empty"),
     }),
     onSubmit: async (values) => {
       console.log(values);
