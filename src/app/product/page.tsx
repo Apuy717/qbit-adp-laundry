@@ -17,7 +17,7 @@ import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -25,6 +25,9 @@ import { PiExcludeSquareDuotone } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { EDepartmentEmployee } from "@/types/employee";
+import { ERoles } from "@/stores/authReducer";
 
 interface MyResponse {
   statusCode: number;
@@ -66,6 +69,9 @@ export default function Product() {
   const [skuName, setskuName] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
   const [productId, setProductId] = useState<string | null>(null);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
 
   const [skuId, setSkuId] = useState<string>("");
   const [skuPrices, setSkuPrices] = useState<any[]>([]);
@@ -132,8 +138,13 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet,
-          category_id: "",
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : auth.department !== EDepartmentEmployee.HQ &&
+                  auth.role.name !== ERoles.PROVIDER
+                ? defaultSelectedOutlet.map((o) => o.outlet_id)
+                : [],
         },
       });
       const productMap = res.data.map((i: any) => {
@@ -171,7 +182,13 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: [],
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : auth.department !== EDepartmentEmployee.HQ &&
+                  auth.role.name !== ERoles.PROVIDER
+                ? defaultSelectedOutlet.map((o) => o.outlet_id)
+                : [],
         },
       });
 
@@ -218,6 +235,9 @@ export default function Product() {
     filterByOutlet,
     isViewDetail,
     tabActive,
+    modal,
+    defaultSelectedOutlet,
+    selectedOutlets,
   ]);
 
   useEffect(() => {
@@ -503,8 +523,8 @@ export default function Product() {
       }
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
-        setRefresh(true);
       }
+      setRefresh(!refresh);
     },
   });
 
@@ -579,7 +599,7 @@ export default function Product() {
     if (!userConfirmed) {
       return;
     }
-    const res:any = await fetch(`/api/product/exclude/remove/${id}`, {
+    const res: any = await fetch(`/api/product/exclude/remove/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1181,6 +1201,7 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
+                        setSkuId(i.id);
                         formikExcludeSku.setFieldValue("sku_id", i.id);
                         setIsViewSkuExclude(true);
                       }}
