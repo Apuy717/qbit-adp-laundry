@@ -352,7 +352,7 @@ export default function OutletPage() {
   return (
     <>
       <Breadcrumb pageName="Outlet" />
-      <div className="w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t">
+      <div className={`${auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN && "hidden"} w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t`}>
         <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row w-full md:space-x-4">
           {/* <div className="lg:w-90">
             <Input
