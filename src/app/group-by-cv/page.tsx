@@ -414,7 +414,7 @@ export default function OutletPage() {
   return (
     <div className="dark:min-h-screen">
       <Breadcrumb pageName="Group by CV" />
-      <div className="mb-4 w-full  rounded-t bg-white p-4 dark:bg-boxdark">
+      <div className={`${auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN && "hidden"} w-full bg-white  dark:bg-boxdark p-4 mb-4 rounded-t`}>
         <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
           <button
             onClick={() => setNewCvModal(true)}

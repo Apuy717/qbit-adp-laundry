@@ -400,6 +400,7 @@ export default function PageMachine() {
             ? [
                 "#",
                 "Name",
+                "Duration",
                 "Esp ID",
                 "IP",
                 "Type",
@@ -413,12 +414,14 @@ export default function PageMachine() {
             : [
                 "#",
                 "Name",
+                "Duration",
                 "Esp ID",
                 "Type",
                 "Outlet",
                 "Relay Cycle",
                 "Machine Cycle",
                 "Status",
+                "Action",
               ]
         }
         currentPage={currentPage}
@@ -434,11 +437,13 @@ export default function PageMachine() {
           >
             <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.default_duration} (minutes)</td>
             <td className="whitespace-nowrap px-6 py-4">{i.machine_id}</td>
-            {(role.name === ERoles.PROVIDER|| role.name === ERoles.TECHNICIAN) && (
+            {(role.name === ERoles.PROVIDER ||
+              role.name === ERoles.TECHNICIAN) && (
               <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>
             )}
-            <td className="px-6 py-4">{i.type}</td>
+            <td className="px-6 py-4">{i.type.toUpperCase()}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.outlet.name}</td>
             <td className="whitespace-nowrap px-6 py-4">
               {FormatDecimal(parseInt(i.cycles))} cycle{" / "}
@@ -455,7 +460,8 @@ export default function PageMachine() {
                 : 0}{" "}
               Menit
             </td>
-            {(role.name === ERoles.PROVIDER || role.name === ERoles.TECHNICIAN) && (
+            {(role.name === ERoles.PROVIDER ||
+              role.name === ERoles.TECHNICIAN) && (
               <td className="whitespace-nowrap px-6 py-4">
                 {switchMachine.length >= 1 &&
                 switchMachine.find((f) => f.machine_id === i.machine_id) ? (
@@ -480,9 +486,7 @@ export default function PageMachine() {
                 </div>
               )}
             </td>
-            <td
-              className={`space-x-4 whitespace-nowrap px-6 py-4 ${role.name !== ERoles.PROVIDER && role.name !== ERoles.TECHNICIAN && "hidden"}`}
-            >
+            <td className={`space-x-4 whitespace-nowrap px-6 py-4 `}>
               <button
                 className={`rounded bg-blue-500 p-2`}
                 onClick={() => {
@@ -506,29 +510,32 @@ export default function PageMachine() {
               >
                 <FiEdit size={18} color="white" />
               </button>
-              <button
-                className={`rounded bg-green-500 p-2`}
-                onClick={() => {
-                  formik.setFieldValue("id", i.id);
-                  formik.setFieldValue("name", i.name);
-                  formik.setFieldValue("ip", i.ip);
-                  formik.setFieldValue("is_deleted", false);
-                  formik.setFieldValue(
-                    "outlet_id",
-                    i.outlet_id === null ? "null" : i.outlet_id,
-                  );
-                  formik.setFieldValue(
-                    "default_duration",
-                    `${i.default_duration}`,
-                  );
-                  formik.setFieldValue("type", i.type);
-                  formik.setFieldValue("machine_id", i.machine_id);
-                  setMachineDetail(i);
-                  setModalPairingMachine(true);
-                }}
-              >
-                <TbPlugConnectedX size={18} color="white" />
-              </button>
+              {(role.name === ERoles.PROVIDER ||
+                role.name === ERoles.TECHNICIAN) && (
+                <button
+                  className={`rounded bg-green-500 p-2`}
+                  onClick={() => {
+                    formik.setFieldValue("id", i.id);
+                    formik.setFieldValue("name", i.name);
+                    formik.setFieldValue("ip", i.ip);
+                    formik.setFieldValue("is_deleted", false);
+                    formik.setFieldValue(
+                      "outlet_id",
+                      i.outlet_id === null ? "null" : i.outlet_id,
+                    );
+                    formik.setFieldValue(
+                      "default_duration",
+                      `${i.default_duration}`,
+                    );
+                    formik.setFieldValue("type", i.type);
+                    formik.setFieldValue("machine_id", i.machine_id);
+                    setMachineDetail(i);
+                    setModalPairingMachine(true);
+                  }}
+                >
+                  <TbPlugConnectedX size={18} color="white" />
+                </button>
+              )}
             </td>
           </tr>
         ))}
@@ -554,97 +561,117 @@ export default function PageMachine() {
           </div>
 
           <div className="mt-4 h-80 overflow-y-auto p-2">
-            <div className="flex flex-col space-y-8">
-              <Input
-                label={"Esp ID*"}
-                name={"machine_id"}
-                id={"machine_id"}
-                value={formik.values.machine_id}
-                onChange={(v) => formik.setFieldValue("machine_id", v)}
-                error={
-                  formik.touched.machine_id && formik.errors.machine_id
-                    ? formik.errors.machine_id
-                    : null
-                }
-              />
+            {role.name === ERoles.PROVIDER ||
+            role.name === ERoles.TECHNICIAN ? (
+              <div className="flex flex-col space-y-8">
+                <Input
+                  label={"Esp ID*"}
+                  name={"machine_id"}
+                  id={"machine_id"}
+                  value={formik.values.machine_id}
+                  onChange={(v) => formik.setFieldValue("machine_id", v)}
+                  error={
+                    formik.touched.machine_id && formik.errors.machine_id
+                      ? formik.errors.machine_id
+                      : null
+                  }
+                />
 
-              <Input
-                label={"Name*"}
-                name={"name"}
-                id={"name"}
-                value={formik.values.name}
-                onChange={(v) => formik.setFieldValue("name", v)}
-                error={
-                  formik.touched.name && formik.errors.name
-                    ? formik.errors.name
-                    : null
-                }
-              />
+                <Input
+                  label={"Name*"}
+                  name={"name"}
+                  id={"name"}
+                  value={formik.values.name}
+                  onChange={(v) => formik.setFieldValue("name", v)}
+                  error={
+                    formik.touched.name && formik.errors.name
+                      ? formik.errors.name
+                      : null
+                  }
+                />
 
-              <Input
-                label={"IP*"}
-                name={"ip"}
-                id={"ip"}
-                value={formik.values.ip}
-                onChange={(v) => formik.setFieldValue("ip", v)}
-                error={
-                  formik.touched.ip && formik.errors.ip
-                    ? formik.errors.ip
-                    : null
-                }
-              />
+                <Input
+                  label={"IP*"}
+                  name={"ip"}
+                  id={"ip"}
+                  value={formik.values.ip}
+                  onChange={(v) => formik.setFieldValue("ip", v)}
+                  error={
+                    formik.touched.ip && formik.errors.ip
+                      ? formik.errors.ip
+                      : null
+                  }
+                />
 
-              <Input
-                label={"Default Duration*"}
-                type="number"
-                name={"default_duration"}
-                id={"default_duration"}
-                value={formik.values.default_duration}
-                onChange={(v) => formik.setFieldValue("default_duration", v)}
-                error={
-                  formik.touched.default_duration &&
-                  formik.errors.default_duration
-                    ? formik.errors.default_duration
-                    : null
-                }
-              />
+                <Input
+                  label={"Default Duration*"}
+                  type="number"
+                  name={"default_duration"}
+                  id={"default_duration"}
+                  value={formik.values.default_duration}
+                  onChange={(v) => formik.setFieldValue("default_duration", v)}
+                  error={
+                    formik.touched.default_duration &&
+                    formik.errors.default_duration
+                      ? formik.errors.default_duration
+                      : null
+                  }
+                />
 
-              <InputDropdown
-                label={"Machin Type*"}
-                name={"type"}
-                id={"type"}
-                value={formik.values.type}
-                onChange={(v) => formik.setFieldValue("type", v)}
-                options={Object.values(EMachineType).map((i) => {
-                  return { label: i, value: i };
-                })}
-                error={
-                  formik.touched.type && formik.errors.type
-                    ? formik.errors.type
-                    : null
-                }
-              />
+                <InputDropdown
+                  label={"Machin Type*"}
+                  name={"type"}
+                  id={"type"}
+                  value={formik.values.type}
+                  onChange={(v) => formik.setFieldValue("type", v)}
+                  options={Object.values(EMachineType).map((i) => {
+                    return { label: i, value: i };
+                  })}
+                  error={
+                    formik.touched.type && formik.errors.type
+                      ? formik.errors.type
+                      : null
+                  }
+                />
 
-              <InputDropdown
-                label={"Outlet*"}
-                name={"outlet_id"}
-                id={"outlet_id"}
-                value={formik.values.outlet_id}
-                onChange={(v) => formik.setFieldValue("outlet_id", v)}
-                options={outlets}
-                error={
-                  formik.touched.outlet_id && formik.errors.outlet_id
-                    ? formik.errors.outlet_id
-                    : null
-                }
-              />
+                <InputDropdown
+                  label={"Outlet*"}
+                  name={"outlet_id"}
+                  id={"outlet_id"}
+                  value={formik.values.outlet_id}
+                  onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                  options={outlets}
+                  error={
+                    formik.touched.outlet_id && formik.errors.outlet_id
+                      ? formik.errors.outlet_id
+                      : null
+                  }
+                />
 
-              <InputToggle
-                value={!formik.values.is_deleted}
-                onClick={(v) => formik.setFieldValue("is_deleted", !v)}
-                label={"Status"}
-              />
-            </div>
+                <InputToggle
+                  value={!formik.values.is_deleted}
+                  onClick={(v) => formik.setFieldValue("is_deleted", !v)}
+                  label={"Status"}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col space-y-8">
+                <Input
+                  label={"Default Duration*"}
+                  type="number"
+                  name={"default_duration"}
+                  id={"default_duration"}
+                  value={formik.values.default_duration}
+                  onChange={(v) => formik.setFieldValue("default_duration", v)}
+                  error={
+                    formik.touched.default_duration &&
+                    formik.errors.default_duration
+                      ? formik.errors.default_duration
+                      : null
+                  }
+                />
+              </div>
+            )}
 
             <button
               className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.SUPER_ADMIN && "hidden"}  mt-5 inline-flex 

@@ -195,6 +195,41 @@ export const InputTextArea: FC<iInput> = (props) => {
     </div>
   );
 };
+export const InputTextArea2: FC<iInput> = (props) => {
+  const [isFocus, setIsFocus] = useState<boolean>(false);
+  return (
+    <div className={`${props.className} relative flex-1`}>
+      <label
+        onClick={() => setIsFocus(true)}
+        htmlFor={props.id}
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${
+          isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        }  left-4 text-gray-500`}
+      >
+        {props.label}
+      </label>
+      <textarea
+        value={props.value}
+        rows={props.rows ? props.rows : 2}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        id={props.id}
+        name={props.name}
+        autoComplete="off"
+        className="min-h-50 focus:border-apps-primary w-full rounded-md border-2 p-2 text-gray-500 focus:outline-none dark:dark:bg-boxdark"
+        onChange={(e) => props.onChange(e.target.value)}
+      ></textarea>
+      <div
+        className={`text-md mr-2 flex flex-row items-center normal-case text-red-500 ${
+          props.error === null ? `hidden` : `block`
+        }`}
+      >
+        <BiErrorCircle className="mr-1" />
+        <p>{props.error}</p>
+      </div>
+    </div>
+  );
+};
 export const InputTextAreaWithKeydown: FC<
   iInput & { onKeydown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void }
 > = (props) => {
