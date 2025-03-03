@@ -437,7 +437,9 @@ export default function PageMachine() {
           >
             <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.name}</td>
-            <td className="whitespace-nowrap px-6 py-4">{i.default_duration} (minutes)</td>
+            <td className="whitespace-nowrap px-6 py-4">
+              {i.default_duration} (minutes)
+            </td>
             <td className="whitespace-nowrap px-6 py-4">{i.machine_id}</td>
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
@@ -674,7 +676,7 @@ export default function PageMachine() {
             )}
 
             <button
-              className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.SUPER_ADMIN && "hidden"}  mt-5 inline-flex 
+              className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.SUPER_ADMIN && role.name !== ERoles.TECHNICIAN && "hidden"}  mt-5 inline-flex 
             w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white 
             hover:bg-opacity-90 lg:px-8 xl:px-10`}
               onClick={formik.submitForm}
