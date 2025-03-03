@@ -283,19 +283,11 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                         <td className="px-6 py-4">
                           <input
                             type="checkbox"
-                            checked={
-                              tabActive === TabActive.AREA
-                                ? selectedOutlets.filter(
-                                    (f) => f.area_id === i.area_id,
-                                  ).length === i.outlets.length
-                                  ? true
-                                  : false
-                                : selectedOutlets.filter(
-                                      (f) => f.cv_id === i.cv_id,
-                                    ).length === i.outlets.length
-                                  ? true
-                                  : false
-                            }
+                            checked={i.outlets.every((i: any) =>
+                              selectedOutlets.some(
+                                (f) => f.outlet_id === i.outlet_id,
+                              ),
+                            )}
                             onChange={(e) => {
                               let checkAll: any[] = [];
 
@@ -403,13 +395,23 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                               onChange={(e) => {
                                 setSelectedOutlets((old) => {
                                   if (e.target.checked) {
-                                    return old.concat([
-                                      {
-                                        area_id: i.area_id,
-                                        outlet_id: outlet.outlet_id,
-                                        outlet: outlet.name,
-                                      },
-                                    ]);
+                                    if (tabActive === TabActive.AREA) {
+                                      return old.concat([
+                                        {
+                                          area_id: i.area_id,
+                                          outlet_id: outlet.outlet_id,
+                                          outlet: outlet.name,
+                                        },
+                                      ]);
+                                    } else {
+                                      return old.concat([
+                                        {
+                                          cv_id: i.cv_id,
+                                          outlet_id: outlet.outlet_id,
+                                          outlet: outlet.name,
+                                        },
+                                      ]);
+                                    }
                                   } else {
                                     return old.filter(
                                       (f) => f.outlet_id !== outlet.outlet_id,
