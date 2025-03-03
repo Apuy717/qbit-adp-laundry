@@ -48,7 +48,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <HiOutlineBuildingStorefront size={22} />,
           label: "Outlet",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },

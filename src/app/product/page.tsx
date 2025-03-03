@@ -19,8 +19,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { FiEdit, FiEye } from "react-icons/fi";
+import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
+import { PiExcludeSquareDuotone } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -43,12 +44,17 @@ export default function Product() {
   const [categorys, setCategorys] = useState<iDropdown[]>([]);
   const [filterSkus, setfilterSkus] = useState<any>([]);
   const [totalSkus, setTotalSkus] = useState<any>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [fixValueSearch, setFixValueSearch] = useState("");
+  const [excludes, setExcludes] = useState<any>([]);
+  const [paginationSkus, setPaginationSkus] = useState<any>([]);
+  const [currentPageProduct, setCurrentPageProduct] = useState(1);
+  const [currentPageSku, setCurrentPageSku] = useState(1);
+  const [fixValueSearchProduct, setFixValueSearchProduct] = useState("");
+  const [fixValueSearchSku, setFixValueSearchSku] = useState("");
   const [totalProduct, setTotalProduct] = useState<number>(0);
   const [MapingProduct, setMapingProduct] = useState<iDropdown[]>([]);
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false);
   const [isViewSkuPrices, setIsViewSkuPrices] = useState<boolean>(false);
+  const [isViewSkuExclude, setIsViewSkuExclude] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [updateModal, setUpdateModal] = useState<boolean>(false);
   const [addpriceSku, setAddpriceSku] = useState<boolean>(false);
@@ -59,6 +65,7 @@ export default function Product() {
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
+  const [productId, setProductId] = useState<string | null>(null);
 
   const [skuId, setSkuId] = useState<string>("");
   const [skuPrices, setSkuPrices] = useState<any[]>([]);
@@ -116,9 +123,9 @@ export default function Product() {
 
   useEffect(() => {
     const GotProduct = async () => {
-      let urlwithQuery = `/api/product/filter?page=${currentPage}&limit=${10}`;
-      if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/product/filter?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
+      let urlwithQuery = `/api/product/filter?page=${currentPageProduct}&limit=${10}`;
+      if (fixValueSearchProduct.length >= 1) {
+        urlwithQuery = `/api/product/filter?page=${currentPageProduct}&limit=${10}&search=${fixValueSearchProduct}`;
       }
       const res = await PostWithToken<iResponse<TypeProduct[]>>({
         router: router,
@@ -147,7 +154,31 @@ export default function Product() {
         const mapSku = products.flatMap((item) =>
           item.skus.map((skuItem) => skuItem),
         );
-        setTotalSkus(mapSku);
+        // setTotalSkus(mapSku);
+        // console.log(mapSku);
+      }
+      setTimeout(() => {
+        setLoadingSearch(false);
+      }, 100);
+    };
+    const GotSku = async () => {
+      let urlwithQuery = `/api/product/got-skus?page=${currentPageSku}&limit=${10}`;
+      if (fixValueSearchSku.length >= 1) {
+        urlwithQuery = `/api/product/got-skus?page=${currentPageSku}&limit=${10}&search=${fixValueSearchSku}`;
+      }
+      const res = await PostWithToken<iResponse<any[]>>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+        data: {
+          outlet_ids: [],
+        },
+      });
+
+      if (res?.statusCode === 200) {
+        setTotalSkus(res.data);
+        setPaginationSkus(res.total);
+        console.log(totalSkus);
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -173,12 +204,15 @@ export default function Product() {
       setCategorys(mapingCategory);
     };
     GotProduct();
+    GotSku();
     GotCategorys();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
-    currentPage,
-    fixValueSearch,
+    currentPageProduct,
+    fixValueSearchProduct,
+    currentPageSku,
+    fixValueSearchSku,
     refresh,
     auth.auth.access_token,
     filterByOutlet,
@@ -189,10 +223,7 @@ export default function Product() {
   useEffect(() => {
     if (skuId != "") {
       const GotPriceSku = async () => {
-        let urlwithQuery = `/api/product/get-prices/${skuId}?page=${currentPage}&limit=${10}`;
-        if (fixValueSearch.length >= 1) {
-          urlwithQuery = `/api/product/get-prices/${skuId}?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
-        }
+        let urlwithQuery = `/api/product/get-prices/${skuId}`;
         const res = await GetWithToken<iResponse<[]>>({
           router: router,
           url: urlwithQuery,
@@ -213,20 +244,59 @@ export default function Product() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skuId, addpriceSku, auth.auth.access_token]);
 
-  const handleSearch = async () => {
+  useEffect(() => {
+    if (skuId != "") {
+      const GotPriceSku = async () => {
+        let urlwithQuery = `/api/product/exclude/got/${skuId}`;
+        const res = await GetWithToken<iResponse<[]>>({
+          router: router,
+          url: urlwithQuery,
+          token: `${auth.auth.access_token}`,
+        });
+        console.log(res.data);
 
-    if (search.length === 0) {
-      setCurrentPage(1);
-      setProducts([]);
-      setLoadingSearch(true);
-      setFixValueSearch("");
-      setRefresh((prev) => !prev);
-    } else {
-      if (search.length >= 1) {
+        if (res?.statusCode === 200) {
+          setExcludes(res.data);
+        }
+
+        setTimeout(() => {
+          setLoadingSearch(false);
+        }, 100);
+      };
+      GotPriceSku();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh, isViewSkuExclude, auth.auth.access_token]);
+
+  const handleSearch = async () => {
+    if (tabActive === TabActive.PRODUCT) {
+      if (search.length === 0) {
+        setCurrentPageProduct(1);
         setProducts([]);
         setLoadingSearch(true);
-        setFixValueSearch(search);
-        setCurrentPage(1);
+        setFixValueSearchProduct("");
+        setRefresh((prev) => !prev);
+      } else {
+        if (search.length >= 1) {
+          setProducts([]);
+          setLoadingSearch(true);
+          setFixValueSearchProduct(search);
+          setCurrentPageProduct(1);
+        }
+      }
+    } else {
+      if (search.length === 0) {
+        setCurrentPageSku(1);
+        setTotalSkus([]);
+        setLoadingSearch(true);
+        setFixValueSearchSku("");
+        setRefresh((prev) => !prev);
+      } else {
+        if (search.length >= 1) {
+          setTotalSkus([]);
+          setLoadingSearch(true);
+          setFixValueSearchSku(search);
+        }
       }
     }
   };
@@ -409,6 +479,35 @@ export default function Product() {
       setLoading(false);
     },
   });
+
+  const formikExcludeSku = useFormik({
+    initialValues: {
+      outlet_id: "all",
+      sku_id: "",
+    },
+    validationSchema: Yup.object({
+      outlet_id: Yup.string(),
+      sku_id: Yup.string(),
+    }),
+    onSubmit: async (values) => {
+      console.log(values);
+
+      const res = await PostWithToken<any>({
+        router: router,
+        url: "/api/product/exclude/set",
+        data: values,
+        token: `${auth.auth.access_token}`,
+      });
+      if (res.statusCode === 422) {
+        toast.warn("Select Outlet!");
+      }
+      if (res?.statusCode === 200) {
+        toast.success("Change data success!");
+        setRefresh(true);
+      }
+    },
+  });
+
   const handleChangeFileImage = (
     event: ChangeEvent<HTMLInputElement>,
     callBack: (file: File | undefined, result: string) => void,
@@ -435,7 +534,64 @@ export default function Product() {
     return `Rp. ${result}`;
   };
 
-  const [productId, setProductId] = useState<string | null>(null);
+  const deleteProduct = async (id: any) => {
+    const userConfirmed = window.confirm(
+      "Are you sure to delete this Product?",
+    );
+    if (!userConfirmed) {
+      return;
+    }
+    const res = await PostWithToken<any>({
+      router: router,
+      url: "/api/product/remove-product",
+      data: {
+        product_id: id,
+        is_deleted: true,
+      },
+      token: `${auth.auth.access_token}`,
+    });
+    if (res?.statusCode === 200) {
+      toast.success("Delete data success!");
+      setRefresh(true);
+    }
+  };
+  const deleteSku = async (id: any) => {
+    const userConfirmed = window.confirm("Are you sure to delete this SKU?");
+    if (!userConfirmed) {
+      return;
+    }
+    const res = await PostWithToken<any>({
+      router: router,
+      url: "/api/product/remove-sku",
+      data: {
+        sku_id: id,
+        is_deleted: true,
+      },
+      token: `${auth.auth.access_token}`,
+    });
+    if (res?.statusCode === 200) {
+      toast.success("Delete data success!");
+      setRefresh(true);
+    }
+  };
+  const removeExclude = async (id: any) => {
+    const userConfirmed = window.confirm("Are you sure to remove Exclude?");
+    if (!userConfirmed) {
+      return;
+    }
+    const res:any = await fetch(`/api/product/exclude/remove/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "*/*",
+        Authorization: `Bearer ${auth.auth.access_token}`,
+      },
+    });
+    if (res?.statusCode === 200) {
+      toast.success("Delete data success!");
+      setRefresh(true);
+    }
+  };
 
   return (
     <>
@@ -526,8 +682,8 @@ export default function Product() {
       >
         <Table
           colls={CELLS}
-          onPaginate={(page) => setCurrentPage(page)}
-          currentPage={currentPage}
+          onPaginate={(page) => setCurrentPageProduct(page)}
+          currentPage={currentPageProduct}
           totalItem={totalProduct}
         >
           {products.map((prod, index) => (
@@ -602,35 +758,19 @@ export default function Product() {
                       Edit Product
                     </div>
                   </div>
-                  {/* <div className="relative group">
+                  <div className="group relative">
                     <button
                       onClick={() => {
-                        formik.setFieldValue("product_id", prod.id)
-                        formik.setFieldValue("code", "")
-                        formik.setFieldValue("name", "")
-                        formik.setFieldValue("description", "")
-                        formik.setFieldValue("capital_price", "")
-                        formik.setFieldValue("price", "")
-                        formik.setFieldValue("type", "services")
-                        formik.setFieldValue("stock", "")
-                        formik.setFieldValue("unit", "")
-                        formik.setFieldValue("machine_washer", false)
-                        formik.setFieldValue("washer_duration", 0)
-                        formik.setFieldValue("machine_dryer", false)
-                        formik.setFieldValue("dryer_duration", 0)
-                        formik.setFieldValue("machine_iron", false)
-                        formik.setFieldValue("iron_duration", 0)
-                        formik.setFieldValue("is_deleted", false)
-                        setProductOrSku(false)
-                        setUpdateOrAddSku(false)
-                        setUpdateModal(true)
-                      }}>
-                      <FaRegPlusSquare size={18} />
+                        deleteProduct(prod.id);
+                        setRefresh(!refresh);
+                      }}
+                    >
+                      <FiTrash size={18} />
                     </button>
-                    <div className="absolute opacity-85 bottom-[70%] transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded-md px-2 py-1">
-                      Add SKU
+                    <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                      Delete Product
                     </div>
-                  </div> */}
+                  </div>
                 </div>
               </td>
             </tr>
@@ -656,11 +796,9 @@ export default function Product() {
             "Description",
             "Action",
           ]}
-          currentPage={0}
-          totalItem={0}
-          onPaginate={function (page: number): void {
-            throw new Error("Function not implemented.");
-          }}
+          currentPage={currentPageSku}
+          totalItem={paginationSkus}
+          onPaginate={(page) => setCurrentPageSku(page)}
         >
           {totalSkus.map((i: any, k: any) => (
             <tr key={k}>
@@ -775,7 +913,7 @@ export default function Product() {
 
                       setUpdateModal(true);
                       setUpdateOrAddSku(true);
-                      setProductOrSku(false); 
+                      setProductOrSku(false);
                     }}
                   >
                     <FiEdit size={18} />
@@ -785,12 +923,33 @@ export default function Product() {
                   </div>
                 </div>
 
-                {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
-                    formik.setFieldValue("sku_id", i.id)
-                    setAddpriceSku(true)
-                  }}>
-                    <p className="text-white">add price</p>
-                  </button> */}
+                <div className="group relative">
+                  <button
+                    onClick={() => {
+                      setSkuId(i.id);
+                      formikExcludeSku.setFieldValue("sku_id", i.id);
+                      setIsViewSkuExclude(true);
+                    }}
+                  >
+                    <PiExcludeSquareDuotone size={18} />
+                  </button>
+                  <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                    Exclude SKU
+                  </div>
+                </div>
+                <div className="group relative">
+                  <button
+                    onClick={() => {
+                      deleteSku(i.id);
+                      setRefresh(!refresh);
+                    }}
+                  >
+                    <FiTrash size={18} />
+                  </button>
+                  <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                    Delete SKU
+                  </div>
+                </div>
               </td>
             </tr>
           ))}
@@ -853,7 +1012,7 @@ export default function Product() {
                 formik.setFieldValue("is_deleted", false);
                 formik.setFieldValue(`is_self_service`, false);
                 formik.setFieldValue(`is_quantity_decimal`, false);
-                
+
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
                 setaddSkuModal(true);
@@ -1019,13 +1178,33 @@ export default function Product() {
                       Edit SKU
                     </div>
                   </div>
+                  <div className="group relative">
+                    <button
+                      onClick={() => {
+                        formikExcludeSku.setFieldValue("sku_id", i.id);
+                        setIsViewSkuExclude(true);
+                      }}
+                    >
+                      <PiExcludeSquareDuotone size={18} />
+                    </button>
+                    <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                      Exclude SKU
+                    </div>
+                  </div>
 
-                  {/* <button className="px-2 bg-green-500 rounded-xl text-center w-auto" onClick={() => {
-                    formik.setFieldValue("sku_id", i.id)
-                    setAddpriceSku(true)
-                  }}>
-                    <p className="text-white">add price</p>
-                  </button> */}
+                  <div className="group relative">
+                    <button
+                      onClick={() => {
+                        deleteSku(i.id);
+                        setRefresh(!refresh);
+                      }}
+                    >
+                      <FiTrash size={18} />
+                    </button>
+                    <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                      Delete SKU
+                    </div>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -1873,9 +2052,9 @@ export default function Product() {
           <div className="mt-4 h-70 overflow-y-auto">
             <Table
               colls={["#", "Outlet", "City", "Price"]}
-              onPaginate={(page) => setCurrentPage(page)}
-              currentPage={currentPage}
-              totalItem={skuPrices.length}
+              onPaginate={(page) => setCurrentPageProduct(page)}
+              currentPage={0}
+              totalItem={0}
             >
               {skuPrices.map((i, k) => (
                 <tr
@@ -1892,6 +2071,88 @@ export default function Product() {
           </div>
         </div>
       </Modal>
+
+      <Modal isOpen={isViewSkuExclude}>
+        <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+          <div
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            onClick={() => {
+              setIsViewSkuExclude(false);
+            }}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                Exclude SKU
+              </h2>
+            </div>
+            <div className="space-y-4 rounded-lg bg-white p-4 dark:bg-gray-700 lg:flex lg:space-x-4 lg:space-y-0">
+              <InputDropdown
+                label={"Outlets*"}
+                name={"Outlets"}
+                id={"Outlets"}
+                value={formikExcludeSku.values.outlet_id}
+                onChange={(v) => formikExcludeSku.setFieldValue("outlet_id", v)}
+                options={outlets}
+                error={
+                  formikExcludeSku.touched.outlet_id &&
+                  formikExcludeSku.errors.outlet_id
+                    ? formikExcludeSku.errors.outlet_id
+                    : null
+                }
+              />
+
+              <button
+                onClick={() => {
+                  formikExcludeSku.submitForm();
+                }}
+                className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 h-70 overflow-y-auto">
+            <Table
+              colls={["#", "Outlet", "City", "Action"]}
+              onPaginate={(page) => setCurrentPageProduct(page)}
+              currentPage={0}
+              totalItem={0}
+            >
+              {excludes.map((i: any, k: number) => (
+                <tr
+                  key={k}
+                  className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                >
+                  <td className="px-6 py-4">{k + 1}</td>
+                  <td className="px-6 py-4">{i.outlet?.name}</td>
+                  <td className="px-6 py-4">{i.outlet?.city.split("--")[1]}</td>
+                  <td className="px-6 py-4">
+                    <div className="group relative">
+                      <button
+                        onClick={() => {
+                          removeExclude(i.id);
+                          setRefresh(!refresh);
+                        }}
+                      >
+                        <FiTrash size={18} />
+                      </button>
+                      <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                        Remove Exclude
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          </div>
+        </div>
+      </Modal>
+
       <Modal isOpen={false}>
         <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
           <div

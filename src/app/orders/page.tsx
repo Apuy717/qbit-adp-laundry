@@ -5,6 +5,7 @@ import { InputDropdown } from "@/components/Inputs/InputComponent";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
@@ -33,7 +34,7 @@ export default function Orders() {
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
-  const { auth } = useSelector((s: RootState) => s.auth);
+  const { auth, role } = useSelector((s: RootState) => s.auth);
   const [items, setItems] = useState<OrderType[]>([]);
   const [totalItem, setTotalItem] = useState<number>(0);
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
@@ -186,7 +187,9 @@ export default function Orders() {
   }
 
   async function setPaidHandle(id: string) {
-    const userConfirmed = window.confirm("Are you sure to change payment status to Paid?");
+    const userConfirmed = window.confirm(
+      "Are you sure to change payment status to Paid?",
+    );
     if (!userConfirmed) {
       return;
     }
@@ -197,15 +200,15 @@ export default function Orders() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.access_token}`,
         },
-      })
+      });
       const res = await result.json();
-      if (res.statusCode===200) {
-        toast.success("Set Paid Success")
-        setRefresh(!refresh)
+      if (res.statusCode === 200) {
+        toast.success("Set Paid Success");
+        setRefresh(!refresh);
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Something went wrong: "+error)
+      toast.error("Something went wrong: " + error);
     }
   }
 
@@ -249,7 +252,7 @@ export default function Orders() {
           </div>
 
           <button
-            className={`font-edium inline-flex w-full items-center justify-center rounded-md bg-black px-10 
+            className={`${role.name === ERoles.OUTLET_ADMIN && "hidden"} font-edium inline-flex w-full items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90`}
             onClick={() => router.push("/orders/create")}
           >

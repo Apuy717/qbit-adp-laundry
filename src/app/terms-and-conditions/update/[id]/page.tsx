@@ -5,6 +5,7 @@ import {
   Input,
   InputDropdown,
   InputTextArea,
+  InputTextArea2,
   InputTextAreaWithKeydown,
 } from "@/components/Inputs/InputComponent";
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
@@ -162,7 +163,13 @@ export default function TermsAndConditions({
           label={"Outlets*"}
           name={"Outlets"}
           id={"Outlets"}
-          value={formik.values.outlet_id}
+          value={
+            formik.values.outlet_id
+              ? formik.values.outlet_id
+              : outlets.length >= 1
+                ? outlets[0].value
+                : ""
+          }
           onChange={(v) => formik.setFieldValue(`outlet_id`, v)}
           options={outlets}
           error={
@@ -175,7 +182,7 @@ export default function TermsAndConditions({
           label={"Terms and Conditions Title*"}
           name={"title"}
           id={"title"}
-          value={formik.values.title}
+          value={formik.values.title ? formik.values.title : ""}
           onChange={(v) => formik.setFieldValue("title", v)}
           error={
             formik.touched.title && formik.errors.title
@@ -205,7 +212,7 @@ export default function TermsAndConditions({
                 label={"Items Title*"}
                 name={"label"}
                 id={"label"}
-                value={i.label}
+                value={i.label ? i.label : ""}
                 onChange={(v) =>
                   formik.setFieldValue(`items[${index}].label`, v)
                 }
@@ -217,7 +224,8 @@ export default function TermsAndConditions({
                     : null
                 }
               />
-              <InputTextArea
+              <InputTextArea2
+                className="h-auto"
                 label={"Items Content*"}
                 name={"text"}
                 id={"text"}
@@ -266,9 +274,7 @@ export default function TermsAndConditions({
 
       <div className="mt-6 h-full w-full space-y-6 rounded-md bg-white p-4 dark:bg-boxdark">
         <div className="w-full">
-          <div
-            className="w-auto rounded-md bg-gray-500 px-10 py-2 text-center font-medium text-white lg:px-8 xl:px-10"
-          >
+          <div className="w-auto rounded-md bg-gray-500 px-10 py-2 text-center font-medium text-white lg:px-8 xl:px-10">
             Preview
           </div>
         </div>
