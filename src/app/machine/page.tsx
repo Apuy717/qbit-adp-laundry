@@ -385,7 +385,7 @@ export default function PageMachine() {
             Search
           </button>
           <button
-            className={`${role.name !== ERoles.PROVIDER && "hidden"} font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
+            className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.TECHNICIAN && "hidden"} font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={() => setModalForm(true)}
           >

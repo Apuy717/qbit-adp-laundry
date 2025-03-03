@@ -186,12 +186,12 @@ export default function Product() {
             selectedOutlets.length >= 1
               ? selectedOutlets.map((o) => o.outlet_id)
               : auth.department !== EDepartmentEmployee.HQ &&
-                  auth.role.name !== ERoles.PROVIDER
+                  auth.role.name !== ERoles.PROVIDER 
                 ? defaultSelectedOutlet.map((o) => o.outlet_id)
                 : [],
         },
       });
-
+      
       if (res?.statusCode === 200) {
         setTotalSkus(res.data);
         setPaginationSkus(res.total);
@@ -220,9 +220,12 @@ export default function Product() {
 
       setCategorys(mapingCategory);
     };
-    GotProduct();
-    GotSku();
-    GotCategorys();
+    if (!modal && auth) {
+      GotProduct();
+      GotSku();
+      GotCategorys();
+    }
+   
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
@@ -286,7 +289,7 @@ export default function Product() {
       GotPriceSku();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, isViewSkuExclude, auth.auth.access_token]);
+  }, [loading, refresh, isViewSkuExclude, auth.auth.access_token]);
 
   const handleSearch = async () => {
     if (tabActive === TabActive.PRODUCT) {
@@ -511,6 +514,7 @@ export default function Product() {
     }),
     onSubmit: async (values) => {
       console.log(values);
+      setLoading(true);
 
       const res = await PostWithToken<any>({
         router: router,
@@ -524,7 +528,7 @@ export default function Product() {
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
       }
-      setRefresh(!refresh);
+      setLoading(false);
     },
   });
 
@@ -599,6 +603,8 @@ export default function Product() {
     if (!userConfirmed) {
       return;
     }
+    setLoading(true);
+
     const res: any = await fetch(`/api/product/exclude/remove/${id}`, {
       method: "POST",
       headers: {
@@ -611,6 +617,7 @@ export default function Product() {
       toast.success("Delete data success!");
       setRefresh(true);
     }
+    setLoading(false);
   };
 
   return (
