@@ -2,6 +2,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { InputDropdown } from "@/components/Inputs/InputComponent";
+import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
@@ -11,6 +12,7 @@ import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters, AiOutlinePlus } from "react-icons/ai";
+import { CiCircleAlert } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
 import { HiDownload } from "react-icons/hi";
@@ -46,6 +48,10 @@ export default function Orders() {
   const [orderStatus, setOrderStatus] = useState<string>("all");
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
     FilterByOutletContext,
+  );
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
   );
 
   enum TabActive {
@@ -187,12 +193,7 @@ export default function Orders() {
   }
 
   async function setPaidHandle(id: string) {
-    const userConfirmed = window.confirm(
-      "Are you sure to change payment status to Paid?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
+   
     try {
       const result = await fetch(`/api/order/set-paid/${id}`, {
         method: "POST",
@@ -203,8 +204,10 @@ export default function Orders() {
       });
       const res = await result.json();
       if (res.statusCode === 200) {
+        setRefresh(true);
+        setDeleteModal(false)
         toast.success("Set Paid Success");
-        setRefresh(!refresh);
+        setRefresh(false);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -418,7 +421,11 @@ export default function Orders() {
               </td>
               <td className="px-6 py-4">
                 <button
-                  onClick={() => setPaidHandle(i.id)}
+                  onClick={() => {
+                    setDeleteFunction(() => () => setPaidHandle(i.id));
+                    setDeleteModal(true);
+                    setRefresh(!refresh);
+                  }}
                   className={
                     i.payment_status === EPaymentStatus.PAID
                       ? `hidden`
@@ -605,6 +612,37 @@ export default function Orders() {
           </div>
         )}
       </div>
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you wanna set payment to paid?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
