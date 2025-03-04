@@ -17,7 +17,7 @@ import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -25,6 +25,10 @@ import { PiExcludeSquareDuotone } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { EDepartmentEmployee } from "@/types/employee";
+import { ERoles } from "@/stores/authReducer";
+import { CiCircleAlert } from "react-icons/ci";
 
 interface MyResponse {
   statusCode: number;
@@ -61,11 +65,18 @@ export default function Product() {
   const [productOrSku, setProductOrSku] = useState<boolean>(false);
   const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false);
   const [addSkuModal, setaddSkuModal] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
+  );
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
   const [productId, setProductId] = useState<string | null>(null);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
 
   const [skuId, setSkuId] = useState<string>("");
   const [skuPrices, setSkuPrices] = useState<any[]>([]);
@@ -132,8 +143,13 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: filterByOutlet,
-          category_id: "",
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : auth.department !== EDepartmentEmployee.HQ &&
+                  auth.role.name !== ERoles.PROVIDER
+                ? defaultSelectedOutlet.map((o) => o.outlet_id)
+                : [],
         },
       });
       const productMap = res.data.map((i: any) => {
@@ -171,7 +187,13 @@ export default function Product() {
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids: [],
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : auth.department !== EDepartmentEmployee.HQ &&
+                  auth.role.name !== ERoles.PROVIDER
+                ? defaultSelectedOutlet.map((o) => o.outlet_id)
+                : [],
         },
       });
 
@@ -203,9 +225,12 @@ export default function Product() {
 
       setCategorys(mapingCategory);
     };
-    GotProduct();
-    GotSku();
-    GotCategorys();
+    if (!modal && auth) {
+      GotProduct();
+      GotSku();
+      GotCategorys();
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
@@ -218,6 +243,10 @@ export default function Product() {
     filterByOutlet,
     isViewDetail,
     tabActive,
+    modal,
+    defaultSelectedOutlet,
+    selectedOutlets,
+    deleteModal,
   ]);
 
   useEffect(() => {
@@ -266,7 +295,7 @@ export default function Product() {
       GotPriceSku();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, isViewSkuExclude, auth.auth.access_token]);
+  }, [loading, refresh, isViewSkuExclude, auth.auth.access_token]);
 
   const handleSearch = async () => {
     if (tabActive === TabActive.PRODUCT) {
@@ -491,6 +520,7 @@ export default function Product() {
     }),
     onSubmit: async (values) => {
       console.log(values);
+      setLoading(true);
 
       const res = await PostWithToken<any>({
         router: router,
@@ -503,8 +533,8 @@ export default function Product() {
       }
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
-        setRefresh(true);
       }
+      setLoading(false);
     },
   });
 
@@ -535,12 +565,6 @@ export default function Product() {
   };
 
   const deleteProduct = async (id: any) => {
-    const userConfirmed = window.confirm(
-      "Are you sure to delete this Product?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
     const res = await PostWithToken<any>({
       router: router,
       url: "/api/product/remove-product",
@@ -551,15 +575,15 @@ export default function Product() {
       token: `${auth.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setLoading(true);
       toast.success("Delete data success!");
+      setDeleteModal(false);
+      setDeleteFunction(() => () => {});
       setRefresh(true);
+      setLoading(false);
     }
   };
   const deleteSku = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure to delete this SKU?");
-    if (!userConfirmed) {
-      return;
-    }
     const res = await PostWithToken<any>({
       router: router,
       url: "/api/product/remove-sku",
@@ -570,16 +594,18 @@ export default function Product() {
       token: `${auth.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setLoading(true);
+      setDeleteModal(false);
       toast.success("Delete data success!");
       setRefresh(true);
+      setLoading(false);
+      setIsViewDetail(false);
     }
   };
   const removeExclude = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure to remove Exclude?");
-    if (!userConfirmed) {
-      return;
-    }
-    const res:any = await fetch(`/api/product/exclude/remove/${id}`, {
+    setLoading(true);
+
+    const res: any = await fetch(`/api/product/exclude/remove/${id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -587,10 +613,14 @@ export default function Product() {
         Authorization: `Bearer ${auth.auth.access_token}`,
       },
     });
-    if (res?.statusCode === 200) {
+    console.log(res);
+    
+    if (res?.status === 200) {
+      setDeleteModal(false);
       toast.success("Delete data success!");
       setRefresh(true);
     }
+    setLoading(false);
   };
 
   return (
@@ -761,7 +791,8 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        deleteProduct(prod.id);
+                        setDeleteFunction(() => () => deleteProduct(prod.id));
+                        setDeleteModal(true);
                         setRefresh(!refresh);
                       }}
                     >
@@ -940,7 +971,8 @@ export default function Product() {
                 <div className="group relative">
                   <button
                     onClick={() => {
-                      deleteSku(i.id);
+                      setDeleteModal(true);
+                      setDeleteFunction(() => () => deleteSku(i.id));
                       setRefresh(!refresh);
                     }}
                   >
@@ -1181,6 +1213,7 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
+                        setSkuId(i.id);
                         formikExcludeSku.setFieldValue("sku_id", i.id);
                         setIsViewSkuExclude(true);
                       }}
@@ -1195,7 +1228,8 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        deleteSku(i.id);
+                        setDeleteModal(true);
+                        setDeleteFunction(() => () => deleteSku(i.id));
                         setRefresh(!refresh);
                       }}
                     >
@@ -2135,7 +2169,8 @@ export default function Product() {
                     <div className="group relative">
                       <button
                         onClick={() => {
-                          removeExclude(i.id);
+                          setDeleteModal(true)
+                          setDeleteFunction(() => () => removeExclude(i.id));
                           setRefresh(!refresh);
                         }}
                       >
@@ -2207,6 +2242,38 @@ export default function Product() {
               className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
               Submit
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
             </button>
           </div>
         </div>

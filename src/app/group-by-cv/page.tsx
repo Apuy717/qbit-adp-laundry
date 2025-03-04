@@ -18,6 +18,7 @@ import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { CiCircleAlert } from "react-icons/ci";
 import { FaLocationDot, FaLocationPin } from "react-icons/fa6";
 import { FiDelete, FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -54,6 +55,10 @@ export default function OutletPage() {
   const [cvItems, setCvItems] = useState<any[]>([]);
   const [mapingGroupOutlet, setMapingGroupOutlet] = useState<GroupingType[]>(
     [],
+  );
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
   );
   const [mapingUngroupOutlet, setMapingUngroupOutlet] = useState<
     GroupingType[]
@@ -362,12 +367,6 @@ export default function OutletPage() {
     },
   });
   const deleteCv = async (id: any) => {
-    const userConfirmed = window.confirm(
-      "Are you sure you want to delete this CV?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
     const res = await fetch(`api/outlet-grouping/group/delete/${id}`, {
       method: "POST",
       headers: {
@@ -377,8 +376,10 @@ export default function OutletPage() {
       },
     });
     if (res?.status === 200) {
+      setRefresh(false)
       toast.success("Data changed success!");
       formikNewCv.setFieldValue("name", "");
+      setDeleteModal(false)
       setRefresh(true);
     }
   };
@@ -604,7 +605,8 @@ export default function OutletPage() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        deleteCv(i.id);
+                        setDeleteFunction(()=>()=>deleteCv(i.id))
+                        setDeleteModal(true)
                         setRefresh(!refresh);
                       }}
                     >
@@ -889,6 +891,68 @@ export default function OutletPage() {
                 Submit
               </button>
             </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </Modal>

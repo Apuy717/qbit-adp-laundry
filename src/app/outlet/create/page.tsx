@@ -15,6 +15,7 @@ import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CiCircleAlert } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa6";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -45,6 +46,10 @@ export default function CreateOutlet() {
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
+  );
   const auth = useSelector((s: RootState) => s.auth);
 
   const router = useRouter();
@@ -241,7 +246,7 @@ export default function CreateOutlet() {
           if (maping[0].value.split("--").length >= 2)
             GotCity(maping[0].value.split("--")[0]);
         }
-        setProvince(maping); 
+        setProvince(maping);
       }
     }
 
@@ -319,12 +324,6 @@ export default function CreateOutlet() {
   }
 
   const deleteArea = async (id: any) => {
-    const userConfirmed = window.confirm(
-      "Are you sure you want to delete this Area?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
     const data = {
       area_id: id,
     };
@@ -336,9 +335,12 @@ export default function CreateOutlet() {
       token: `${auth.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setRefresh(false);
       toast.success("Data changed success!");
       formik.setFieldValue("name", "");
       formik.setFieldValue("area_id", "");
+      setDeleteModal(false);
+      setAreaModal(false)
       setRefresh(true);
     }
   };
@@ -650,7 +652,8 @@ export default function CreateOutlet() {
                       <div className="group relative">
                         <button
                           onClick={() => {
-                            deleteArea(i.id);
+                            setDeleteFunction(() => () => deleteArea(i.id));
+                            setDeleteModal(true);
                             setRefresh(!refresh);
                           }}
                         >
@@ -665,6 +668,37 @@ export default function CreateOutlet() {
                 ))}
               </Table>
             </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </Modal>
