@@ -28,6 +28,7 @@ import * as Yup from "yup";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { EDepartmentEmployee } from "@/types/employee";
 import { ERoles } from "@/stores/authReducer";
+import { CiCircleAlert } from "react-icons/ci";
 
 interface MyResponse {
   statusCode: number;
@@ -64,6 +65,10 @@ export default function Product() {
   const [productOrSku, setProductOrSku] = useState<boolean>(false);
   const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false);
   const [addSkuModal, setaddSkuModal] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
+  );
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
@@ -186,12 +191,12 @@ export default function Product() {
             selectedOutlets.length >= 1
               ? selectedOutlets.map((o) => o.outlet_id)
               : auth.department !== EDepartmentEmployee.HQ &&
-                  auth.role.name !== ERoles.PROVIDER 
+                  auth.role.name !== ERoles.PROVIDER
                 ? defaultSelectedOutlet.map((o) => o.outlet_id)
                 : [],
         },
       });
-      
+
       if (res?.statusCode === 200) {
         setTotalSkus(res.data);
         setPaginationSkus(res.total);
@@ -225,7 +230,7 @@ export default function Product() {
       GotSku();
       GotCategorys();
     }
-   
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
@@ -241,6 +246,7 @@ export default function Product() {
     modal,
     defaultSelectedOutlet,
     selectedOutlets,
+    deleteModal,
   ]);
 
   useEffect(() => {
@@ -559,12 +565,6 @@ export default function Product() {
   };
 
   const deleteProduct = async (id: any) => {
-    const userConfirmed = window.confirm(
-      "Are you sure to delete this Product?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
     const res = await PostWithToken<any>({
       router: router,
       url: "/api/product/remove-product",
@@ -575,15 +575,15 @@ export default function Product() {
       token: `${auth.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setLoading(true);
       toast.success("Delete data success!");
+      setDeleteModal(false);
+      setDeleteFunction(() => () => {});
       setRefresh(true);
+      setLoading(false);
     }
   };
   const deleteSku = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure to delete this SKU?");
-    if (!userConfirmed) {
-      return;
-    }
     const res = await PostWithToken<any>({
       router: router,
       url: "/api/product/remove-sku",
@@ -594,15 +594,15 @@ export default function Product() {
       token: `${auth.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setLoading(true);
+      setDeleteModal(false);
       toast.success("Delete data success!");
       setRefresh(true);
+      setLoading(false);
+      setIsViewDetail(false);
     }
   };
   const removeExclude = async (id: any) => {
-    const userConfirmed = window.confirm("Are you sure to remove Exclude?");
-    if (!userConfirmed) {
-      return;
-    }
     setLoading(true);
 
     const res: any = await fetch(`/api/product/exclude/remove/${id}`, {
@@ -613,7 +613,10 @@ export default function Product() {
         Authorization: `Bearer ${auth.auth.access_token}`,
       },
     });
-    if (res?.statusCode === 200) {
+    console.log(res);
+    
+    if (res?.status === 200) {
+      setDeleteModal(false);
       toast.success("Delete data success!");
       setRefresh(true);
     }
@@ -788,7 +791,8 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        deleteProduct(prod.id);
+                        setDeleteFunction(() => () => deleteProduct(prod.id));
+                        setDeleteModal(true);
                         setRefresh(!refresh);
                       }}
                     >
@@ -967,7 +971,8 @@ export default function Product() {
                 <div className="group relative">
                   <button
                     onClick={() => {
-                      deleteSku(i.id);
+                      setDeleteModal(true);
+                      setDeleteFunction(() => () => deleteSku(i.id));
                       setRefresh(!refresh);
                     }}
                   >
@@ -1223,7 +1228,8 @@ export default function Product() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        deleteSku(i.id);
+                        setDeleteModal(true);
+                        setDeleteFunction(() => () => deleteSku(i.id));
                         setRefresh(!refresh);
                       }}
                     >
@@ -2163,7 +2169,8 @@ export default function Product() {
                     <div className="group relative">
                       <button
                         onClick={() => {
-                          removeExclude(i.id);
+                          setDeleteModal(true)
+                          setDeleteFunction(() => () => removeExclude(i.id));
                           setRefresh(!refresh);
                         }}
                       >
@@ -2235,6 +2242,38 @@ export default function Product() {
               className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
               Submit
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
             </button>
           </div>
         </div>

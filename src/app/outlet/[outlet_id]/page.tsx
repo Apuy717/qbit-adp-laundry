@@ -17,6 +17,7 @@ import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CiCircleAlert } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -71,6 +72,10 @@ export default function UpdateOutlet({
   const [countrys, setCountrys] = useState<iDropdown[]>([]);
   const [dialCodes, setDialCodes] = useState<iDropdown[]>([]);
   const [dateComponent, setDateCompnent] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [deleteFunction, setDeleteFunction] = useState<() => void>(
+    () => () => {},
+  );
 
   let startOfMonth = new Date(
     new Date().getFullYear(),
@@ -107,7 +112,12 @@ export default function UpdateOutlet({
       formik.setFieldValue("id", res.data.id);
       formik.setFieldValue("name", res.data.name);
       // formik.setFieldValue("country", res.data.country)
-      // formik.setFieldValue("area_id", res.data.area_id)
+      if (res.data.outlet_area_grouping !== null) {
+        formik.setFieldValue(
+          "area_id",
+          res.data.outlet_area_grouping.outlet_area.id,
+        );
+      }
       formik.setFieldValue("province", res.data.province);
       formik.setFieldValue("city", res.data.city);
       formik.setFieldValue("district", res.data.district);
@@ -122,6 +132,7 @@ export default function UpdateOutlet({
       formik.setFieldValue("opening_schedule", res.data.opening_schedule);
       setOutlet(res.data);
       setDateCompnent(true);
+      console.log(res.data);
 
       if (res.data.province && res.data.province.split("--").length >= 2)
         GotCity(res.data.province.split("--")[0], isupdate);
@@ -201,7 +212,11 @@ export default function UpdateOutlet({
 
       if (mapingArea.length >= 1) {
         setMapingGroupArea(mapingArea);
-        if (formik.values.area_id === "" && outlet !== null) {
+        if (
+          formik.values.area_id === "" &&
+          outlet !== null &&
+          outlet.outlet_area_grouping !== null
+        ) {
           const item = mapingGroupArea.findIndex(
             (i: any) => i.value === outlet?.outlet_area_grouping.outlet_area.id,
           );
@@ -211,7 +226,15 @@ export default function UpdateOutlet({
     };
     GotGroupingAreas();
     GotAreas();
-  }, [credential.auth.access_token, router, areaModal, outlet,mapingGroupArea]);
+  }, [
+    credential.auth.access_token,
+    router,
+    areaModal,
+    outlet,
+    mapingGroupArea,
+    refresh,
+    deleteModal,
+  ]);
 
   const formikArea = useFormik({
     initialValues: {
@@ -221,7 +244,6 @@ export default function UpdateOutlet({
       name: Yup.string().required("Area name shouldn't be empty"),
     }),
     onSubmit: async (values) => {
-
       const res = await PostWithToken<MyResponse>({
         router: router,
         url: "/api/outlet/create-or-update-area",
@@ -276,6 +298,8 @@ export default function UpdateOutlet({
       // is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
+      console.log(values);
+
       if (loading) return;
       setLoading(true);
       const res = await PostWithToken<iResponseOutlet>({
@@ -284,6 +308,7 @@ export default function UpdateOutlet({
         data: values,
         token: `${credential.auth.access_token}`,
       });
+      console.log(res.data);
 
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
@@ -294,7 +319,7 @@ export default function UpdateOutlet({
 
       if (res.statusCode === 200) {
         toast.success("Update data success!");
-        router.push("/outlet"); 
+        router.push("/outlet");
       }
       setLoading(false);
     },
@@ -360,12 +385,6 @@ export default function UpdateOutlet({
   }
 
   const deleteArea = async (id: any) => {
-    const userConfirmed = window.confirm(
-      "Are you sure you want to delete this Area?",
-    );
-    if (!userConfirmed) {
-      return;
-    }
     const data = {
       area_id: id,
     };
@@ -377,9 +396,11 @@ export default function UpdateOutlet({
       token: `${credential.auth.access_token}`,
     });
     if (res?.statusCode === 200) {
+      setRefresh(false);
       toast.success("Data changed success!");
       formik.setFieldValue("name", "");
       formik.setFieldValue("area_id", "");
+      setDeleteModal(false);
       setRefresh(true);
     }
   };
@@ -725,7 +746,8 @@ export default function UpdateOutlet({
                       <div className="group relative">
                         <button
                           onClick={() => {
-                            deleteArea(i.id);
+                            setDeleteFunction(() => () => deleteArea(i.id));
+                            setDeleteModal(true);
                             setRefresh(!refresh);
                           }}
                         >
@@ -740,6 +762,37 @@ export default function UpdateOutlet({
                 ))}
               </Table>
             </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal isOpen={deleteModal}>
+        <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-fit">
+          <div className="flex w-full justify-center">
+            <CiCircleAlert size={100} />
+          </div>
+          <div className="flex-wrap justify-center">
+            <p className="w-full text-center text-2xl font-semibold">
+              Are you sure?
+            </p>
+            <p className="w-full text-center">you want to delete this data?</p>
+          </div>
+          <div className="flex w-full justify-center space-x-4">
+            <button
+              onClick={() => {
+                deleteFunction();
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={() => {
+                setDeleteModal(false);
+              }}
+              className="mt-4 inline-flex items-center justify-center rounded-md bg-red px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </Modal>

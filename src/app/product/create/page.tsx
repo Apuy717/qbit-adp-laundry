@@ -165,6 +165,9 @@ export default function CreateProduct() {
         });
       }
 
+      if (res.statusCode === 422) {
+        toast.error(res.err[0]);
+      }
       if (res.statusCode === 200) {
         toast.success("Success create product!");
         router.push("/product");
@@ -176,7 +179,7 @@ export default function CreateProduct() {
     formik.setFieldValue("variants", [
       ...formik.values.variants,
       {
-        outlet_id: "",
+        outlet_id: "all",
         code: "",
         name: "",
         description: "",

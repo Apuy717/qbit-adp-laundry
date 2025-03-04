@@ -4,7 +4,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Input } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
-import { GetWithToken, iResponse } from "@/libs/FetchData";
+import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Employee } from "@/types/employee";
 import { useRouter } from "next/navigation";
@@ -36,14 +36,15 @@ export function ModalCashierComponent(props: iModalCashier) {
     if (!props.showModal) return
 
     async function GotItems() {
-      let urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}&outlet_id=${props.outletId}`;
+      let urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}&outlet_id=${props.outletId}`;
+        urlwithQuery = `/api/auth/employee?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
       }
-      const res = await GetWithToken<iResponse<Employee[]>>({
+      const res = await PostWithToken<iResponse<Employee[]>>({
         url: urlwithQuery,
         router: router,
-        token: `${access_token}`
+        token: `${access_token}`,
+        data:{outlet_ids:[props.outletId]}
       })
 
       if (res.statusCode === 200) {
