@@ -16,7 +16,7 @@ import {
 } from "react-icons/fa";
 import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosApps, IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
 import { TbIroningSteam } from "react-icons/tb";
@@ -122,6 +122,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Terms And Conditions",
           route: "/terms-and-conditions",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+        },
+        {
+          icon: <IoIosApps size={22}/>,
+          label: "Release Versions",
+          route: "/release-versions",
+          role: [ERoles.PROVIDER],
         },
 
       ],
