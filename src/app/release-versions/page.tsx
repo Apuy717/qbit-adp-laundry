@@ -1,7 +1,7 @@
 "use client"
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
-import { Input, InputTextArea } from "@/components/Inputs/InputComponent"
+import { Input, InputDropdown, InputTextArea } from "@/components/Inputs/InputComponent"
 import Modal from "@/components/Modals/Modal"
 import Table from "@/components/Tables/Table"
 import { FilterByOutletContext } from "@/contexts/selectOutletContex"
@@ -19,7 +19,20 @@ import { toast } from "react-toastify"
 import * as Yup from "yup";
 
 
-
+const optPlatform = [
+  {
+    value: "mobile",
+    label: "mobile",
+  },
+  {
+    value: "adp",
+    label: "adp",
+  },
+  {
+    value: "api",
+    label: "api",
+  },
+]
 export default function ReleaseVersions() {
 
   const [data, setData] = useState<any[]>([])
@@ -70,7 +83,7 @@ export default function ReleaseVersions() {
 
   const formikCreate = useFormik({
     initialValues: {
-      platform: "",
+      platform: optPlatform[0].value,
       version: "",
       label: "",
       download: "",
@@ -298,11 +311,12 @@ export default function ReleaseVersions() {
 
           <div className=" h-96 overflow-y-scroll py-2">
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1">
-              <Input
+              <InputDropdown
                 label={"Platform*"}
                 name={`Platform`}
                 id={`Platform`}
                 value={formikCreate.values.platform}
+                options={optPlatform}
                 onChange={(v) =>
                   formikCreate.setFieldValue(`platform`, v)
                 }
@@ -396,11 +410,12 @@ export default function ReleaseVersions() {
 
           <div className=" h-96 overflow-y-scroll py-2">
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1">
-              <Input
+              <InputDropdown
                 label={"Platform*"}
                 name={`Platform`}
                 id={`Platform`}
                 value={formikUpdate.values.platform}
+                options={optPlatform}
                 onChange={(v) =>
                   formikUpdate.setFieldValue(`platform`, v)
                 }
