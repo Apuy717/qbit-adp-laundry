@@ -7,6 +7,7 @@ import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
+import { EDepartmentEmployee } from "@/types/employee";
 import { RootState } from "@/stores/store";
 import { EPaymentStatus, EStatusOrder, OrderType } from "@/types/orderType";
 import { useRouter } from "next/navigation";
@@ -36,7 +37,8 @@ export default function Orders() {
   const [startDate, setStartDate] = useState<Date | string>(startOfMonth);
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
-  const { auth, role } = useSelector((s: RootState) => s.auth);
+  const { auth, role, department } = useSelector((s: RootState) => s.auth);
+
   const [items, setItems] = useState<OrderType[]>([]);
   const [totalItem, setTotalItem] = useState<number>(0);
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
@@ -50,8 +52,9 @@ export default function Orders() {
     FilterByOutletContext,
   );
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [alert, setAlert] = useState<string>("")
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
-    () => () => {},
+    () => () => { },
   );
 
   enum TabActive {
@@ -193,7 +196,7 @@ export default function Orders() {
   }
 
   async function setPaidHandle(id: string) {
-   
+
     try {
       const result = await fetch(`/api/order/set-paid/${id}`, {
         method: "POST",
@@ -204,10 +207,38 @@ export default function Orders() {
       });
       const res = await result.json();
       if (res.statusCode === 200) {
-        setRefresh(true);
+        setRefresh(!refresh);
         setDeleteModal(false)
         toast.success("Set Paid Success");
-        setRefresh(false);
+        setRefresh(!refresh);
+      } else {
+        setDeleteModal(false)
+        toast.error(res.err);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong: " + error);
+    }
+  }
+  async function cancelOrder(id: string) {
+
+    try {
+      const result = await fetch(`/api/order/cancel/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.access_token}`,
+        },
+      });
+      const res = await result.json();
+      if (res.statusCode === 200) {
+        setRefresh(!refresh);
+        setDeleteModal(false)
+        toast.success("Cancel Order Success");
+        setRefresh(!refresh);
+      } else {
+        setDeleteModal(false)
+        toast.error(res.err);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -283,11 +314,10 @@ export default function Orders() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.ALL
+              ${tabActive === TabActive.ALL
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.ALL)}
             >
@@ -297,11 +327,10 @@ export default function Orders() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.B2C
+              ${tabActive === TabActive.B2C
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.B2C)}
             >
@@ -311,11 +340,10 @@ export default function Orders() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.B2B
+              ${tabActive === TabActive.B2B
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.B2B)}
             >
@@ -419,12 +447,12 @@ export default function Orders() {
                   {i.status.toUpperCase()}
                 </p>
               </td>
-              <td className="px-6 py-4">
+              <td className="flex space-x-2 px-6 py-4">
                 <button
                   onClick={() => {
+                    setAlert("you wanna set payment to paid?")
                     setDeleteFunction(() => () => setPaidHandle(i.id));
                     setDeleteModal(true);
-                    setRefresh(!refresh);
                   }}
                   className={
                     i.payment_status === EPaymentStatus.PAID
@@ -434,6 +462,20 @@ export default function Orders() {
                 >
                   SET PAID
                 </button>
+                {i.status !== "canceled" ? <button
+                  onClick={() => {
+                    setAlert("you wanna cancel this order?")
+                    setDeleteFunction(() => () => cancelOrder(i.id));
+                    setDeleteModal(true);
+                  }}
+                  className={
+                    role.name !== ERoles.PROVIDER && department !== EDepartmentEmployee.HO
+                      ? `hidden`
+                      : `w-min rounded bg-red-700 px-2 py-1 text-center text-white`
+                  }
+                >
+                  CANCEL ORDER
+                </button> : null}
               </td>
             </tr>
           ))}
@@ -621,7 +663,7 @@ export default function Orders() {
             <p className="w-full text-center text-2xl font-semibold">
               Are you sure?
             </p>
-            <p className="w-full text-center">you wanna set payment to paid?</p>
+            <p className="w-full text-center">{alert}</p>
           </div>
           <div className="flex w-full justify-center space-x-4">
             <button

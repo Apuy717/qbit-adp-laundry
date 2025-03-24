@@ -13,7 +13,7 @@ import { useContext, useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
 
-export default function IncidentPage() {
+export default function IronPerformancePage() {
   let startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
   let endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1);
 
