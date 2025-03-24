@@ -200,13 +200,13 @@ export default function ReleaseVersions() {
           </div>
           <button
             onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+            className={`w-full md:w-fit inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
                 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
           </button>
           <button
-            className={`font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
+            className={`w-full md:w-fit font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={() => {
               setCreateModal(true)
@@ -240,7 +240,7 @@ export default function ReleaseVersions() {
               <p className="text-xs font-medium">
                 Changes:
               </p>
-              <p className="text-xs font-thin">
+              <p className="text-xs font-thin whitespace-nowrap">
                 {i.description
                   .split("\n")
                   .map((line: string, index: number) => (
