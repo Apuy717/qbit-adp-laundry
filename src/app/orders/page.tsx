@@ -19,6 +19,8 @@ import { FiEye } from "react-icons/fi";
 import { HiDownload } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { GiTakeMyMoney } from "react-icons/gi";
+import { MdCancel } from "react-icons/md";
 
 export default function Orders() {
   let startOfMonth = new Date(
@@ -443,39 +445,55 @@ export default function Orders() {
                 </p>
               </td>
               <td className="px-6 py-4">
-                <p className={`w-min rounded px-2 py-1 text-center`}>
+                <p className={`w-min rounded px-2 py-1 text-center
+                  ${i.status === EStatusOrder.COMPLETED && "text-green-500"}
+                  ${i.status === EStatusOrder.PROCESS && "text-yellow-500"}
+                  ${i.status === EStatusOrder.CANCELED && "text-red-500"}
+                  `}>
                   {i.status.toUpperCase()}
                 </p>
               </td>
-              <td className="flex space-x-2 px-6 py-4">
-                <button
-                  onClick={() => {
-                    setAlert("you wanna set payment to paid?")
-                    setDeleteFunction(() => () => setPaidHandle(i.id));
-                    setDeleteModal(true);
-                  }}
-                  className={
-                    i.payment_status === EPaymentStatus.PAID
-                      ? `hidden`
-                      : `w-min rounded bg-green-700 px-2 py-1 text-center text-white`
-                  }
-                >
-                  SET PAID
-                </button>
-                {i.status !== "canceled" ? <button
-                  onClick={() => {
-                    setAlert("you wanna cancel this order?")
-                    setDeleteFunction(() => () => cancelOrder(i.id));
-                    setDeleteModal(true);
-                  }}
-                  className={
-                    role.name !== ERoles.PROVIDER && department !== EDepartmentEmployee.HO
-                      ? `hidden`
-                      : `w-min rounded bg-red-700 px-2 py-1 text-center text-white`
-                  }
-                >
-                  CANCEL ORDER
-                </button> : null}
+              <td className="inline-flex space-x-2 px-6 py-4">
+                <div className="group relative">
+                  <button
+                    onClick={() => {
+                      setAlert("you wanna set payment to paid?")
+                      setDeleteFunction(() => () => setPaidHandle(i.id));
+                      setDeleteModal(true);
+                    }}
+                    className={
+                      i.status === EStatusOrder.CANCELED || i.payment_status === EPaymentStatus.PAID
+                        ? `hidden`
+                        : `w-auto whitespace-nowrap h-10 rounded bg-green-700 px-2 py-1 text-white text-xs font bold`
+                    }
+                  >
+                    <GiTakeMyMoney size={22} />
+                  </button>
+                  <div className="whitespace-nowrap absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-80 group-hover:block">
+                    Set Paid
+                  </div>
+                </div>
+                {i.status !== "canceled" ?
+                  <div className="group relative">
+                    <button
+                      onClick={() => {
+                        setAlert("you wanna cancel this order?")
+                        setDeleteFunction(() => () => cancelOrder(i.id));
+                        setDeleteModal(true);
+                      }}
+                      className={
+                        i.status === EStatusOrder.COMPLETED || role.name !== ERoles.PROVIDER && department !== EDepartmentEmployee.HO
+                          ? `hidden`
+                          : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
+                      }
+                    >
+                      <MdCancel size={22} />
+                    </button>
+                    <div className="whitespace-nowrap absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-80 group-hover:block">
+                      Cancel Order
+                    </div>
+                  </div>
+                  : null}
               </td>
             </tr>
           ))}
