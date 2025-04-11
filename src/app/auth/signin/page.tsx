@@ -110,7 +110,7 @@ const SignIn: React.FC = () => {
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo_bossq.png"}
+                  src={"/images/logo_bossq_black.png"}
                   alt="Logo"
                   width={176}
                   height={32}
