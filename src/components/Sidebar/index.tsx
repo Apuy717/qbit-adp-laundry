@@ -66,12 +66,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Transaction",
           route: "#",
           role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE],
-          children: [
-            { label: "Sales", route: "/orders" },
-            { label: "Master Expense", route: "/purchase-request/item" },
-            { label: "Expense", route: "/purchase-request/trx" },
+          children: ERoles.FINANCE === role.name ?
+            [
+              { label: "Sales", route: "/orders" },
 
-          ],
+            ] :
+            [
+              { label: "Sales", route: "/orders" },
+              { label: "Master Expense", route: "/purchase-request/item" },
+              { label: "Expense", route: "/purchase-request/trx" },
+
+            ],
         },
         {
           icon: <TbIroningSteam size={24} />,
@@ -142,11 +147,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           }`}
       >
         {/* <!-- SIDEBAR HEADER --> */}
-        <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+        <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:pt-10 lg:px-10">
           <Link href="/">
             <Image
-              width={176}
-              height={32}
+              width={100}
+              height={50}
               src={"/images/logo_bossq.png"}
               alt="Logo"
               priority
@@ -184,7 +189,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <IoIosArrowDown size={23} />
             </div>
           </div>
-          <nav className=" px-4 py-4 lg:mt-9 lg:px-6">
+          <nav className=" px-4 py-4 lg:mt-0 lg:px-6">
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className={`mb-4 ml-4 text-sm font-semibold text-bodydark2 

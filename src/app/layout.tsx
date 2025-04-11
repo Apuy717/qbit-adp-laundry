@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>ADP | Depth Clean</title>
-        <link rel="icon" href="/images/bossq.ico" />
+        <link rel="icon" href="/images/bossq.ico" className="w-[12px] h-auto"/>
       </head>
       <body>
         <Provider store={store}>

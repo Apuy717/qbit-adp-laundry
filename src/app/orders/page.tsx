@@ -336,7 +336,7 @@ export default function Orders() {
           </div>
 
           <button
-            className={`${role.name === ERoles.OUTLET_ADMIN && "hidden"} font-edium inline-flex w-full items-center justify-center rounded-md bg-black px-10 
+            className={`${role.name === ERoles.OUTLET_ADMIN || role.name === ERoles.FINANCE && "hidden"} font-edium inline-flex w-full items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90`}
             onClick={() => router.push("/orders/create")}
           >
