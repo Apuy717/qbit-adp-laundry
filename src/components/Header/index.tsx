@@ -33,8 +33,8 @@ const Header = (props: {
 
           <Link className="flex-shrink-0 block md:hidden xl:hidden" href="/" >
             <Image
-              width={32}
-              height={32}
+              width={48}
+              height={48}
               src={"/images/share-logo.png"}
               alt="Logo"
               style={{ width: "auto", height: "auto" }}

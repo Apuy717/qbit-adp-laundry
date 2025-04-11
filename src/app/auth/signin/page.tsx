@@ -103,14 +103,14 @@ const SignIn: React.FC = () => {
               <Link className="mr-9 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo_header.png"}
+                  src={"/images/logo_bossq.png"}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo_header.png"}
+                  src={"/images/logo_bossq_black.png"}
                   alt="Logo"
                   width={176}
                   height={32}
