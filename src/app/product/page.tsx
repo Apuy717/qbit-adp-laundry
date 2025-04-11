@@ -304,9 +304,9 @@ export default function Product() {
         setProducts([]);
         setLoadingSearch(true);
         setFixValueSearchProduct("");
-        setRefresh((prev) => !prev);
+        setRefresh((prev) => !prev); 
       } else {
-        if (search.length >= 1) {
+        if (search.length >= 1 && fixValueSearchProduct !== search) {
           setProducts([]);
           setLoadingSearch(true);
           setFixValueSearchProduct(search);
@@ -321,7 +321,7 @@ export default function Product() {
         setFixValueSearchSku("");
         setRefresh((prev) => !prev);
       } else {
-        if (search.length >= 1) {
+        if (search.length >= 1 && fixValueSearchSku !== search) {
           setTotalSkus([]);
           setLoadingSearch(true);
           setFixValueSearchSku(search);
