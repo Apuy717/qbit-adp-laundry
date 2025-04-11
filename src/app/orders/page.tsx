@@ -1,7 +1,7 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
-import { InputDropdown } from "@/components/Inputs/InputComponent";
+import { Input, InputDropdown } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
@@ -53,6 +53,7 @@ export default function Orders() {
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
     FilterByOutletContext,
   );
+  const [search, setSearch] = useState<string>("");
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [alert, setAlert] = useState<string>("")
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
@@ -248,9 +249,56 @@ export default function Orders() {
     }
   }
 
+  const handleSearch = async () => {
+    if (search.length === 0) {
+      setCurrentPage(1);
+      setItems([]);
+      setLoadingSearch(true);
+      setFixValueSearch("");
+      setRefresh((prev) => !prev);
+    } else {
+      if (search.length >= 1 && fixValueSearch !== search) {
+        setItems([]);
+        setLoadingSearch(true);
+        setFixValueSearch(search);
+        setCurrentPage(1);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName={"Sales"} />
+      <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
+        <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
+          {/* <InputDropdown
+            label={"Filter By Category"}
+            name={"filterByCategory"}
+            id={"filterByCategory"}
+            value={filterByCategory}
+            onChange={(e) => setFilterByCategory(e)}
+            error={null}
+            options={[{ label: "All", value: "all" }].concat(categorys)}
+          /> */}
+          <div className="w-full md:w-96">
+            <Input
+              label={"Search"}
+              name={"search"}
+              id={"search"}
+              value={search}
+              onChange={(v) => setSearch(v)}
+              error={null}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          >
+            Search
+          </button>
+        </div>
+      </div>
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="md:gird-cols-2 grid grid-cols-1 gap-4 lg:grid-cols-5">
           <DatePickerOne
@@ -295,10 +343,10 @@ export default function Orders() {
             Create Order
           </button>
           <button
-            className={`font-edium inline-flex w-min items-center justify-center rounded-md bg-black px-10 
+            className={`font-edium inline-flex w-full md:w-min items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={DownloadXLXS}
-          >
+          > 
             {loadingDownload && (
               <AiOutlineLoading3Quarters size={23} className="animate-spin" />
             )}

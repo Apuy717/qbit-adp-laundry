@@ -627,8 +627,8 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
           <div
             className={
               formik.values.department === EDepartmentEmployee.TECHNICIAN ||
-              (formik.values.department === EDepartmentEmployee.HQ &&
-                listOutlet.length === 0)
+                (formik.values.department === EDepartmentEmployee.HQ &&
+                  listOutlet.length === 0)
                 ? `hidden`
                 : `mb-5 mt-2`
             }
@@ -648,7 +648,7 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
           </button>
         </div>
       </div>
-      {listOutlet.length >= 1 && (
+      {listOutlet.length >= 0 && (
         <ModalSelectOutlet
           modal={modalOutlet}
           defaultSelected={listOutlet}

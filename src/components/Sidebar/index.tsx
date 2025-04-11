@@ -36,19 +36,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const menuGroups = [
     {
       name: "MENU",
-      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE],
       menuItems: [
         {
           icon: <MdOutlineDashboard size={23} />,
           label: "Dashboard",
           route: "/",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN]
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE]
         },
         {
           icon: <HiOutlineBuildingStorefront size={22} />,
           label: "Outlet",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
@@ -65,7 +65,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <RiMoneyCnyCircleLine size={23} />,
           label: "Transaction",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE],
           children: [
             { label: "Sales", route: "/orders" },
             { label: "Master Expense", route: "/purchase-request/item" },
@@ -77,7 +77,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <TbIroningSteam size={24} />,
           label: "Iron",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
           children: [
             { label: "Log", route: "/iron" },
             { label: "Performance", route: "/iron/performance" },
@@ -87,7 +87,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <MdOutlineReportGmailerrorred size={24} />,
           label: "Incident",
           route: "/incident",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE, ERoles.OUTLET_ADMIN],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
         },
       ],
     },
@@ -109,22 +109,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Machine", route: "/machine" },
             { label: "Empty Wash", route: "/empty-wash" },
+            { label: "Log Machine", route: "/log-machine" }
           ],
         },
         {
           icon: <MdPayment size={22} />,
           label: "Payment Method",
           route: "/payment-method",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
         },
         {
           icon: <GrDocumentText size={22} />,
           label: "Terms And Conditions",
           route: "/terms-and-conditions",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.FINANCE],
+          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
         },
         {
-          icon: <IoIosApps size={22}/>,
+          icon: <IoIosApps size={22} />,
           label: "Release Versions",
           route: "/release-versions",
           role: [ERoles.PROVIDER],
@@ -146,7 +147,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             <Image
               width={176}
               height={32}
-              src={"/images/logo_header.png"}
+              src={"/images/logo_bossq.png"}
               alt="Logo"
               priority
               style={{ height: "auto", width: "auto" }}
