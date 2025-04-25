@@ -346,7 +346,7 @@ export default function Orders() {
             className={`font-edium inline-flex w-full md:w-min items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
             onClick={DownloadXLXS}
-          > 
+          >
             {loadingDownload && (
               <AiOutlineLoading3Quarters size={23} className="animate-spin" />
             )}
@@ -530,7 +530,11 @@ export default function Orders() {
                         setDeleteModal(true);
                       }}
                       className={
-                        i.status === EStatusOrder.COMPLETED || role.name !== ERoles.PROVIDER && department !== EDepartmentEmployee.HO
+                        i.status === EStatusOrder.COMPLETED ||
+                          role.name !== ERoles.PROVIDER &&
+                          !(department === EDepartmentEmployee.HQ ||
+                            department === EDepartmentEmployee.AUDITOR ||
+                            department === EDepartmentEmployee.HO)
                           ? `hidden`
                           : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
                       }
