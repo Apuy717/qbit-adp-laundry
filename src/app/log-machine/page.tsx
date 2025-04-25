@@ -65,6 +65,8 @@ export default function LogMachine() {
           ended_at: endDate,
         },
       });
+      console.log(res.data);
+
 
       if (res?.statusCode === 200) {
         setItems(res.data);
@@ -150,6 +152,7 @@ export default function LogMachine() {
           "customer",
           "sku",
           "outlet",
+          "machine",
           "status",
           "access by",
           "start at",
@@ -170,13 +173,14 @@ export default function LogMachine() {
             key={k}
           >
             <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
-            <td className="whitespace-nowrap px-6 py-4 font-bold text-green-500">{i.order_item_stage?.order_item?.order.invoice_id}</td>
+            <td className="whitespace-nowrap px-6 py-4 font-bold text-green-500">{i.order_item_stage == null && i.status == "ordered" ? "Request Extra" : i.status == "maintance" || i.status == "debugging" ? "Maintenance" : i.order_item_stage?.order_item?.order.invoice_id}</td>
             <td className="whitespace-nowrap px-6 py-4">
-              {i.order_item_stage?.order_item?.order.customer.fullname}
+              {i.order_item_stage == null && i.status == "ordered" ? "Request Extra" : i.status == "maintance" || i.status == "debugging" ? "Maintenance" : i.order_item_stage?.order_item?.order.customer.fullname}
             </td>
-            <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage?.order_item?.product_sku_name}</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage == null && i.status == "ordered" ? "Request Extra" : i.status == "maintance" || i.status == "debugging" ? "Maintenance" : i.order_item_stage?.order_item?.product_sku_name}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.machine.outlet?.name}</td>
-            <td className="whitespace-nowrap px-6 py-4 uppercase">{i.status}</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.machine.name}</td>
+            <td className="whitespace-nowrap px-6 py-4 uppercase">{i.status == "maintance" ? "MAINTENANCE" : i.status}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase">{i.accessed_by}</td>
             <td className="whitespace-nowrap px-6 py-4">{new Date(i.created_at).toLocaleDateString("id", {
               day: "2-digit",
