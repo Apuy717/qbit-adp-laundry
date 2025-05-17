@@ -48,6 +48,7 @@ export default function ReleaseVersions() {
   const [totalData, setTotalData] = useState<number>(0)
   const [updateModal, setUpdateModal] = useState<boolean>(false)
   const [createModal, setCreateModal] = useState<boolean>(false)
+  const [isUpload, setIsUpload] = useState<boolean>(false)
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext)
 
   useEffect(() => {
@@ -86,34 +87,54 @@ export default function ReleaseVersions() {
       platform: optPlatform[0].value,
       version: "",
       label: "",
-      download: "",
+      apk: null as File | null,
       description: "",
     },
     validationSchema: Yup.object({
       platform: Yup.string().required("Platform shouldn't be empty"),
       version: Yup.string().required("Version shouldn't be empty"),
       label: Yup.string().required("Label shouldn't be empty"),
-      download: Yup.string().required("Download shouldn't be empty"),
       description: Yup.string().required("Description shouldn't be empty"),
     }),
     onSubmit: async (values) => {
-      let url = "api/version/create-update";
-      const res = await PostWithToken<iResponse<any>>({
-        router: router,
-        url: url,
-        data: values,
-        token: `${auth.access_token}`,
-      });
+      if (isUpload) {
+        return
+      }
+      const formData = new FormData();
+      formData.append("platform", values.platform);
+      formData.append("version", values.version);
+      formData.append("label", values.label);
+      formData.append("description", values.description);
+      if (values.apk) {
+        formData.append("apk", values.apk);
+      }
+      setIsUpload(true)
 
-      if (res?.statusCode === 200) {
-        setRefresh(!refresh)
-        toast.success("Create version success!");
-        setCreateModal(false);
-        resetForm()
-        setRefresh(!refresh)
-      } else {
-        setCreateModal(false)
-        toast.error(res.err[0])
+      try {
+        let url = "api/version/create-update";
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            Accept: "*/*",
+            Authorization: `Bearer ${auth.access_token}`,
+          },
+          body: formData,
+        });
+
+        if (res?.status === 200) {
+          setRefresh(!refresh)
+          toast.success("Create version success!");
+          setCreateModal(false);
+          setIsUpload(false)
+          resetForm()
+          setRefresh(!refresh)
+        } else {
+          toast.error(res.status)
+          setCreateModal(false)
+        }
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error)
       }
     },
   });
@@ -123,35 +144,56 @@ export default function ReleaseVersions() {
       platform: "",
       version: "",
       label: "",
-      download: "",
+      apk: null as File | null,
       description: "",
     },
     validationSchema: Yup.object({
       platform: Yup.string().required("Platform shouldn't be empty"),
       version: Yup.string().required("Version shouldn't be empty"),
       label: Yup.string().required("Label shouldn't be empty"),
-      download: Yup.string().required("Download shouldn't be empty"),
       description: Yup.string().required("Description shouldn't be empty"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
+      if (isUpload) {
+        return
+      }
+      const formData = new FormData();
+      formData.append("id", values.id);
+      formData.append("platform", values.platform);
+      formData.append("version", values.version);
+      formData.append("label", values.label);
+      formData.append("description", values.description);
+      if (values.apk) {
+        formData.append("apk", values.apk);
+      }
 
-      let url = "api/version/create-update";
-      const res = await PostWithToken<iResponse<any>>({
-        router: router,
-        url: url,
-        data: values,
-        token: `${auth.access_token}`,
-      });
-      if (res?.statusCode === 200) {
-        setRefresh(!refresh)
-        toast.success("Update version success!");
-        setUpdateModal(false);
-        resetForm()
-        formikUpdate.setFieldValue("id", "")
-        setRefresh(!refresh)
-      } else {
-        toast.error(res.err[0])
+      setIsUpload(true)
+
+      try {
+        let url = "api/version/create-update";
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            Accept: "*/*",
+            Authorization: `Bearer ${auth.access_token}`,
+          },
+          body: formData,
+        });
+
+        if (res?.status === 200) {
+          setRefresh(!refresh)
+          toast.success("Update version success!");
+          setUpdateModal(false);
+          setIsUpload(false)
+          resetForm()
+          setRefresh(!refresh)
+        } else {
+          toast.error(res.status)
+          setCreateModal(false)
+        }
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error)
       }
     },
   });
@@ -174,10 +216,9 @@ export default function ReleaseVersions() {
   };
 
   const resetForm = () => {
-    formikCreate.setFieldValue("platform", "")
     formikCreate.setFieldValue("version", "")
     formikCreate.setFieldValue("label", "")
-    formikCreate.setFieldValue("download", "")
+    formikCreate.setFieldValue("apk", null)
     formikCreate.setFieldValue("description", "")
   }
 
@@ -276,7 +317,7 @@ export default function ReleaseVersions() {
                     formikUpdate.setFieldValue("platform", i.platform)
                     formikUpdate.setFieldValue("version", i.version)
                     formikUpdate.setFieldValue("label", i.label)
-                    formikUpdate.setFieldValue("download", i.download)
+                    formikUpdate.setFieldValue("apk", null)
                     formikUpdate.setFieldValue("description", i.description)
                   }}
                 >
@@ -294,7 +335,7 @@ export default function ReleaseVersions() {
       <Modal isOpen={createModal}>
         <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
           <div
-            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            className="absolute -right-0 -top-0 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
               resetForm()
               setCreateModal(false);
@@ -308,8 +349,34 @@ export default function ReleaseVersions() {
               pageName={`Create Release Version`}
             />
           </div>
+          <div className={isUpload ? `w-full h-full` : `hidden`}>
+            <div className="absolute bg-white rounded-md opacity-80 w-full h-full top-0 left-0 z-99"></div>
+            <svg
+              className="absolute animate-spin h-50 w-50 text-blue-600 z-999 inset-0 m-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-50"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
+            </svg>
+            <h1 className="absolute text-blue-600 px-6 opacity-75 font-bold text-xl bottom-25 left-[38%] z-999"> Uploading</h1>
+          </div>
+
 
           <div className=" h-96 overflow-y-scroll py-2">
+
             <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-1">
               <InputDropdown
                 label={"Platform*"}
@@ -351,19 +418,17 @@ export default function ReleaseVersions() {
                     ? formikCreate.errors.label
                     : null}
               />
-              <Input
-                label={"Download Link*"}
-                name={`download`}
-                id={`download`}
-                value={formikCreate.values.download}
-                onChange={(v) =>
-                  formikCreate.setFieldValue(`download`, v)
-                }
-                error={
-                  formikCreate.touched.download && formikCreate.errors.download
-                    ? formikCreate.errors.download
-                    : null}
+              <input
+                type="file"
+                name="apk"
+                onChange={(e) => {
+                  const file = e.currentTarget.files?.[0] || null;
+                  formikCreate.setFieldValue("apk", file);
+                  console.log(formikCreate.values.apk);
+
+                }}
               />
+
               <InputTextArea
                 label={"Description*"}
                 name={`Description`}
@@ -389,6 +454,7 @@ export default function ReleaseVersions() {
 
         </div>
       </Modal>
+
       <Modal isOpen={updateModal}>
         <div className="relative w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
           <div
@@ -404,8 +470,33 @@ export default function ReleaseVersions() {
 
           <div className="flex flex-col space-y-8 pt-6">
             <Breadcrumb
-              pageName={`Create Release Version`}
+              pageName={`Update Release Version`}
             />
+          </div>
+
+          <div className={isUpload ? `w-full h-full` : `hidden`}>
+            <div className="absolute bg-white rounded-md opacity-80 w-full h-full top-0 left-0 z-99"></div>
+            <svg
+              className="absolute animate-spin h-50 w-50 text-blue-600 z-999 inset-0 m-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-50"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
+            </svg>
+            <h1 className="absolute text-blue-600 px-6 opacity-75 font-bold text-xl bottom-25 left-[38%] z-999"> Uploading</h1>
           </div>
 
           <div className=" h-96 overflow-y-scroll py-2">
@@ -420,8 +511,8 @@ export default function ReleaseVersions() {
                   formikUpdate.setFieldValue(`platform`, v)
                 }
                 error={
-                  formikCreate.touched.platform && formikCreate.errors.platform
-                    ? formikCreate.errors.platform
+                  formikUpdate.touched.platform && formikUpdate.errors.platform
+                    ? formikUpdate.errors.platform
                     : null}
               />
               <Input
@@ -433,8 +524,8 @@ export default function ReleaseVersions() {
                   formikUpdate.setFieldValue(`version`, v)
                 }
                 error={
-                  formikCreate.touched.version && formikCreate.errors.version
-                    ? formikCreate.errors.version
+                  formikUpdate.touched.version && formikUpdate.errors.version
+                    ? formikUpdate.errors.version
                     : null}
               />
               <Input
@@ -446,22 +537,17 @@ export default function ReleaseVersions() {
                   formikUpdate.setFieldValue(`label`, v)
                 }
                 error={
-                  formikCreate.touched.label && formikCreate.errors.label
-                    ? formikCreate.errors.label
+                  formikUpdate.touched.label && formikUpdate.errors.label
+                    ? formikUpdate.errors.label
                     : null}
               />
-              <Input
-                label={"Download Link*"}
-                name={`download`}
-                id={`download`}
-                value={formikUpdate.values.download}
-                onChange={(v) =>
-                  formikUpdate.setFieldValue(`download`, v)
-                }
-                error={
-                  formikCreate.touched.download && formikCreate.errors.download
-                    ? formikCreate.errors.download
-                    : null}
+              <input
+                type="file"
+                name="apk"
+                onChange={(e) => {
+                  const file = e.currentTarget.files?.[0] || null;
+                  formikUpdate.setFieldValue("apk", file);
+                }}
               />
               <InputTextArea
                 label={"Description*"}
@@ -472,8 +558,8 @@ export default function ReleaseVersions() {
                   formikUpdate.setFieldValue(`description`, v)
                 }
                 error={
-                  formikCreate.touched.description && formikCreate.errors.description
-                    ? formikCreate.errors.description
+                  formikUpdate.touched.description && formikUpdate.errors.description
+                    ? formikUpdate.errors.description
                     : null}
               />
             </div>

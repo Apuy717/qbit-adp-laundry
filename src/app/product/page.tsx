@@ -17,7 +17,7 @@ import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -29,6 +29,7 @@ import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { EDepartmentEmployee } from "@/types/employee";
 import { ERoles } from "@/stores/authReducer";
 import { CiCircleAlert } from "react-icons/ci";
+import { Outlet } from "@/types/outlet";
 
 interface MyResponse {
   statusCode: number;
@@ -67,9 +68,10 @@ export default function Product() {
   const [addSkuModal, setaddSkuModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
-    () => () => {},
+    () => () => { },
   );
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
+  const [outletExclude, setOutletExclude] = useState<Outlet[]>([]);
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
@@ -84,11 +86,55 @@ export default function Product() {
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter();
 
+  const [checkedOutlets, setCheckedOutlets] = useState<any[]>([]);
+
+
   const [filterByCategory, setFilterByCategory] = useState<string>("all");
   enum TabActive {
     PRODUCT = "PRODUCT",
     SKU = "SKU",
   }
+
+  const [searchExclude,setSearchExclude] = useState<string>("")
+  const filteredOutlets = outletExclude.filter((i) =>
+    i.name.toLowerCase().includes(searchExclude.toLowerCase())
+  );
+
+  // State to track which rows are checked
+  const [checkedRows, setCheckedRows] = useState<string[]>([])
+
+  // Check if all rows are checked
+  const allChecked = checkedRows.length === outletExclude.length
+
+  // Check if some rows are checked (for indeterminate state)
+  const someChecked = checkedRows.length > 0 && !allChecked
+
+  // Toggle all checkboxes
+  const toggleAll = () => {
+    if (allChecked) {
+      setCheckedRows([])
+      formikExcludeSku.setFieldValue("outlet_ids", []);
+    } else {
+      setCheckedRows(outletExclude.map((item) => item.id))
+      formikExcludeSku.setFieldValue("outlet_ids", outletExclude.map((item) => item.id));
+    }
+    console.log(checkedRows);
+  }
+
+  // Toggle individual checkbox
+  const toggleRow = (id: string) => {
+    if (checkedRows.includes(id)) {
+      setCheckedRows(checkedRows.filter((rowId) => rowId !== id))
+      formikExcludeSku.setFieldValue("outlet_ids", checkedRows.filter((rowId) => rowId !== id));
+      console.log(checkedRows);
+    } else {
+      setCheckedRows([...checkedRows, id])
+      formikExcludeSku.setFieldValue("outlet_ids", [...checkedRows, id]);
+      console.log(checkedRows);
+    }
+  }
+  const checkboxRef = useRef<HTMLInputElement>(null);
+
 
   const [tabActive, setTabActive] = useState<TabActive>(TabActive.PRODUCT);
 
@@ -147,7 +193,7 @@ export default function Product() {
             selectedOutlets.length >= 1
               ? selectedOutlets.map((o) => o.outlet_id)
               : auth.department !== EDepartmentEmployee.HQ &&
-                  auth.role.name !== ERoles.PROVIDER
+                auth.role.name !== ERoles.PROVIDER
                 ? defaultSelectedOutlet.map((o) => o.outlet_id)
                 : [],
         },
@@ -191,7 +237,7 @@ export default function Product() {
             selectedOutlets.length >= 1
               ? selectedOutlets.map((o) => o.outlet_id)
               : auth.department !== EDepartmentEmployee.HQ &&
-                  auth.role.name !== ERoles.PROVIDER
+                auth.role.name !== ERoles.PROVIDER
                 ? defaultSelectedOutlet.map((o) => o.outlet_id)
                 : [],
         },
@@ -274,8 +320,30 @@ export default function Product() {
   }, [skuId, addpriceSku, auth.auth.access_token]);
 
   useEffect(() => {
+    const GotOutletExclude = async () => {
+      let urlwithQuery = `/api/outlet`;
+      const res = await GetWithToken<MyResponse>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+      });
+
+      if (res.statusCode === 200) {
+        setOutletExclude(res.data)
+        console.log(outletExclude);
+        const unique = excludes.filter((item: any) =>
+          outletExclude.some((d) => d.id === item.outlet_id)
+        );
+        console.log(unique.map((i: any) => i.outlet_id));
+        setCheckedRows(unique.map((i: any) => i.outlet_id))
+      }
+    };
+    GotOutletExclude();
+  }, [tabActive, excludes])
+
+  useEffect(() => {
     if (skuId != "") {
-      const GotPriceSku = async () => {
+      const GotExcludeSku = async () => {
         let urlwithQuery = `/api/product/exclude/got/${skuId}`;
         const res = await GetWithToken<iResponse<[]>>({
           router: router,
@@ -292,10 +360,16 @@ export default function Product() {
           setLoadingSearch(false);
         }, 100);
       };
-      GotPriceSku();
+      GotExcludeSku();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, refresh, isViewSkuExclude, auth.auth.access_token]);
+
+  useEffect(() => {
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = someChecked && !allChecked;
+    }
+  }, [someChecked, allChecked]);
 
   const handleSearch = async () => {
     if (tabActive === TabActive.PRODUCT) {
@@ -304,7 +378,7 @@ export default function Product() {
         setProducts([]);
         setLoadingSearch(true);
         setFixValueSearchProduct("");
-        setRefresh((prev) => !prev); 
+        setRefresh((prev) => !prev);
       } else {
         if (search.length >= 1 && fixValueSearchProduct !== search) {
           setProducts([]);
@@ -511,11 +585,11 @@ export default function Product() {
 
   const formikExcludeSku = useFormik({
     initialValues: {
-      outlet_id: "all",
+      outlet_ids: [],
       sku_id: "",
     },
     validationSchema: Yup.object({
-      outlet_id: Yup.string(),
+      outlet_ids: Yup.array(),
       sku_id: Yup.string(),
     }),
     onSubmit: async (values) => {
@@ -533,6 +607,8 @@ export default function Product() {
       }
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
+        console.log(res.data);
+        setSearchExclude("")
       }
       setLoading(false);
     },
@@ -578,7 +654,7 @@ export default function Product() {
       setLoading(true);
       toast.success("Delete data success!");
       setDeleteModal(false);
-      setDeleteFunction(() => () => {});
+      setDeleteFunction(() => () => { });
       setRefresh(true);
       setLoading(false);
     }
@@ -614,7 +690,7 @@ export default function Product() {
       },
     });
     console.log(res);
-    
+
     if (res?.status === 200) {
       setDeleteModal(false);
       toast.success("Delete data success!");
@@ -677,11 +753,10 @@ export default function Product() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.PRODUCT
+              ${tabActive === TabActive.PRODUCT
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.PRODUCT)}
             >
@@ -691,11 +766,10 @@ export default function Product() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.SKU
+              ${tabActive === TabActive.SKU
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.SKU)}
             >
@@ -1291,8 +1365,8 @@ export default function Product() {
               options={MapingProduct}
               error={
                 formik.touched.product_id &&
-                typeof formik.errors.product_id === "object" &&
-                formik.errors.product_id
+                  typeof formik.errors.product_id === "object" &&
+                  formik.errors.product_id
                   ? formik.errors.product_id
                   : null
               }
@@ -1305,8 +1379,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`code`, v)}
               error={
                 formik.touched.code &&
-                typeof formik.errors.code === "object" &&
-                formik.errors.code
+                  typeof formik.errors.code === "object" &&
+                  formik.errors.code
                   ? formik.errors.code
                   : null
               }
@@ -1319,8 +1393,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`name`, v)}
               error={
                 formik.touched.name &&
-                typeof formik.errors.name === "object" &&
-                formik.errors.name
+                  typeof formik.errors.name === "object" &&
+                  formik.errors.name
                   ? formik.errors.name
                   : null
               }
@@ -1334,8 +1408,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
               error={
                 formik.touched.price &&
-                typeof formik.errors.price === "object" &&
-                formik.errors.price
+                  typeof formik.errors.price === "object" &&
+                  formik.errors.price
                   ? formik.errors.price
                   : null
               }
@@ -1350,8 +1424,8 @@ export default function Product() {
               options={serviceType}
               error={
                 formik.touched.type &&
-                typeof formik.errors.type === "object" &&
-                formik.errors.type
+                  typeof formik.errors.type === "object" &&
+                  formik.errors.type
                   ? formik.errors.type
                   : null
               }
@@ -1365,8 +1439,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
               error={
                 formik.touched.stock &&
-                typeof formik.errors.stock === "object" &&
-                formik.errors.stock
+                  typeof formik.errors.stock === "object" &&
+                  formik.errors.stock
                   ? formik.errors.stock
                   : null
               }
@@ -1380,8 +1454,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`unit`, v)}
               error={
                 formik.touched.unit &&
-                typeof formik.errors.unit === "object" &&
-                formik.errors.unit
+                  typeof formik.errors.unit === "object" &&
+                  formik.errors.unit
                   ? formik.errors.unit
                   : null
               }
@@ -1394,8 +1468,8 @@ export default function Product() {
               onChange={(v) => formik.setFieldValue(`description`, v)}
               error={
                 formik.touched.description &&
-                typeof formik.errors.description === "object" &&
-                formik.errors.description
+                  typeof formik.errors.description === "object" &&
+                  formik.errors.description
                   ? formik.errors.description
                   : null
               }
@@ -1485,8 +1559,8 @@ export default function Product() {
                 }
                 error={
                   formik.touched.washer_duration &&
-                  typeof formik.errors.washer_duration === "object" &&
-                  formik.errors.washer_duration
+                    typeof formik.errors.washer_duration === "object" &&
+                    formik.errors.washer_duration
                     ? formik.errors.washer_duration
                     : null
                 }
@@ -1513,8 +1587,8 @@ export default function Product() {
                 }
                 error={
                   formik.touched.dryer_duration &&
-                  typeof formik.errors.dryer_duration === "object" &&
-                  formik.errors.dryer_duration
+                    typeof formik.errors.dryer_duration === "object" &&
+                    formik.errors.dryer_duration
                     ? formik.errors.dryer_duration
                     : null
                 }
@@ -1539,8 +1613,8 @@ export default function Product() {
                 }
                 error={
                   formik.touched.iron_duration &&
-                  typeof formik.errors.iron_duration === "object" &&
-                  formik.errors.iron_duration
+                    typeof formik.errors.iron_duration === "object" &&
+                    formik.errors.iron_duration
                     ? formik.errors.iron_duration
                     : null
                 }
@@ -1743,8 +1817,8 @@ export default function Product() {
                   options={MapingProduct}
                   error={
                     formik.touched.product_id &&
-                    typeof formik.errors.product_id === "object" &&
-                    formik.errors.product_id
+                      typeof formik.errors.product_id === "object" &&
+                      formik.errors.product_id
                       ? formik.errors.product_id
                       : null
                   }
@@ -1757,8 +1831,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`code`, v)}
                   error={
                     formik.touched.code &&
-                    typeof formik.errors.code === "object" &&
-                    formik.errors.code
+                      typeof formik.errors.code === "object" &&
+                      formik.errors.code
                       ? formik.errors.code
                       : null
                   }
@@ -1771,8 +1845,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`name`, v)}
                   error={
                     formik.touched.name &&
-                    typeof formik.errors.name === "object" &&
-                    formik.errors.name
+                      typeof formik.errors.name === "object" &&
+                      formik.errors.name
                       ? formik.errors.name
                       : null
                   }
@@ -1786,8 +1860,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
                   error={
                     formik.touched.price &&
-                    typeof formik.errors.price === "object" &&
-                    formik.errors.price
+                      typeof formik.errors.price === "object" &&
+                      formik.errors.price
                       ? formik.errors.price
                       : null
                   }
@@ -1802,8 +1876,8 @@ export default function Product() {
                   options={serviceType}
                   error={
                     formik.touched.id &&
-                    typeof formik.errors.id === "object" &&
-                    formik.errors.id
+                      typeof formik.errors.id === "object" &&
+                      formik.errors.id
                       ? formik.errors.id
                       : null
                   }
@@ -1817,8 +1891,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
                   error={
                     formik.touched.stock &&
-                    typeof formik.errors.stock === "object" &&
-                    formik.errors.stock
+                      typeof formik.errors.stock === "object" &&
+                      formik.errors.stock
                       ? formik.errors.stock
                       : null
                   }
@@ -1832,8 +1906,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`unit`, v)}
                   error={
                     formik.touched.unit &&
-                    typeof formik.errors.unit === "object" &&
-                    formik.errors.unit
+                      typeof formik.errors.unit === "object" &&
+                      formik.errors.unit
                       ? formik.errors.unit
                       : null
                   }
@@ -1848,8 +1922,8 @@ export default function Product() {
                   onChange={(v) => formik.setFieldValue(`description`, v)}
                   error={
                     formik.touched.description &&
-                    typeof formik.errors.description === "object" &&
-                    formik.errors.description
+                      typeof formik.errors.description === "object" &&
+                      formik.errors.description
                       ? formik.errors.description
                       : null
                   }
@@ -1940,8 +2014,8 @@ export default function Product() {
                   }
                   error={
                     formik.touched.washer_duration &&
-                    typeof formik.errors.washer_duration === "object" &&
-                    formik.errors.washer_duration
+                      typeof formik.errors.washer_duration === "object" &&
+                      formik.errors.washer_duration
                       ? formik.errors.washer_duration
                       : null
                   }
@@ -1968,8 +2042,8 @@ export default function Product() {
                   }
                   error={
                     formik.touched.dryer_duration &&
-                    typeof formik.errors.dryer_duration === "object" &&
-                    formik.errors.dryer_duration
+                      typeof formik.errors.dryer_duration === "object" &&
+                      formik.errors.dryer_duration
                       ? formik.errors.dryer_duration
                       : null
                   }
@@ -1996,8 +2070,8 @@ export default function Product() {
                   }
                   error={
                     formik.touched.iron_duration &&
-                    typeof formik.errors.iron_duration === "object" &&
-                    formik.errors.iron_duration
+                      typeof formik.errors.iron_duration === "object" &&
+                      formik.errors.iron_duration
                       ? formik.errors.iron_duration
                       : null
                   }
@@ -2064,8 +2138,8 @@ export default function Product() {
                 onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
                 error={
                   formik.touched.price &&
-                  typeof formik.errors.price === "object" &&
-                  formik.errors.price
+                    typeof formik.errors.price === "object" &&
+                    formik.errors.price
                     ? formik.errors.price
                     : null
                 }
@@ -2111,6 +2185,85 @@ export default function Product() {
           <div
             className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
+              setCheckedRows([])
+              setIsViewSkuExclude(false);
+            }}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                Exclude SKU
+              </h2>
+            </div>
+            <div className="space-y-4 rounded-lg bg-white p-4 dark:bg-gray-700">
+              <Input
+                label={"Search Outlet"}
+                name={"searchExclude"}
+                id={"searchExclude"}
+                value={searchExclude}
+                onChange={(v) => setSearchExclude(v)}
+                error={null}
+              />
+
+              <button
+                onClick={() => {
+                  formikExcludeSku.submitForm();
+                }}
+                className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 h-70 overflow-y-auto px-4">
+            <div className="w-full rounded-md border">
+              <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th className={`px-6 py-3`}>
+                      <input
+                        ref={checkboxRef}
+                        type="checkbox"
+                        checked={allChecked}
+                        data-state={allChecked ? "checked" : someChecked ? "indeterminate" : "unchecked"}
+                        onChange={toggleAll}
+                      />
+                    </th>
+                    <th className={`px-6 py-3`}>Outlet</th>
+                    <th className={`px-6 py-3`}>City</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOutlets.map((i, index) => (
+                    <tr key={index} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={checkedRows.includes(i.id)}
+                          onChange={() => {
+                            toggleRow(i.id)
+                          }}
+                        />
+                      </td>
+                      <td className="px-6 py-4">{i.name}</td>
+                      <td className="px-6 py-4">{i.city.split("--")[1]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      {/* <Modal isOpen={isViewSkuExclude}>
+        <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+          <div
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            onClick={() => {
               setIsViewSkuExclude(false);
             }}
           >
@@ -2129,7 +2282,7 @@ export default function Product() {
                 name={"Outlets"}
                 id={"Outlets"}
                 value={formikExcludeSku.values.outlet_id}
-                onChange={(v) => formikExcludeSku.setFieldValue("outlet_id", v)}
+                onChange={(v) => formikExcludeSku.setFieldValue("outlet_ids", v)}
                 options={outlets}
                 error={
                   formikExcludeSku.touched.outlet_id &&
@@ -2186,7 +2339,7 @@ export default function Product() {
             </Table>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
 
       <Modal isOpen={false}>
         <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
@@ -2230,8 +2383,8 @@ export default function Product() {
                 onChange={(v) => formik.setFieldValue(`price`, parseInt(v))}
                 error={
                   formik.touched.price &&
-                  typeof formik.errors.price === "object" &&
-                  formik.errors.price
+                    typeof formik.errors.price === "object" &&
+                    formik.errors.price
                     ? formik.errors.price
                     : null
                 }
