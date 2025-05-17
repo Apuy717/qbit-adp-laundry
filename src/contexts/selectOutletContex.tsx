@@ -234,11 +234,10 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                     <li className="me-2" role="presentation">
                       <button
                         className={`inline-block rounded-t-lg border-b-2 p-4 
-                              ${
-                                tabActive === TabActive.AREA
-                                  ? "border-blue-500 text-blue-500"
-                                  : "dark:border-form-strokedark"
-                              }
+                              ${tabActive === TabActive.AREA
+                            ? "border-blue-500 text-blue-500"
+                            : "dark:border-form-strokedark"
+                          }
                               `}
                         onClick={() => setTabActive(TabActive.AREA)}
                       >
@@ -248,11 +247,10 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                     <li className="me-2" role="presentation">
                       <button
                         className={`inline-block rounded-t-lg border-b-2 p-4 
-                              ${
-                                tabActive === TabActive.CV
-                                  ? "border-blue-500 text-blue-500"
-                                  : "dark:border-form-strokedark"
-                              }
+                              ${tabActive === TabActive.CV
+                            ? "border-blue-500 text-blue-500"
+                            : "dark:border-form-strokedark"
+                          }
                               `}
                         onClick={() => setTabActive(TabActive.CV)}
                       >
