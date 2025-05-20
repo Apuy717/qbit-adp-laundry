@@ -114,6 +114,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Machine", route: "/machine" },
             { label: "Empty Wash", route: "/empty-wash" },
+            { label: "Maintenance", route: "/machine-service" },
             { label: "Log Machine", route: "/log-machine" }
           ],
         },
