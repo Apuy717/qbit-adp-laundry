@@ -146,7 +146,6 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               outlet_id: outlet.outlet_id,
             });
           }
-          console.log(maping);
 
           setDefaultSelectedOutlet(defaultOutlet);
           setData(maping);

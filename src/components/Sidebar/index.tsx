@@ -69,13 +69,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: ERoles.FINANCE === role.name ?
             [
               { label: "Sales", route: "/orders" },
-
             ] :
             [
               { label: "Sales", route: "/orders" },
+              { label: "Audit", route: "/audit" },
               { label: "Master Expense", route: "/purchase-request/item" },
               { label: "Expense", route: "/purchase-request/trx" },
-
             ],
         },
         {

@@ -1,0 +1,40 @@
+@media print {
+  @page {
+    size: A3 portrait;
+    margin: 10mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    visibility: hidden;
+    position: relative;
+  }
+
+  #printable {
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+  }
+
+  #printable * {
+    visibility: visible;
+  }
+
+  #printable>*:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  button,
+  nav,
+  header,
+  footer {
+    display: none !important;
+  }
+}

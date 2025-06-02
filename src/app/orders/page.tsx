@@ -701,7 +701,7 @@ export default function Orders() {
                 onPaginate={() => null}
               >
                 {detail &&
-                  detail.items.map((i: any, k: any) => (
+                  detail.items.map((i, k) => (
                     <tr
                       className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                       key={k}

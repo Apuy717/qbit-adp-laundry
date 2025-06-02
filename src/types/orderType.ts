@@ -65,6 +65,16 @@ export type OrderType = {
       order_item_id: string;
       name: string;
       status: string;
+      log_machine: {
+        id: string
+        duration: number,
+        time_used: number
+        created_at: string
+        machine: {
+          id: string
+          name: string
+        } | null
+      } | null
     }[]
   }[]
 }

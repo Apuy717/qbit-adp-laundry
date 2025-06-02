@@ -1,6 +1,7 @@
 "use client";
 import "@/css/satoshi.css";
 import "@/css/style.css";
+import "@/css/print.css";
 import "flatpickr/dist/flatpickr.min.css";
 import "jsvectormap/dist/jsvectormap.css";
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -33,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>ADP | Depth Clean</title>
-        <link rel="icon" href="/images/bossq.ico" className="w-[12px] h-auto"/>
+        <link rel="icon" href="/images/bossq.ico" className="w-[12px] h-auto" />
       </head>
       <body>
         <Provider store={store}>
