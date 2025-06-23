@@ -505,7 +505,7 @@ export default function Page() {
                           {formatDateTime(order.created_at)}
                         </p>
                       </div>
-                      <div className="text-blue-600 font-semibold">{order.admin_name}</div>
+                      <div className="text-blue-600 font-semibold">Cashier: {order.admin_name}</div>
                     </div>
                     <div className="border-l-2 border-blue-500 relative">
                       {/* <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-blue-500" /> */}

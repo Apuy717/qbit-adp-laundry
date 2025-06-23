@@ -52,6 +52,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
+            { label: "Product Sku", route: "/v2/product" },
             { label: "Group by CV", route: "/group-by-cv" },
           ],
         },
