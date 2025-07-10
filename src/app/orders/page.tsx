@@ -676,7 +676,7 @@ export default function Orders() {
               </h4>
               <div id="printable">
                 {/* detail data */}
-                <div className="bg-white dark:bg-boxdark shadow rounded-lg">
+                <div className="bg-white border dark:border-strokedark dark:bg-boxdark shadow rounded-lg">
                   {detail.items.map((i, idx) => (
                     <div key={idx} className="border-b border-gray-200 dark:border-gray-700 p-4">
                       <div className="mb-4 flex justify-between items-center">
