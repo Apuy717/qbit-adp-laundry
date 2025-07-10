@@ -7,7 +7,6 @@ import { RootState } from "@/stores/store";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { BiSolidDryer, BiSolidWasher } from "react-icons/bi";
 import { useSelector } from "react-redux";
 
 const PrintButton = dynamic(() => import("../../../components/Button/ButtonPrint"), {
@@ -41,7 +40,7 @@ export default function ProductV2Page() {
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/v2/product/got-product?search=${fixValueSearch}`;
       }
-      const res = await PostWithToken<iResponse<iResSku>>({
+      const res = await PostWithToken<iResponse<GroupedLaundryData[]>>({
         router: router,
         url: urlwithQuery,
         token: `${access_token}`,
@@ -54,8 +53,9 @@ export default function ProductV2Page() {
       })
 
       if (res.statusCode === 200) {
-        setData(res.data.data);
-        setTotal(res.data.total)
+        setData(res.data);
+        if (typeof res.total === "number")
+          setTotal(res.total)
       }
     }
 
