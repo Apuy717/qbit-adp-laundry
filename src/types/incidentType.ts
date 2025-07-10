@@ -8,6 +8,7 @@ export type IncidentType = {
   note: string | null,
   token: string,
   approved: boolean,
+  rejected: boolean,
   is_used: boolean,
   type: ETypeIncident,
   created_at: string,
@@ -23,6 +24,7 @@ export type IncidentType = {
   },
   accepted_by: AcceptedByType | null,
   reported_by: ReportedByType | null,
+  incident_rejected_by: AcceptedByType | null,
   incident_reports: IncidentReport[]
 }
 

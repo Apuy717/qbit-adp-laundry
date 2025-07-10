@@ -266,6 +266,18 @@ export default function Orders() {
     }
   };
 
+  function formatDateTime(date: string) {
+    return new Date(date).toLocaleDateString("id", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+
+  }
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName={"Sales"} />
@@ -553,7 +565,7 @@ export default function Orders() {
       )}
 
       <div
-        className={`fixed right-0 top-0 z-[999] h-full w-min
+        className={`fixed right-0 top-0 z-[999] h-full w-full md:w-min
         bg-white shadow transition-all duration-500 dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"} overflow-y-auto`}
       >
@@ -568,43 +580,11 @@ export default function Orders() {
         </div>
         {detail && (
           <div className="h-full w-full">
-            {/* <div className="mt-4 px-6">
-              <h4 className="font-semibold text-black dark:text-white">
-                Detail Pelanggan
-              </h4>
-              <div className="py-3 flex flex-col space-y-1">
-                <div className="flex flex-row justify-between">
-                  <p>Nama Lengkap</p>
-                  <p>{detail?.customer.fullname}</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                  <p>No.Hp</p>
-                  <p>{detail?.customer.dial_code} {detail?.customer.phone_number}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 px-6">
-              <h4 className="font-semibold text-black dark:text-white">
-                Detail Admin
-              </h4>
-              <div className="py-3 flex flex-col space-y-1">
-                <div className="flex flex-row justify-between">
-                  <p>Nama Lengkap</p>
-                  <p>{detail?.admin.fullname}</p>
-                </div>
-              </div>
-            </div> */}
-
             <div className="mt-4 px-6">
               <h4 className="font-semibold text-black dark:text-white">
                 Transaction Detail
               </h4>
               <div className="flex flex-col space-y-3 py-3 text-sm">
-                {/* <div className="flex flex-row justify-between">
-                  <p>ID</p>
-                  <p>{detail?.id}</p>
-                </div> */}
                 <div className="flex flex-row justify-between">
                   <p>Date</p>
                   <p>
@@ -694,32 +674,68 @@ export default function Orders() {
               <h4 className="font-semibold text-black dark:text-white">
                 Detail SKU
               </h4>
-              <Table
-                colls={["#", "Name", "Price", "Qty", "Total"]}
-                currentPage={0}
-                totalItem={0}
-                onPaginate={() => null}
-              >
-                {detail &&
-                  detail.items.map((i, k) => (
-                    <tr
-                      className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                      key={k}
-                    >
-                      <td className="whitespace-nowrap px-6 py-4">{k + 1}</td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {i.product_sku_name}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {rupiah(parseInt(i.price))}
-                      </td>
-                      <td className="px-6 py-4">{i.quantity}</td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {rupiah(parseInt(i.sub_total))}
-                      </td>
-                    </tr>
+              <div id="printable">
+                {/* detail data */}
+                <div className="bg-white dark:bg-boxdark shadow rounded-lg">
+                  {detail.items.map((i, idx) => (
+                    <div key={idx} className="border-b border-gray-200 dark:border-gray-700 p-4">
+                      <div className="mb-4 flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <p className="font-semibold">{i.product_name}</p>
+                            <p className="text-sm text-gray-500">{i.product_sku_name}</p>
+                          </div>
+                        </div>
+                        <div className="text-blue-600 font-semibold">{rupiah(Number(i.price))}</div>
+                      </div>
+                      <div className="border-l-2 border-blue-500 relative">
+                        <div className="relative pl-2">
+                          {/* <p className="font-semibold text-sm ml-4" style={{ marginBottom: '0.5rem' }}>{p.product}</p> */}
+                          <div className="absolute bottom-2 -left-0.5 -rotate-2 w-4 h-4 border-l-2 border-b-2 border-blue-500 rounded-bl-md" />
+                          <div className="overflow-x-auto border-l-2 border-blue-500 ml-4">
+                            <table className="w-full text-sm text-left text-gray-500">
+                              <thead className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                  <th className="p-2">#</th>
+                                  <th className="p-2">Machine</th>
+                                  <th className="p-2">Status</th>
+                                  <th className="p-2">Machine</th>
+                                  <th className="p-2">Duration</th>
+                                  <th className="p-2">Started At</th>
+                                  <th className="p-2">Finished At</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {i.stages.map((s, key) => {
+                                  return (
+                                    <tr key={key} className={`capitalize border-b border-gray-200 dark:border-gray-700`}>
+                                      <td className="p-4">{key + 1}</td>
+                                      <td className="p-2">{s.name}</td>
+                                      <td className="p-2">{s.status}</td>
+
+                                      <td className="p-2 whitespace-nowrap">{s.log_machine ? s.log_machine?.machine?.name : "-"}</td>
+                                      <td className="p-2 whitespace-nowrap">
+                                        {s.log_machine ? `${s.log_machine.time_used} minutes` : "-"}
+                                      </td>
+                                      <td className="p-2 whitespace-nowrap">
+                                        {s.log_machine ? formatDateTime(`${s.log_machine?.created_at}`) : "-"}
+                                      </td>
+                                      <td className="p-2 whitespace-nowrap">
+                                        {s.log_machine ? formatDateTime(`${s.log_machine?.updated_at}`) : "-"}
+                                      </td>
+
+                                    </tr>
+                                  )
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-              </Table>
+                </div>
+              </div>
             </div>
           </div>
         )}
