@@ -686,7 +686,11 @@ export default function Orders() {
                             <p className="text-sm text-gray-500">{i.product_sku_name}</p>
                           </div>
                         </div>
-                        <div className="text-blue-600 font-semibold">{rupiah(Number(i.price))}</div>
+                        <div className="flex flex-row space-x-4 items-center">
+                          {/* <p className="text-sm text-gray-500">Price</p> */}
+                          <p className="text-sm text-gray-500">Price: {rupiah(Number(i.price))}  x{i.quantity}</p>
+                          <div className="text-blue-600 font-semibold">{rupiah(Number(i.sub_total))}</div>
+                        </div>
                       </div>
                       <div className="border-l-2 border-blue-500 relative">
                         <div className="relative pl-2">
@@ -706,13 +710,12 @@ export default function Orders() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {i.stages.map((s, key) => {
+                                {i.stages.length >= 1 && i.stages.map((s, key) => {
                                   return (
                                     <tr key={key} className={`capitalize border-b border-gray-200 dark:border-gray-700`}>
                                       <td className="p-4">{key + 1}</td>
                                       <td className="p-2">{s.name}</td>
                                       <td className="p-2">{s.status}</td>
-
                                       <td className="p-2 whitespace-nowrap">{s.log_machine ? s.log_machine?.machine?.name : "-"}</td>
                                       <td className="p-2 whitespace-nowrap">
                                         {s.log_machine ? `${s.log_machine.time_used} minutes` : "-"}
