@@ -6,6 +6,7 @@ import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
+import { EDepartmentEmployee } from "@/types/employee";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,25 +31,60 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
-  const { role } = useSelector((s: RootState) => s.auth)
+  const { role, department } = useSelector((s: RootState) => s.auth)
   const { setModal, modal, selectedOutlets } = useContext(FilterByOutletContext)
 
   const menuGroups = [
     {
       name: "MENU",
-      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE],
+      role: [
+        ERoles.SUPER_ADMIN,
+        ERoles.PROVIDER,
+        EDepartmentEmployee.HQ,
+        EDepartmentEmployee.AUDITOR,
+        EDepartmentEmployee.FINANCE,
+        EDepartmentEmployee.AM,
+        EDepartmentEmployee.SPV,
+        EDepartmentEmployee.HO,
+        EDepartmentEmployee.OWNER,
+        ERoles.OUTLET_ADMIN,
+        ERoles.FINANCE
+      ],
       menuItems: [
         {
           icon: <MdOutlineDashboard size={23} />,
           label: "Dashboard",
           route: "/",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE]
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.AUDITOR,
+            EDepartmentEmployee.FINANCE,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.SPV,
+            EDepartmentEmployee.HO,
+            EDepartmentEmployee.OWNER,
+            ERoles.OUTLET_ADMIN,
+            ERoles.FINANCE
+          ],
         },
         {
           icon: <HiOutlineBuildingStorefront size={22} />,
           label: "Outlet",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.AUDITOR,
+            EDepartmentEmployee.FINANCE,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.SPV,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+            ERoles.FINANCE
+          ],
           children: [
             { label: "Outlet", route: "/outlet" },
             { label: "Product Group", route: "/product" },
@@ -60,13 +96,31 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <FaUsers size={22} />,
           label: "Employee",
           route: "/employee",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
         },
         {
           icon: <RiMoneyCnyCircleLine size={23} />,
           label: "Transaction",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.FINANCE],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.AUDITOR,
+            EDepartmentEmployee.FINANCE,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.SPV,
+            EDepartmentEmployee.HO,
+            EDepartmentEmployee.OWNER,
+            ERoles.OUTLET_ADMIN,
+            ERoles.FINANCE
+          ],
           children: ERoles.FINANCE === role.name ?
             [
               { label: "Sales", route: "/orders" },
@@ -82,7 +136,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <TbIroningSteam size={24} />,
           label: "Iron",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
           children: [
             { label: "Log", route: "/iron" },
             { label: "Performance", route: "/iron/performance" },
@@ -92,25 +152,49 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <MdOutlineReportGmailerrorred size={24} />,
           label: "Incident",
           route: "/incident",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
         },
       ],
     },
     {
       name: "OTHERS",
-      role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+      role: [
+        ERoles.SUPER_ADMIN,
+        ERoles.PROVIDER,
+        EDepartmentEmployee.HQ,
+        EDepartmentEmployee.HO,
+        ERoles.OUTLET_ADMIN,
+      ],
       menuItems: [
         {
           icon: <BiSolidDiscount size={22} />,
           label: "Voucher",
           route: "/voucher",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
         },
         {
           icon: <BiSolidWasher size={24} />,
           label: "Machines",
           route: "#",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER, ERoles.OUTLET_ADMIN, ERoles.TECHNICIAN],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
           children: [
             { label: "Machine", route: "/machine" },
             { label: "Empty Wash", route: "/empty-wash" },
@@ -122,13 +206,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           icon: <MdPayment size={22} />,
           label: "Payment Method",
           route: "/payment-method",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
         },
         {
           icon: <GrDocumentText size={22} />,
           label: "Terms And Conditions",
           route: "/terms-and-conditions",
-          role: [ERoles.SUPER_ADMIN, ERoles.PROVIDER],
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
         },
         {
           icon: <IoIosApps size={22} />,
@@ -194,13 +290,45 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             {menuGroups.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className={`mb-4 ml-4 text-sm font-semibold text-bodydark2 
-                  ${group.role.filter(f => f === role.name).length === 0 ? "hidden" : "block"}`}>
+                  ${group.role.filter(f => f === role.name && f === department).length === 0
+                    ? "hidden" : "block"}`}>
                   {group.name}
                 </h3>
 
                 <ul className="mb-6 flex flex-col gap-1.5">
-                  {group.menuItems.map((menuItem, menuIndex) => (
-                    <div key={menuIndex} className={`${menuItem.role.filter(f => f === role.name).length === 0 ? "hidden" : "block"}`}>
+                  {group.menuItems.map((menuItem, menuIndex) => {
+                    if (role.name === ERoles.OUTLET_ADMIN) {
+                      // const check = menuItem.role.filter(f => f === role.name && f === department)
+                      const check = menuItem.role.filter(f => f.toLowerCase() === department?.toLowerCase())
+                      console.log(check.length);
+
+                      return (
+                        <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
+                          <SidebarItem
+                            key={menuIndex}
+                            item={menuItem}
+                            pageName={pageName}
+                            setPageName={setPageName}
+                          />
+                        </div>
+                      )
+                    } else {
+                      const check = menuItem.role.filter(f => f === role.name)
+                      return (
+                        <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
+                          <SidebarItem
+                            key={menuIndex}
+                            item={menuItem}
+                            pageName={pageName}
+                            setPageName={setPageName}
+                          />
+                        </div>
+                      )
+                    }
+
+                  })}
+                  {/* {group.menuItems.map((menuItem, menuIndex) => (
+                    <div key={menuIndex} className={`${menuItem.role.filter(f => f === role.name && f === department).length === 0 ? "hidden" : "block"}`}>
                       <SidebarItem
                         key={menuIndex}
                         item={menuItem}
@@ -208,7 +336,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         setPageName={setPageName}
                       />
                     </div>
-                  ))}
+                  ))} */}
                 </ul>
               </div>
             ))}

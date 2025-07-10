@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
-import { IoCheckmark } from "react-icons/io5";
+import { IoCheckmark, IoClose } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -120,6 +120,20 @@ export default function IncidentPage() {
   const approveToken = async (tokenId: string) => {
     const res = await PostWithToken<iResponse<any>>({
       url: `/api/incident/approve/${tokenId}`,
+      router: router,
+      token: `${auth.access_token}`,
+      data: [],
+    });
+
+    if (res.statusCode === 200) {
+      toast.success("Sucess update data!");
+      handleSearch();
+    }
+  };
+
+  const rejectToken = async (tokenId: string) => {
+    const res = await PostWithToken<iResponse<any>>({
+      url: `/api/incident/reject/${tokenId}`,
       router: router,
       token: `${auth.access_token}`,
       data: [],
@@ -244,7 +258,7 @@ export default function IncidentPage() {
 
             <td>
               <div className="flex h-full w-full items-center justify-center">
-                {!i.approved && (
+                {!i.approved && !i.rejected && (
                   <button
                     className="flex items-center justify-center rounded bg-green-500 p-1"
                     onClick={() => approveToken(i.id)}
@@ -252,6 +266,16 @@ export default function IncidentPage() {
                     <IoCheckmark size={20} color="white" />
                   </button>
                 )}
+
+                {!i.approved && !i.rejected && (
+                  <button
+                    className="flex ml-2 items-center justify-center rounded bg-red-500 p-1"
+                    onClick={() => rejectToken(i.id)}
+                  >
+                    <IoClose size={20} color="white" />
+                  </button>
+                )}
+
                 <button
                   className="ml-2 flex items-center justify-center rounded bg-gray-500 p-1"
                   onClick={() => {
@@ -310,6 +334,25 @@ export default function IncidentPage() {
                   <p>
                     {detail?.accepted_by?.dial_code}{" "}
                     {detail?.accepted_by?.phone_number}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 px-6">
+              <h4 className="font-semibold text-black dark:text-white">
+                Rejected
+              </h4>
+              <div className="flex flex-col space-y-1 py-3">
+                <div className="flex flex-row justify-between">
+                  <p>Nama Lengkap</p>
+                  <p>{detail?.incident_rejected_by?.fullname}</p>
+                </div>
+                <div className="flex flex-row justify-between">
+                  <p>No.Hp</p>
+                  <p>
+                    {detail?.incident_rejected_by?.dial_code}{" "}
+                    {detail?.incident_rejected_by?.phone_number}
                   </p>
                 </div>
               </div>

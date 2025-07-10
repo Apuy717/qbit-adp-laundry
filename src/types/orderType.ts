@@ -70,6 +70,7 @@ export type OrderType = {
         duration: number,
         time_used: number
         created_at: string
+        updated_at: string
         machine: {
           id: string
           name: string

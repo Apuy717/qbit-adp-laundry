@@ -565,7 +565,7 @@ export default function Orders() {
       )}
 
       <div
-        className={`fixed right-0 top-0 z-[999] h-full w-min
+        className={`fixed right-0 top-0 z-[999] h-full w-full md:w-min
         bg-white shadow transition-all duration-500 dark:bg-boxdark
         ${isViewDetail ? "" : "translate-x-full"} overflow-y-auto`}
       >
@@ -700,7 +700,9 @@ export default function Orders() {
                                   <th className="p-2">Machine</th>
                                   <th className="p-2">Status</th>
                                   <th className="p-2">Machine</th>
-                                  <th className="p-2">Datetime</th>
+                                  <th className="p-2">Duration</th>
+                                  <th className="p-2">Started At</th>
+                                  <th className="p-2">Finished At</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -710,10 +712,18 @@ export default function Orders() {
                                       <td className="p-4">{key + 1}</td>
                                       <td className="p-2">{s.name}</td>
                                       <td className="p-2">{s.status}</td>
+
                                       <td className="p-2 whitespace-nowrap">{s.log_machine ? s.log_machine?.machine?.name : "-"}</td>
+                                      <td className="p-2 whitespace-nowrap">
+                                        {s.log_machine ? `${s.log_machine.time_used} minutes` : "-"}
+                                      </td>
                                       <td className="p-2 whitespace-nowrap">
                                         {s.log_machine ? formatDateTime(`${s.log_machine?.created_at}`) : "-"}
                                       </td>
+                                      <td className="p-2 whitespace-nowrap">
+                                        {s.log_machine ? formatDateTime(`${s.log_machine?.updated_at}`) : "-"}
+                                      </td>
+
                                     </tr>
                                   )
                                 })}
