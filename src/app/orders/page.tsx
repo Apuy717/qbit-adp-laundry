@@ -676,7 +676,7 @@ export default function Orders() {
               </h4>
               <div id="printable">
                 {/* detail data */}
-                <div className="bg-white dark:bg-boxdark shadow rounded-lg">
+                <div className="bg-white border dark:border-strokedark dark:bg-boxdark shadow rounded-lg">
                   {detail.items.map((i, idx) => (
                     <div key={idx} className="border-b border-gray-200 dark:border-gray-700 p-4">
                       <div className="mb-4 flex justify-between items-center">
@@ -692,11 +692,11 @@ export default function Orders() {
                           <div className="text-blue-600 font-semibold">{rupiah(Number(i.sub_total))}</div>
                         </div>
                       </div>
-                      <div className="border-l-2 border-blue-500 relative">
+                      <div className={`border-l-2 border-blue-500 relative ${i.stages.length === 0 && "hidden"}`}>
                         <div className="relative pl-2">
                           {/* <p className="font-semibold text-sm ml-4" style={{ marginBottom: '0.5rem' }}>{p.product}</p> */}
                           <div className="absolute bottom-2 -left-0.5 -rotate-2 w-4 h-4 border-l-2 border-b-2 border-blue-500 rounded-bl-md" />
-                          <div className="overflow-x-auto border-l-2 border-blue-500 ml-4">
+                          <div className={`overflow-x-auto border-l-2 border-blue-500 ml-4`}>
                             <table className="w-full text-sm text-left text-gray-500">
                               <thead className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
@@ -710,7 +710,7 @@ export default function Orders() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {i.stages.length >= 1 && i.stages.map((s, key) => {
+                                {i.stages.map((s, key) => {
                                   return (
                                     <tr key={key} className={`capitalize border-b border-gray-200 dark:border-gray-700`}>
                                       <td className="p-4">{key + 1}</td>
