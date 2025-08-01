@@ -38,8 +38,9 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         mqttClient.on("connect", () => {
             console.log("✅ Connected ke broker MQTT");
-            mqttClient.subscribe("tele/+/LWT");
-            mqttClient.subscribe("stat/+/POWER");
+            mqttClient.subscribe("start");
+            mqttClient.subscribe("tick");
+            mqttClient.subscribe("end");
         });
 
         mqttClient.on("message", (topic, message) => {
