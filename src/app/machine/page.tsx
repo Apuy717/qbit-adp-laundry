@@ -57,7 +57,7 @@ export default function PageMachine() {
   const refSocket = useRef<Socket | undefined>();
 
   useEffect(() => {
-    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMIAN}`, {
+    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
       transports: ["websocket", "polling"],
       reconnection: true, // Enable automatic reconnection
       reconnectionAttempts: Infinity, // Try to reconnect indefinitely

@@ -48,7 +48,7 @@ export default function CreateOutlet() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
-    () => () => {},
+    () => () => { },
   );
   const auth = useSelector((s: RootState) => s.auth);
 
@@ -160,6 +160,8 @@ export default function CreateOutlet() {
       total_dryer: Yup.number().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
+      console.log(values);
+      
       if (loading) return;
       setLoading(true);
       const res = await PostWithToken<MyResponse>({
@@ -219,25 +221,26 @@ export default function CreateOutlet() {
     };
     GotGroupingAreas();
     GotAreas();
-  }, [auth.auth.access_token, router, areaModal, refresh]);
+  }, [auth.auth.access_token, areaModal]);
 
   useEffect(() => {
     async function GotProvince() {
       const res = await GET<MyResponse>({ url: "/api/address/province" });
+      console.log(res.data);
+
       if (
         res.statusCode === 200 &&
-        res?.data?.rajaongkir &&
-        res?.data?.rajaongkir?.results
+        res?.data
       ) {
         const maping = (
-          res?.data?.rajaongkir?.results as {
-            province: string;
-            province_id: string;
+          res?.data as {
+            name: string;
+            id: string;
           }[]
         ).map((i) => {
           return {
-            label: i.province,
-            value: `${i.province_id}--${i.province}`,
+            label: i.name,
+            value: `${i.id}--${i.name}`,
           };
         });
         if (maping.length >= 1) {
@@ -252,6 +255,7 @@ export default function CreateOutlet() {
 
     GotProvince();
     const country = CountryList.getAll();
+
     country.map((i) => {
       setDialCodes((old) => [
         ...old,
@@ -267,21 +271,21 @@ export default function CreateOutlet() {
       url: `/api/address/city?province_id=${province_id}`,
     });
 
+    console.log(res.data);
+
     if (
       res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
+      res?.data
     ) {
       const maping = (
-        res?.data?.rajaongkir?.results as {
-          type: string;
-          city_name: string;
-          city_id: string;
+        res?.data as {
+          name: string;
+          id: string;
         }[]
       ).map((i) => {
         return {
-          label: `${i.type} ${i.city_name}`,
-          value: `${i.city_id}--${i.type} ${i.city_name}`,
+          label: `${i.name}`,
+          value: `${i.id}--${i.name}`,
         };
       });
 
@@ -300,21 +304,22 @@ export default function CreateOutlet() {
     const res = await GET<MyResponse>({
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
+    console.log(res.data);
+    
 
     if (
       res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
+      res?.data
     ) {
       const maping = (
-        res?.data?.rajaongkir?.results as {
-          subdistrict_name: string;
-          subdistrict_id: string;
+        res?.data as {
+          name: string;
+          id: string;
         }[]
       ).map((i) => {
         return {
-          label: `${i.subdistrict_name}`,
-          value: `${i.subdistrict_id}--${i.subdistrict_name}`,
+          label: `${i.name}`,
+          value: `${i.id}--${i.name}`,
         };
       });
       if (maping.length >= 1)

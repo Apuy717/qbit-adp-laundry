@@ -74,7 +74,7 @@ export default function UpdateOutlet({
   const [dateComponent, setDateCompnent] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
-    () => () => {},
+    () => () => { },
   );
 
   let startOfMonth = new Date(
@@ -100,87 +100,161 @@ export default function UpdateOutlet({
   );
 
   useEffect(() => {
-    async function GotDetailOutlet(isupdate: boolean) {
+    // Ambil daftar negara (hanya sekali, tidak setState berkali-kali)
+    const country = CountryList.getAll();
+    setDialCodes(
+      country.map((i) => ({
+        label: `${i.code} ${i.dial_code}`,
+        value: i.dial_code,
+      }))
+    );
+    setCountrys(
+      country.map((i) => ({
+        label: i.name,
+        value: i.name,
+      }))
+    );
+
+    // Ambil data provinsi lalu lanjut ke detail outlet
+    GotProvince(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Ambil daftar provinsi */
+  async function GotProvince(isUpdate: boolean) {
+    try {
+      const res = await GET<iResponseAddress>({ url: "/api/address/province" });
+      if (res.statusCode === 200 && res.data) {
+        const mapping = (res.data as { name: string; id: string }[]).map((i) => ({
+          label: i.name,
+          value: `${i.id}--${i.name}`,
+        }));
+        setProvince(mapping);
+
+        // Jika sudah ada nilai di formik (update) set kembali supaya sinkron
+        if (formik.values.province) {
+          formik.setFieldValue("province", formik.values.province);
+        }
+
+        // Lanjut ambil detail outlet
+        await GotDetailOutlet(isUpdate);
+      }
+    } catch (err) {
+      console.error("Gagal ambil provinsi:", err);
+    }
+  }
+
+  /** Ambil detail outlet */
+  async function GotDetailOutlet(isUpdate: boolean) {
+    try {
       const res = await GetWithToken<iResponseOutlet>({
-        router: router,
+        router,
         url: `/api/outlet/${params.outlet_id}`,
         token: `${credential.auth.access_token}`,
       });
 
-      if (res.statusCode === 404) toast.warning("Outlet not found, try again!");
-
-      formik.setFieldValue("id", res.data.id);
-      formik.setFieldValue("name", res.data.name);
-      // formik.setFieldValue("country", res.data.country)
-      if (res.data.outlet_area_grouping !== null) {
-        formik.setFieldValue(
-          "area_id",
-          res.data.outlet_area_grouping.outlet_area.id,
-        );
+      if (res.statusCode === 404) {
+        toast.warning("Outlet not found, try again!");
+        return;
       }
-      formik.setFieldValue("province", res.data.province);
-      formik.setFieldValue("city", res.data.city);
-      formik.setFieldValue("district", res.data.district);
-      // formik.setFieldValue("postal_code", res.data.postal_code)
-      formik.setFieldValue("address", res.data.address);
-      formik.setFieldValue("dial_code", res.data.dial_code);
-      formik.setFieldValue("phone_number", res.data.phone_number);
-      formik.setFieldValue("email", res.data.email);
-      formik.setFieldValue("is_deleted", res.data.is_deleted);
-      formik.setFieldValue("total_washer", res.data.total_washer);
-      formik.setFieldValue("total_dryer", res.data.total_dryer);
-      formik.setFieldValue("opening_schedule", res.data.opening_schedule);
-      setOutlet(res.data);
-      setDateCompnent(true);
       console.log(res.data);
+      
+      const outlet = res.data;
 
-      if (res.data.province && res.data.province.split("--").length >= 2)
-        GotCity(res.data.province.split("--")[0], isupdate);
+      // Set value formik hanya sekali
+      formik.setValues({
+        id: outlet.id,
+        name: outlet.name,
+        area_id: outlet.outlet_area_grouping?.outlet_area?.id || "",
+        country:outlet.country,
+        province: outlet.province,
+        city: outlet.city,
+        district: outlet.district,
+        address: outlet.address,
+        dial_code: outlet.dial_code,
+        phone_number: outlet.phone_number,
+        email: outlet.email,
+        is_deleted: outlet.is_deleted,
+        total_washer: outlet.total_washer,
+        total_dryer: outlet.total_dryer,
+        opening_schedule: outlet.opening_schedule,
+      });
 
-      if (res.data.city && res.data.city.split("--").length >= 2)
-        GotSubDistrict(res.data.city.split("--")[0], isupdate);
+      setOutlet(outlet);
+      setDateCompnent(true);
+
+      // Ambil data kota & kecamatan sesuai data yang sudah ada
+      if (outlet.province?.includes("--")) {
+        await GotCity(outlet.province.split("--")[0], isUpdate, outlet.city);
+      }
+
+      if (outlet.city?.includes("--")) {
+        await GotSubDistrict(outlet.city.split("--")[0], isUpdate, outlet.district);
+      }
 
       setLoading(false);
+    } catch (err) {
+      console.error("Gagal ambil detail outlet:", err);
     }
+  }
 
-    async function GotProvince(isupdate: boolean) {
-      const res = await GET<iResponseAddress>({ url: "/api/address/province" });
-      if (
-        res.statusCode === 200 &&
-        res?.data?.rajaongkir &&
-        res?.data?.rajaongkir?.results
-      ) {
-        const maping = (
-          res?.data?.rajaongkir?.results as {
-            province: string;
-            province_id: string;
-          }[]
-        ).map((i) => {
-          return {
-            label: i.province,
-            value: `${i.province_id}--${i.province}`,
-          };
-        });
-        if (formik.values.province) {
-          formik.setFieldValue("province", formik.values.province);
+  /** Ambil daftar kota */
+  async function GotCity(province_id: string, isUpdate: boolean, cityValue?: string) {
+    try {
+      const res = await GET<iResponseAddress>({
+        url: `/api/address/city?province_id=${province_id}`,
+      });
+
+      if (res.statusCode === 200 && res.data) {
+        const mapping = (res.data as { name: string; id: string }[]).map((i) => ({
+          label: i.name,
+          value: `${i.id}--${i.name}`,
+        }));
+        setCity(mapping);
+
+        // Jika update dan ada city value
+        if (isUpdate && cityValue) {
+          formik.setFieldValue("city", cityValue);
+
+          if (cityValue.includes("--")) {
+            await GotSubDistrict(cityValue.split("--")[0], true);
+          }
         }
-        setProvince(maping);
-        GotDetailOutlet(isupdate);
       }
+    } catch (err) {
+      console.error("Gagal ambil kota:", err);
     }
+  }
 
-    const country = CountryList.getAll();
-    country.map((i) => {
-      setDialCodes((old) => [
-        ...old,
-        { label: `${i.code} ${i.dial_code}`, value: i.dial_code },
-      ]);
-      setCountrys((old) => [...old, { label: i.name, value: i.name }]);
-    });
+  /** Ambil daftar kecamatan */
+  async function GotSubDistrict(city_id: string, isUpdate: boolean, districtValue?: string) {
+    try {
+      const res = await GET<iResponseAddress>({
+        url: `/api/address/sub-district?city_id=${city_id}`,
+      });
 
-    GotProvince(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      if (res.statusCode === 200 && res.data) {
+        const mapping = (
+          res.data as {
+            name: string;
+            id: string;
+          }[]
+        ).map((i) => ({
+          label: i.name,
+          value: `${i.id}--${i.name}`,
+        }));
+        setSubDistrict(mapping);
+
+        // Jika update, set district ke formik
+        if (isUpdate && districtValue) {
+          formik.setFieldValue("district", districtValue);
+        }
+      }
+    } catch (err) {
+      console.error("Gagal ambil sub-district:", err);
+    }
+  }
+
 
   useEffect(() => {
     const GotAreas = async () => {
@@ -231,7 +305,6 @@ export default function UpdateOutlet({
     router,
     areaModal,
     outlet,
-    mapingGroupArea,
     refresh,
     deleteModal,
   ]);
@@ -273,7 +346,7 @@ export default function UpdateOutlet({
       phone_number: "",
       email: "",
       is_deleted: true,
-      opening_schedule: new Date(startDate),
+      opening_schedule: "",
       total_washer: 0,
       total_dryer: 0,
     },
@@ -324,65 +397,6 @@ export default function UpdateOutlet({
       setLoading(false);
     },
   });
-
-  async function GotCity(province_id: string, isupdate: boolean) {
-    const res = await GET<iResponseAddress>({
-      url: `/api/address/city?province_id=${province_id}`,
-    });
-
-    if (
-      res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
-    ) {
-      const maping = (
-        res?.data?.rajaongkir?.results as {
-          type: string;
-          city_name: string;
-          city_id: string;
-        }[]
-      ).map((i) => {
-        return {
-          label: `${i.type} ${i.city_name}`,
-          value: `${i.city_id}--${i.type} ${i.city_name}`,
-        };
-      });
-      if (isupdate) {
-        formik.setFieldValue("city", maping[0].value);
-        GotSubDistrict(maping[0].value.split("--")[0], true);
-      }
-      setCity(maping);
-    }
-  }
-
-  async function GotSubDistrict(city_id: string, isupdate: boolean) {
-    const res = await GET<iResponseAddress>({
-      url: `/api/address/sub-district?city_id=${city_id}`,
-    });
-
-    if (
-      res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
-    ) {
-      const maping = (
-        res?.data?.rajaongkir?.results as {
-          subdistrict_name: string;
-          subdistrict_id: string;
-        }[]
-      ).map((i) => {
-        return {
-          label: `${i.subdistrict_name}`,
-          value: `${i.subdistrict_id}--${i.subdistrict_name}`,
-        };
-      });
-
-      if (isupdate) {
-        formik.setFieldValue("district", maping[0].value.split("--")[1]);
-      }
-      setSubDistrict(maping);
-    }
-  }
 
   const deleteArea = async (id: any) => {
     const data = {
