@@ -64,6 +64,7 @@ export default function TermsAndConditions() {
 
   return (
     <div className=" dark:min-h-screen">
+      <Breadcrumb pageName={"Terms and Conditions"} />
       <div className="mb-4 w-full  rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
           <Link

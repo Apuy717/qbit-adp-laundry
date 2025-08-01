@@ -9,6 +9,7 @@ export type EmptyWashType = {
   review_status: EEmptyWash,
   duration: number | null,
   is_used: boolean,
+  is_mqtt: boolean,
   created_at: string,
   updated_at: string,
   requested: {

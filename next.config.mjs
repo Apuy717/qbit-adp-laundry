@@ -13,15 +13,15 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMIAN}/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/api/:path*`,
       },
       {
         source: "/file/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMIAN}/file/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/file/:path*`,
       },
       {
         source: "/download/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMIAN}/download/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/download/:path*`,
       },
     ];
   },
