@@ -19,7 +19,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Runtime
-FROM node:18-alpine
+FROM node:23-alpine3.20
 
 # Set working directory
 WORKDIR /usr/src/app

@@ -9,6 +9,7 @@ import {
 } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
+import { useMqtt } from "@/contexts/MqttContext";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { ERoles } from "@/stores/authReducer";
@@ -36,6 +37,19 @@ interface iSwitchMachine {
   status: EStatusSwithMachine;
 }
 export default function PageMachine() {
+  const { client, status } = useMqtt();
+  console.log(status);
+
+  function handlePower(deviceId: string, power: "ON" | "OFF") {
+    if (client) {
+      client.publish(`cmnd/${deviceId}/POWER`, power, { qos: 1 }, (err) => {
+        if (err) toast.error("Gagal kirim perintah ke device");
+        else toast.success(`Device ${deviceId} -> ${power}`);
+      });
+    } else {
+      toast.error("MQTT client belum terhubung");
+    }
+  }
   const [search, setSearch] = useState<string>("");
 
   const [items, setItems] = useState<MachineType[]>([]);
@@ -159,6 +173,8 @@ export default function PageMachine() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setItems(res.data);
+        console.log(res.data);
+
       }
 
       setTimeout(() => {
@@ -398,31 +414,32 @@ export default function PageMachine() {
         colls={
           role.name === ERoles.PROVIDER || role.name === ERoles.TECHNICIAN
             ? [
-                "#",
-                "Name",
-                "Duration",
-                "Esp ID",
-                "IP",
-                "Type",
-                "Outlet",
-                "Relay Cycle",
-                "Machine Cycle",
-                "Switch",
-                "Status",
-                "Action",
-              ]
+              "#",
+              "Name",
+              "Duration",
+              "Esp ID",
+              "IP",
+              "Type",
+              "Outlet",
+              "Relay Cycle",
+              "Machine Cycle",
+              "Connection",
+              "power",
+              "Status",
+              "Action",
+            ]
             : [
-                "#",
-                "Name",
-                "Duration",
-                "Esp ID",
-                "Type",
-                "Outlet",
-                "Relay Cycle",
-                "Machine Cycle",
-                "Status",
-                "Action",
-              ]
+              "#",
+              "Name",
+              "Duration",
+              "Esp ID",
+              "Type",
+              "Outlet",
+              "Relay Cycle",
+              "Machine Cycle",
+              "Status",
+              "Action",
+            ]
         }
         currentPage={currentPage}
         totalItem={totalItem}
@@ -443,8 +460,8 @@ export default function PageMachine() {
             <td className="whitespace-nowrap px-6 py-4">{i.machine_id}</td>
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
-              <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>
-            )}
+                <td className="whitespace-nowrap px-6 py-4">{i.ip}</td>
+              )}
             <td className="px-6 py-4">{i.type.toUpperCase()}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.outlet.name}</td>
             <td className="whitespace-nowrap px-6 py-4">
@@ -464,19 +481,44 @@ export default function PageMachine() {
             </td>
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
-              <td className="whitespace-nowrap px-6 py-4">
-                {switchMachine.length >= 1 &&
-                switchMachine.find((f) => f.machine_id === i.machine_id) ? (
-                  <div className="rounded-xl bg-green-500 px-2 text-center">
-                    <p className="text-white">ON</p>
-                  </div>
-                ) : (
-                  <div className="rounded-xl bg-red-500 px-2 text-center">
-                    <p className="text-white">OFF</p>
-                  </div>
-                )}
-              </td>
-            )}
+                <td className="whitespace-nowrap px-6 py-4">
+                  {status[i.machine_id].lwt == "Online" ? (
+                    <div className="rounded-xl bg-green-500 px-2 text-center">
+                      <p className="text-white">{status[i.machine_id].lwt}</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-red-500 px-2 text-center">
+                      <p className="text-white">{status[i.machine_id].lwt}</p>
+                    </div>
+                  )}
+                </td>
+              )}
+            {(role.name === ERoles.PROVIDER ||
+              role.name === ERoles.TECHNICIAN) && (
+                <td className="whitespace-nowrap px-6 py-4">
+                  {status[i.machine_id].power == "ON" ? (
+                    <div className="rounded-xl bg-green-500 px-2 text-center">
+                      <p className="text-white">{status[i.machine_id].power}</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-red-500 px-2 text-center">
+                      <p className="text-white">{status[i.machine_id].power}</p>
+                    </div>
+                  )}
+                </td>
+                // <td className="whitespace-nowrap px-6 py-4">
+                //   {switchMachine.length >= 1 &&
+                //     switchMachine.find((f) => f.machine_id === i.machine_id) ? (
+                //     <div className="rounded-xl bg-green-500 px-2 text-center">
+                //       <p className="text-white">ON</p>
+                //     </div>
+                //   ) : (
+                //     <div className="rounded-xl bg-red-500 px-2 text-center">
+                //       <p className="text-white">OFF</p>
+                //     </div>
+                //   )}
+                // </td>
+              )}
             <td className="whitespace-nowrap px-6 py-4">
               {i.is_deleted ? (
                 <div className="rounded-xl bg-red-500 px-2 text-center">
@@ -514,30 +556,30 @@ export default function PageMachine() {
               </button>
               {(role.name === ERoles.PROVIDER ||
                 role.name === ERoles.TECHNICIAN) && (
-                <button
-                  className={`rounded bg-green-500 p-2`}
-                  onClick={() => {
-                    formik.setFieldValue("id", i.id);
-                    formik.setFieldValue("name", i.name);
-                    formik.setFieldValue("ip", i.ip);
-                    formik.setFieldValue("is_deleted", false);
-                    formik.setFieldValue(
-                      "outlet_id",
-                      i.outlet_id === null ? "null" : i.outlet_id,
-                    );
-                    formik.setFieldValue(
-                      "default_duration",
-                      `${i.default_duration}`,
-                    );
-                    formik.setFieldValue("type", i.type);
-                    formik.setFieldValue("machine_id", i.machine_id);
-                    setMachineDetail(i);
-                    setModalPairingMachine(true);
-                  }}
-                >
-                  <TbPlugConnectedX size={18} color="white" />
-                </button>
-              )}
+                  <button
+                    className={`rounded bg-green-500 p-2`}
+                    onClick={() => {
+                      formik.setFieldValue("id", i.id);
+                      formik.setFieldValue("name", i.name);
+                      formik.setFieldValue("ip", i.ip);
+                      formik.setFieldValue("is_deleted", false);
+                      formik.setFieldValue(
+                        "outlet_id",
+                        i.outlet_id === null ? "null" : i.outlet_id,
+                      );
+                      formik.setFieldValue(
+                        "default_duration",
+                        `${i.default_duration}`,
+                      );
+                      formik.setFieldValue("type", i.type);
+                      formik.setFieldValue("machine_id", i.machine_id);
+                      setMachineDetail(i);
+                      setModalPairingMachine(true);
+                    }}
+                  >
+                    <TbPlugConnectedX size={18} color="white" />
+                  </button>
+                )}
             </td>
           </tr>
         ))}
@@ -564,7 +606,7 @@ export default function PageMachine() {
 
           <div className="mt-4 h-80 overflow-y-auto p-2">
             {role.name === ERoles.PROVIDER ||
-            role.name === ERoles.TECHNICIAN ? (
+              role.name === ERoles.TECHNICIAN ? (
               <div className="flex flex-col space-y-8">
                 <Input
                   label={"Esp ID*"}
@@ -614,7 +656,7 @@ export default function PageMachine() {
                   onChange={(v) => formik.setFieldValue("default_duration", v)}
                   error={
                     formik.touched.default_duration &&
-                    formik.errors.default_duration
+                      formik.errors.default_duration
                       ? formik.errors.default_duration
                       : null
                   }
@@ -667,7 +709,7 @@ export default function PageMachine() {
                   onChange={(v) => formik.setFieldValue("default_duration", v)}
                   error={
                     formik.touched.default_duration &&
-                    formik.errors.default_duration
+                      formik.errors.default_duration
                       ? formik.errors.default_duration
                       : null
                   }
