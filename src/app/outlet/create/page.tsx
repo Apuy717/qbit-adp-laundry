@@ -221,6 +221,7 @@ export default function CreateOutlet() {
     };
     GotGroupingAreas();
     GotAreas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.auth.access_token, areaModal]);
 
   useEffect(() => {

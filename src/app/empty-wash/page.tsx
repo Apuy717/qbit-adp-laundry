@@ -75,6 +75,8 @@ export default function EmptyWash() {
         client.publish(`cmnd/${deviceId}/POWER`, "");
       });
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
 
   useEffect(() => {

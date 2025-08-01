@@ -339,6 +339,7 @@ export default function Product() {
       }
     };
     GotOutletExclude();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabActive, excludes])
 
   useEffect(() => {

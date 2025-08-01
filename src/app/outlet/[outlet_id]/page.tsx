@@ -300,6 +300,7 @@ export default function UpdateOutlet({
     };
     GotGroupingAreas();
     GotAreas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     credential.auth.access_token,
     router,

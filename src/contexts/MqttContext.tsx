@@ -61,6 +61,7 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => {
             mqttClient.end();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
