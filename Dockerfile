@@ -22,14 +22,14 @@ RUN npm prune --production
 FROM node:23-alpine3.20
 
 # Set working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy the built application from the builder stage next.config.mjs
-COPY --from=builder /usr/src/app/.next ./.next
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/next.config.mjs ./
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/next.config.mjs ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/public ./public
 
 # Start the application
 CMD ["npm", "start"]
