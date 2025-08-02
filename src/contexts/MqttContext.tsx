@@ -24,12 +24,22 @@ export const useMqtt = () => useContext(MqttContext);
 
 export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [client, setClient] = useState<MqttClient | null>(null);
-    const [status, setStatus] = useState<DeviceStatus>({});
-    const url_broker = process.env.NEXT_PUBLIC_MQTT_BROKER_URL
-    console.log(url_broker);
+    const [status, setStatus] = useState<DeviceStatus>(() => {
+        // Ambil status terakhir dari localStorage
+        if (typeof window !== "undefined") {
+            const cached = localStorage.getItem("deviceStatus");
+            return cached ? JSON.parse(cached) : {};
+        }
+        return {};
+    });
+    const url_broker = process.env.NEXT_PUBLIC_MQTT_BROKER_URL;
 
     useEffect(() => {
-        // Connect ke broker MQTT via WebSocket
+        // Simpan status setiap kali ada update
+        localStorage.setItem("deviceStatus", JSON.stringify(status));
+    }, [status]);
+
+    useEffect(() => {
         const mqttClient = mqtt.connect(url_broker as string, {
             username: "admin",
             password: "@Quantum2022",
@@ -38,13 +48,11 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         mqttClient.on("connect", () => {
             console.log("✅ Connected ke broker MQTT");
-            mqttClient.subscribe("start");
-            mqttClient.subscribe("tick");
-            mqttClient.subscribe("end");
+            mqttClient.subscribe("tele/+/LWT");
+            mqttClient.subscribe("stat/+/POWER");
         });
 
         mqttClient.on("message", (topic, message) => {
-            console.log("📩 Topic:", topic, "Message:", message.toString());
             const [prefix, deviceId, type] = topic.split("/");
             const value = message.toString();
 
@@ -52,8 +60,8 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 ...prev,
                 [deviceId]: {
                     ...prev[deviceId],
-                    ...(type === "LWT" ? { lwt: value } : { power: value })
-                }
+                    ...(type === "LWT" ? { lwt: value } : { power: value }),
+                },
             }));
         });
 
@@ -71,3 +79,4 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
         </MqttContext.Provider>
     );
 };
+

@@ -38,6 +38,7 @@ interface iSwitchMachine {
 }
 export default function PageMachine() {
   const { client, status } = useMqtt();
+ 
   console.log(status);
 
   function handlePower(deviceId: string, power: "ON" | "OFF") {
@@ -482,13 +483,13 @@ export default function PageMachine() {
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
                 <td className="whitespace-nowrap px-6 py-4">
-                  {status[i.machine_id].lwt == "Online" ? (
+                  {status[i.machine_id]?.lwt == "Online" ? (
                     <div className="rounded-xl bg-green-500 px-2 text-center">
-                      <p className="text-white">{status[i.machine_id].lwt}</p>
+                      <p className="text-white">{status[i.machine_id]?.lwt}</p>
                     </div>
                   ) : (
                     <div className="rounded-xl bg-red-500 px-2 text-center">
-                      <p className="text-white">{status[i.machine_id].lwt}</p>
+                      <p className="text-white">{status[i.machine_id]?.lwt}</p>
                     </div>
                   )}
                 </td>
@@ -496,13 +497,13 @@ export default function PageMachine() {
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
                 <td className="whitespace-nowrap px-6 py-4">
-                  {status[i.machine_id].power == "ON" ? (
+                  {status[i.machine_id]?.power == "ON" ? (
                     <div className="rounded-xl bg-green-500 px-2 text-center">
-                      <p className="text-white">{status[i.machine_id].power}</p>
+                      <p className="text-white">{status[i.machine_id]?.power}</p>
                     </div>
                   ) : (
                     <div className="rounded-xl bg-red-500 px-2 text-center">
-                      <p className="text-white">{status[i.machine_id].power}</p>
+                      <p className="text-white">{status[i.machine_id]?.power}</p>
                     </div>
                   )}
                 </td>
