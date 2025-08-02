@@ -1,63 +1,56 @@
-# Alternative: Your current approach with fixes
-FROM node:23-alpine3.20 AS builder
+FROM node:23-alpine AS base
 
-# Add libc6-compat for Alpine compatibility
+# Install dependencies only when needed
+FROM base AS deps
 RUN apk add --no-cache libc6-compat
+WORKDIR /app
 
-# Set working directory
-WORKDIR /usr/src/app
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --frozen-lockfile
-
-# Copy source code
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set environment variables for build
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Build the application
-RUN npm run build
+RUN \
+  if [ -f yarn.lock ]; then yarn run build; \
+  elif [ -f package-lock.json ]; then npm run build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# Verify build output exists
-RUN ls -la .next/ && cat .next/BUILD_ID
+FROM base AS runner
+WORKDIR /app
 
-# Remove development dependencies
-RUN npm prune --production
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Stage 2: Runtime
-FROM node:23-alpine3.20
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Add libc6-compat for Alpine compatibility
-RUN apk add --no-cache libc6-compat
+COPY --from=builder /app/public ./public
 
-# Set working directory
-WORKDIR /usr/src/app
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
 
-# Set production environment
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy the entire .next directory, not just standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Copy package files
-COPY --from=builder /usr/src/app/package*.json ./
+USER nextjs
 
-# Copy next.config.mjs if it exists
-COPY --from=builder /usr/src/app/next.config.* ./
+# EXPOSE 3000
 
-# Copy built application
-COPY --from=builder /usr/src/app/.next ./.next
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/public ./public
+# ENV PORT 3000
+# ENV HOSTNAME "0.0.0.0"
 
-# Verify the build exists in runtime stage
-RUN ls -la .next/ && if [ -f .next/BUILD_ID ]; then echo "Build ID found: $(cat .next/BUILD_ID)"; else echo "ERROR: BUILD_ID not found"; exit 1; fi
-
-# Expose port
-EXPOSE 4001
-
-# Start the application
 CMD ["npm", "start"]
