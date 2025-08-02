@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Remove development dependencies
-RUN npm prune --production
+# RUN npm prune --production
 
 # Stage 2: Runtime
 FROM node:23-alpine3.20
