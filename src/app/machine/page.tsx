@@ -38,7 +38,7 @@ interface iSwitchMachine {
 }
 export default function PageMachine() {
   const { client, status } = useMqtt();
- 
+
   console.log(status);
 
   function handlePower(deviceId: string, power: "ON" | "OFF") {
@@ -69,58 +69,58 @@ export default function PageMachine() {
   const router = useRouter();
 
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
-  const refSocket = useRef<Socket | undefined>();
+  // const refSocket = useRef<Socket | undefined>();
 
-  useEffect(() => {
-    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
-      transports: ["websocket", "polling"],
-      reconnection: true, // Enable automatic reconnection
-      reconnectionAttempts: Infinity, // Try to reconnect indefinitely
-      reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
-      reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
-      randomizationFactor: 0.5, // Random factor to vary the delay time
-      timeout: 20000, // Timeout duration for connection attempts (in ms)
-    });
+  // useEffect(() => {
+  //   refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
+  //     transports: ["websocket", "polling"],
+  //     reconnection: true, // Enable automatic reconnection
+  //     reconnectionAttempts: Infinity, // Try to reconnect indefinitely
+  //     reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
+  //     reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
+  //     randomizationFactor: 0.5, // Random factor to vary the delay time
+  //     timeout: 20000, // Timeout duration for connection attempts (in ms)
+  //   });
 
-    refSocket.current.connect();
+  //   refSocket.current.connect();
 
-    refSocket.current.emit("ping", "ping");
+  //   refSocket.current.emit("ping", "ping");
 
-    refSocket.current.on("ping", (msg) => {
-      console.log("==== PING ====");
-      console.log(msg);
-      console.log("==== PING ====");
-    });
+  //   refSocket.current.on("ping", (msg) => {
+  //     console.log("==== PING ====");
+  //     console.log(msg);
+  //     console.log("==== PING ====");
+  //   });
 
-    refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
-      console.log("==== Msg Server Socket ====");
-      console.log(msg);
-      console.log("==== Msg Server Socket ====");
-      setSwitchMachine((old) => {
-        const fAlreadyData = old.findIndex(
-          (f) => f.machine_id === msg.machine_id,
-        );
+  //   refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
+  //     console.log("==== Msg Server Socket ====");
+  //     console.log(msg);
+  //     console.log("==== Msg Server Socket ====");
+  //     setSwitchMachine((old) => {
+  //       const fAlreadyData = old.findIndex(
+  //         (f) => f.machine_id === msg.machine_id,
+  //       );
 
-        if (fAlreadyData === -1) {
-          // Jika belum ada di array dan statusnya ON, tambahkan
-          return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
-        }
+  //       if (fAlreadyData === -1) {
+  //         // Jika belum ada di array dan statusnya ON, tambahkan
+  //         return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
+  //       }
 
-        if (msg.status === EStatusSwithMachine.ON) {
-          // Jika sudah ada dan statusnya ON, update data
-          return old.map((item, index) =>
-            index === fAlreadyData ? { ...item, ...msg } : item,
-          );
-        } else {
-          // Jika sudah ada dan statusnya bukan ON, hapus dari array
-          return old.filter((_, index) => index !== fAlreadyData);
-        }
-      });
-    });
-    return () => {
-      refSocket.current?.disconnect();
-    };
-  }, []);
+  //       if (msg.status === EStatusSwithMachine.ON) {
+  //         // Jika sudah ada dan statusnya ON, update data
+  //         return old.map((item, index) =>
+  //           index === fAlreadyData ? { ...item, ...msg } : item,
+  //         );
+  //       } else {
+  //         // Jika sudah ada dan statusnya bukan ON, hapus dari array
+  //         return old.filter((_, index) => index !== fAlreadyData);
+  //       }
+  //     });
+  //   });
+  //   return () => {
+  //     refSocket.current?.disconnect();
+  //   };
+  // }, []);
 
   useEffect(() => {
     async function GotAllOutlet() {
