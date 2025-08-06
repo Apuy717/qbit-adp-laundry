@@ -23,6 +23,10 @@ const nextConfig = {
         source: "/download/:path*",
         destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/download/:path*`,
       },
+      {
+        source: "/mqtt/:path*",
+        destination: `http://${process.env.NEXT_PUBLIC_MQTT_BROKER_URL}/mqtt/:path*`,
+      },
     ];
   },
 };
