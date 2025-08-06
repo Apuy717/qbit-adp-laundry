@@ -32,7 +32,7 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return {};
     });
-    const url_broker = `ws://${process.env.NEXT_PUBLIC_MQTT_BROKER_URL}`;
+    const url_broker = `ws://${process.env.NEXT_PUBLIC_MQTT_BROKER_URL}/mqtt`;
 
     useEffect(() => {
         // Simpan status setiap kali ada update
