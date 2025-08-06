@@ -12,6 +12,10 @@ RUN npm install --frozen-lockfile
 # Copy the rest of the application code
 COPY . .
 
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
 # Build the application
 RUN npm run build
 
@@ -19,7 +23,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Runtime
-FROM node:18-alpine
+FROM node:23-alpine3.20
 
 # Set working directory
 WORKDIR /usr/src/app

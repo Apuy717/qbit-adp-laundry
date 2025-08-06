@@ -109,7 +109,7 @@ export default function EmptyWash() {
 
   return (
     <div className="min-h-screen">
-      <Breadcrumb pageName={"Sales"} />
+      <Breadcrumb pageName={"Maintenance"} />
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-2 gap-4">
           <DatePickerOne

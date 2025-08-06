@@ -5,6 +5,7 @@ import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { Input } from "@/components/Inputs/InputComponent";
 import Modal from "@/components/Modals/Modal";
 import Table from "@/components/Tables/Table";
+import { useMqtt } from "@/contexts/MqttContext";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
@@ -18,8 +19,26 @@ import { MdBlock } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-
 export default function EmptyWash() {
+  const { client, status } = useMqtt();
+  function handlePower(deviceId: string, power: "ON" | "OFF") {
+    if (client) {
+      client.publish(`cmnd/${deviceId}/POWER`, power, { qos: 1 }, (err) => {
+        if (err) toast.error("Gagal kirim perintah ke device");
+        else toast.success(`Device ${deviceId} -> ${power}`);
+      });
+    } else {
+      toast.error("MQTT client belum terhubung");
+    }
+  }
+  const isDeviceOnline = (deviceId: string) => {
+    return status[deviceId]?.lwt === "Online";
+  };
+
+  const isPowerOff = (deviceId: string) => {
+    return status[deviceId]?.power === "OFF";
+  };
+
   let startOfMonth = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
@@ -46,6 +65,19 @@ export default function EmptyWash() {
   const [modalApproved, setModalApproved] = useState<boolean>(false)
   const [duration, setDuration] = useState<string>("")
   const [payloadApproved, setPayloadApproved] = useState<{ id: string, stts: EEmptyWash, duration: number } | null>(null)
+
+  useEffect(() => {
+    if (client) {
+      // Ketika halaman mount dan client sudah connect,
+      // minta semua device mengirim status POWER
+      const deviceIds = Object.keys(status);
+      deviceIds.forEach(deviceId => {
+        client.publish(`cmnd/${deviceId}/POWER`, "");
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client]);
 
   useEffect(() => {
     async function GotItems() {
@@ -109,7 +141,7 @@ export default function EmptyWash() {
 
   return (
     <div className="min-h-screen">
-      <Breadcrumb pageName={"Sales"} />
+      <Breadcrumb pageName={"Empty Wash"} />
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-1 md:gird-cols-2 lg:grid-cols-2 gap-4">
           <DatePickerOne
@@ -221,12 +253,27 @@ export default function EmptyWash() {
                   <button
                     className="bg-green-500 hover:bg-green-700 p-2 rounded uppercase"
                     onClick={() => {
-                      setModalApproved(true);
-                      setPayloadApproved({
-                        id: i.id,
-                        stts: EEmptyWash.APPROVED,
-                        duration: 0
-                      })
+                      // handlePower(i.machine.machine_id, "ON")
+                      console.log(status);
+                      if (i.is_mqtt) {
+                        if (isPowerOff(i.machine.machine_id) && isDeviceOnline(i.machine.machine_id)) {
+                          setModalApproved(true);
+                          setPayloadApproved({
+                            id: i.id,
+                            stts: EEmptyWash.APPROVED,
+                            duration: 0
+                          })
+                        } else {
+                          toast.warning(`${i.machine.name} at Outlet ${i.outlet.name} already running`)
+                        }
+                      } else {
+                        setModalApproved(true);
+                        setPayloadApproved({
+                          id: i.id,
+                          stts: EEmptyWash.APPROVED,
+                          duration: 0
+                        })
+                      }
                     }}
                   >
                     <FaCheck />

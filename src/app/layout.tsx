@@ -16,6 +16,7 @@ import { ToastContainer } from "react-toastify";
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { FilterPageProvider } from "@/contexts/selectOutletContex";
+import { MqttProvider } from "@/contexts/MqttContext";
 
 export default function RootLayout({
   children,
@@ -43,15 +44,17 @@ export default function RootLayout({
               <FilterPageProvider>
                 <LayoutProvider>
                   <AuthProvider>
-                    {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
-                      <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
-                    -top-20 z-99999 bg-orange-500 flex items-center justify-center text-2xl text-white 
-                    uppercase">
-                        <p>{process.env.NEXT_PUBLIC_APP_ENV}</p>
-                      </div>
-                    )}
+                    <MqttProvider>
+                      {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
+                        <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
+                      -top-20 z-99999 bg-orange-500 flex items-center justify-center text-2xl text-white 
+                      uppercase">
+                          <p>{process.env.NEXT_PUBLIC_APP_ENV}</p>
+                        </div>
+                      )}
 
-                    {loading ? <Loader /> : children}
+                      {loading ? <Loader /> : children}
+                    </MqttProvider>
                   </AuthProvider>
                 </LayoutProvider>
               </FilterPageProvider>

@@ -166,18 +166,17 @@ export default function CreateEmployee() {
       const res = await GET<iResponse<any>>({ url: "/api/address/province" });
       if (
         res.statusCode === 200 &&
-        res?.data?.rajaongkir &&
-        res?.data?.rajaongkir?.results
+        res?.data
       ) {
         const maping = (
-          res?.data?.rajaongkir?.results as {
-            province: string;
-            province_id: string;
+          res?.data as {
+            name: string;
+            id: string;
           }[]
         ).map((i) => {
           return {
-            label: i.province,
-            value: `${i.province_id}--${i.province}`,
+            label: i.name,
+            value: `${i.id}--${i.name}`,
           };
         });
         if (maping.length >= 1) {
@@ -237,19 +236,17 @@ export default function CreateEmployee() {
 
     if (
       res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
+      res?.data
     ) {
       const maping = (
-        res?.data?.rajaongkir?.results as {
-          type: string;
-          city_name: string;
-          city_id: string;
+        res?.data as {
+          name: string;
+          id: string;
         }[]
       ).map((i) => {
         return {
-          label: `${i.type} ${i.city_name}`,
-          value: `${i.city_id}--${i.type} ${i.city_name}`,
+          label: `${i.name}`,
+          value: `${i.id}--${i.name}`,
         };
       });
 
@@ -269,18 +266,17 @@ export default function CreateEmployee() {
 
     if (
       res?.statusCode === 200 &&
-      res?.data?.rajaongkir &&
-      res?.data?.rajaongkir?.results
+      res?.data
     ) {
       const maping = (
-        res?.data?.rajaongkir?.results as {
-          subdistrict_name: string;
-          subdistrict_id: string;
+        res?.data as {
+          name: string;
+          id: string;
         }[]
       ).map((i) => {
         return {
-          label: `${i.subdistrict_name}`,
-          value: `${i.subdistrict_id}--${i.subdistrict_name}`,
+          label: `${i.name}`,
+          value: `${i.id}--${i.name}`,
         };
       });
       if (maping.length >= 1)
@@ -607,7 +603,7 @@ export default function CreateEmployee() {
           <div
             className={
               formik.values.department === EDepartmentEmployee.TECHNICIAN ||
-              formik.values.department === EDepartmentEmployee.HQ
+                formik.values.department === EDepartmentEmployee.HQ
                 ? `hidden`
                 : `mb-5 mt-2`
             }
