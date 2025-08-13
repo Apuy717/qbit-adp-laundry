@@ -1,12 +1,14 @@
 import fetch from "isomorphic-fetch";
 
+
+const baseUrl = process.env.NEXT_PUBLIC_API_DOMAIN
 class reqApi {
   /**
    * GET
    */
   public GET(url: string, overideUrl: boolean = true): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -29,8 +31,10 @@ class reqApi {
    * POST
    */
   public POST(url: string, body: any, overideUrl: boolean = false): Promise<any> {
+    console.log(baseUrl + url);
+
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -56,7 +60,7 @@ class reqApi {
    */
   public PUT(url: string, token: string, body: any): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +86,7 @@ class reqApi {
    */
   public DELETE(url: string, token: string, body: any): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -107,7 +111,7 @@ class reqApi {
    */
   public GetWithToken(url: string, token: string, overideUrl: boolean = false): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -132,7 +136,7 @@ class reqApi {
    */
   public PostWithToken(url: string, token: string, body: any, overideUrl: boolean = false): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -158,7 +162,7 @@ class reqApi {
    */
   public PutWithToken(url: string, token: string, body: any): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +189,7 @@ class reqApi {
    */
   public DeleteWithToken(url: string, token: string, body: any): Promise<any> {
     const promise = new Promise((resolve, reject) => {
-      fetch(url, {
+      fetch(baseUrl + url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -220,7 +224,7 @@ class reqApi {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
-      xhr.open("POST", url, true);
+      xhr.open("POST", baseUrl + url, true);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
       // Progress event listener

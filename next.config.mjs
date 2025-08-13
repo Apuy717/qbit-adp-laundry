@@ -9,22 +9,22 @@ const nextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/api/:path*`,
-      },
-      {
-        source: "/file/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/file/:path*`,
-      },
-      {
-        source: "/download/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/download/:path*`,
-      },
-    ];
-  },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/api/:path*",
+  //       destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/api/:path*`,
+  //     },
+  //     {
+  //       source: "/file/:path*",
+  //       destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/file/:path*`,
+  //     },
+  //     {
+  //       source: "/download/:path*",
+  //       destination: `${process.env.NEXT_PUBLIC_API_DOMAIN}/download/:path*`,
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;
