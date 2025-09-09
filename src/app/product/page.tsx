@@ -95,7 +95,7 @@ export default function Product() {
     SKU = "SKU",
   }
 
-  const [searchExclude,setSearchExclude] = useState<string>("")
+  const [searchExclude, setSearchExclude] = useState<string>("")
   const filteredOutlets = outletExclude.filter((i) =>
     i.name.toLowerCase().includes(searchExclude.toLowerCase())
   );
@@ -173,6 +173,8 @@ export default function Product() {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
         setOutlets(mapingOutlet);
       }
+      console.log(mapingOutlet);
+
     };
     GotOutlets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -430,6 +432,7 @@ export default function Product() {
       machine_iron: false,
       iron_duration: 0,
       is_quantity_decimal: false,
+      machine_ids: [],
 
       sku_id: "",
     },
@@ -514,6 +517,7 @@ export default function Product() {
               is_deleted: values.is_deleted,
               is_self_service: values.is_self_service,
               is_quantity_decimal: values.is_quantity_decimal,
+              machine_ids: values.machine_ids
             },
             token: `${auth.auth.access_token}`,
           });
@@ -1710,7 +1714,7 @@ export default function Product() {
                   }
                 ></InputFile>
               </div>
-              <div className="pt-6">
+              <div className="pt-6 space-y-4">
                 <InputTextArea
                   rows={5}
                   label={"Description"}
