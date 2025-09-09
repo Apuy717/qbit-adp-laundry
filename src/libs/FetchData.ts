@@ -33,7 +33,7 @@ const baseUrl = process.env.NEXT_PUBLIC_API_DOMAIN
 export async function GET<R>({ url }: GetOptions): Promise<R> {
   console.log(baseUrl);
   try {
-    const res = await fetch(baseUrl + url, {
+    const res = await fetch(url, {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export async function GET<R>({ url }: GetOptions): Promise<R> {
 
 export async function GetWithToken<R>({ router, url, token }: GetWihTokenOptions): Promise<R> {
   try {
-    const res = await fetch(baseUrl + url, {
+    const res = await fetch(url, {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export async function GetWithToken<R>({ router, url, token }: GetWihTokenOptions
 
 export async function PostWithToken<R>({ router, url, data, token }: PostWithTokenOptions): Promise<R> {
   try {
-    const res = await fetch(baseUrl + url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
