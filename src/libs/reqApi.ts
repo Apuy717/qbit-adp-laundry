@@ -1,5 +1,7 @@
 import fetch from "isomorphic-fetch";
 
+
+const baseUrl = process.env.NEXT_PUBLIC_API_DOMAIN
 class reqApi {
   /**
    * GET
@@ -29,6 +31,8 @@ class reqApi {
    * POST
    */
   public POST(url: string, body: any, overideUrl: boolean = false): Promise<any> {
+    console.log(url);
+
     const promise = new Promise((resolve, reject) => {
       fetch(url, {
         method: "POST",
