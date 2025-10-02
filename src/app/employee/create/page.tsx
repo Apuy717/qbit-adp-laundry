@@ -560,7 +560,7 @@ export default function CreateEmployee() {
             />
 
             <Input
-              label={"Confirm Passowrd*"}
+              label={"Confirm Password*"}
               type="password"
               name={"cPassword"}
               id={"cPassword"}
