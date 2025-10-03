@@ -60,32 +60,10 @@ export default function CreateProduct() {
     };
     GotOutlets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, auth.auth.access_token, outletId])
+  }, [router, auth.auth.access_token])
 
-  useEffect(() => {
-    if (outletId) {
-      const GotIdPurchaseItem = async () => {
-        let urlwithQuery = `/api/pr/outlet/${outletId}`;
-        const res = await GetWithToken<MyResponse>({
-          router: router,
-          url: urlwithQuery,
-          token: `${auth.auth.access_token}`,
-        });
-        const mapingPurReq = (res.data).map((i: any) => {
-          return {
-            label: i.name,
-            value: i.id,
-          };
-        })
-        if (mapingPurReq.length >= 1) {
-          formik.setFieldValue(`items[0].purchase_request_id`, mapingPurReq[0].value)
-        }
-        setPurReq(mapingPurReq)
-      };
-      GotIdPurchaseItem();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outletId, outlets, router, auth.auth.access_token])
+
+
 
   const formik = useFormik({
     initialValues: {
@@ -142,6 +120,27 @@ export default function CreateProduct() {
       setLoading(false);
     },
   });
+  useEffect(() => {
+    if (formik.values.outlet_id) {
+      const GotIdPurchaseItem = async () => {
+        let urlwithQuery = `/api/pr/outlet/${formik.values.outlet_id}`;
+        const res = await GetWithToken<MyResponse>({
+          router: router,
+          url: urlwithQuery,
+          token: `${auth.auth.access_token}`,
+        });
+        const mapingPurReq = res.data.map((i: any) => ({
+          label: i.name,
+          value: i.id,
+        }));
+        if (mapingPurReq.length >= 1) {
+          formik.setFieldValue(`items[0].purchase_request_id`, mapingPurReq[0].value);
+        }
+        setPurReq(mapingPurReq);
+      };
+      GotIdPurchaseItem();
+    }
+  }, [router, auth.auth.access_token, formik.values.outlet_id]);
   const addVariant = () => {
     formik.setFieldValue('items', [
       ...formik.values.items,
@@ -177,7 +176,7 @@ export default function CreateProduct() {
       reader.readAsDataURL(file);
     } else {
       callBack(undefined, "");
-    } 
+    }
   };
   return (
     <>
@@ -195,11 +194,13 @@ export default function CreateProduct() {
               label={"Outlet"}
               name={"outlet_id"}
               id={"outlet_id"}
-              value={formik.values.outlet_id == "" ? "" : formik.values.outlet_id}
+              value={formik.values.outlet_id}
               onChange={
                 (v) => {
                   formik.setFieldValue("outlet_id", v)
                   setOutletId(v)
+                  console.log(v);
+
                 }
               }
               options={outlets}

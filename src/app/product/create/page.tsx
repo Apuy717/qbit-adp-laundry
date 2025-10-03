@@ -8,12 +8,15 @@ import {
   InputTextArea,
   InputToggle,
 } from "@/components/Inputs/InputComponent";
-import { GetWithToken, PostWithToken } from "@/libs/FetchData";
+import Modal from "@/components/Modals/Modal";
+import { GetWithToken, iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
+import { MachineType } from "@/types/machineType";
 import { useFormik } from "formik";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -31,6 +34,11 @@ interface iDropdown {
 }
 [];
 
+type MachineId = {
+  machine_id: string;
+  duration: number;
+};
+
 const dropdown = [
   {
     label: "",
@@ -42,10 +50,11 @@ export default function CreateProduct() {
   const [outlets, setOutlets] = useState<iDropdown[]>(dropdown);
   const [showImage, setShowImage] = useState<string>("");
   const [isSelfService, setIsSelfService] = useState<boolean>(false);
-  const [isQtyDecimal, setIsQtyDecimal] = useState<boolean>(false);
-  const [selectedRadioDecimal, setSelectedRadioDecimal] =
-    useState<boolean>(false);
-  const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
+  const [choosedOutletId, setChoosedOutletId] = useState<string>("")
+  const [machineExclusive, setMachineExclusive] = useState<MachineType[]>([]);
+  const [isViewSkuExclusive, setIsViewSkuExclusive] = useState<boolean>(false);
+  const [currentVariantIndex, setCurrentVariantIndex] = useState<number | null>(null);
+
 
   const auth = useSelector((s: RootState) => s.auth);
   const serviceType = [
@@ -60,6 +69,7 @@ export default function CreateProduct() {
   ];
 
   const router = useRouter();
+
   useEffect(() => {
     const GotOutlets = async () => {
       let urlwithQuery = `/api/outlet`;
@@ -115,6 +125,7 @@ export default function CreateProduct() {
           iron_duration: 0,
           is_self_service: isSelfService,
           is_quantity_decimal: false,
+          machine_ids: [] as MachineId[],
         },
       ],
     },
@@ -175,6 +186,7 @@ export default function CreateProduct() {
       setLoading(false);
     },
   });
+
   const addVariant = () => {
     formik.setFieldValue("variants", [
       ...formik.values.variants,
@@ -183,7 +195,6 @@ export default function CreateProduct() {
         code: "",
         name: "",
         description: "",
-        capital_price: "",
         price: "",
         type: "services",
         stock: "",
@@ -195,15 +206,17 @@ export default function CreateProduct() {
         machine_iron: false,
         iron_duration: 0,
         is_quantity_decimal: false,
+        machine_ids: [] as { machine_id: string; duration: number }[],
       },
     ]);
   };
 
-  const removeVariant = (index: any) => {
+  const removeVariant = (index: number) => {
     const variants = [...formik.values.variants];
     variants.splice(index, 1);
     formik.setFieldValue("variants", variants);
   };
+
 
   const handleChangeFileImage = (
     event: ChangeEvent<HTMLInputElement>,
@@ -221,6 +234,102 @@ export default function CreateProduct() {
       callBack(undefined, "");
     }
   };
+
+
+
+  useEffect(() => {
+
+    async function GotMachines() {
+      let urlwithQuery = `/api/machine`;
+      const res = await PostWithToken<iResponse<MachineType[]>>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+        data: {
+          outlet_ids:
+            choosedOutletId !== "" && choosedOutletId !== "all"
+              ? [choosedOutletId]
+              : outlets.slice(1).map((o: iDropdown) => o.value),
+        },
+      });
+      console.log(res.data);
+      const mapingMachine = res.data.map((i: any) => {
+        return {
+          label: i.name,
+          value: i.id,
+        };
+      });
+
+      if (res?.statusCode === 200) {
+        setMachineExclusive(res.data);
+      }
+    }
+
+    GotMachines();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [choosedOutletId, outlets]);
+
+  const [searchExclusive, setSearchExclusive] = useState<string>("")
+
+  const filteredMachine = machineExclusive.filter((i) => {
+    const search = searchExclusive.toLowerCase();
+    return (
+      i.name.toLowerCase().includes(search) ||
+      i.outlet.name.toLowerCase().includes(search)
+    );
+  });
+
+  // State to track which rows are checked
+  const [checkedRows, setCheckedRows] = useState<{ id: string; duration: number }[]>([]);
+
+
+  // Check if all rows are checked
+  const allChecked = checkedRows.length === machineExclusive.length
+
+  // Check if some rows are checked (for indeterminate state)
+  const someChecked = checkedRows.length > 0 && !allChecked
+
+  // Toggle all checkboxes
+  const toggleAll = () => {
+    if (checkedRows.length === filteredMachine.length) {
+      // kalau semua sudah terpilih → kosongkan
+      setCheckedRows([]);
+    } else {
+      // kalau belum semua → ambil semua + kasih duration default
+      setCheckedRows(
+        filteredMachine.map((m) => ({
+          id: m.id,
+          duration: m.default_duration ?? 0
+        }))
+      );
+    }
+  };
+
+  const handleCloseModal = () => {
+    setCheckedRows([]);
+    setCurrentVariantIndex(null);
+    setIsViewSkuExclusive(false);
+  };
+
+
+  // Toggle individual checkbox
+  const toggleRow = (machine: MachineType) => {
+    const exists = checkedRows.find((row) => row.id === machine.id);
+    if (exists) {
+      // kalau sudah ada → hapus
+      setCheckedRows(checkedRows.filter((row) => row.id !== machine.id));
+    } else {
+      // kalau belum ada → tambahkan dengan default_duration
+      setCheckedRows([
+        ...checkedRows,
+        { id: machine.id, duration: machine.default_duration ?? 0 }
+      ]);
+    }
+  };
+
+  const checkboxRef = useRef<HTMLInputElement>(null);
+
 
   return (
     <>
@@ -306,7 +415,7 @@ export default function CreateProduct() {
                   : null
               }
             />
-            <div className="mt-6">
+            <div className="mt-6 p-4 rounded-md border-gray-200 my-4 border">
               <div className="flex gap-4">
                 {/* Pilihan Ya */}
                 <label className="flex cursor-pointer items-center space-x-2">
@@ -338,20 +447,6 @@ export default function CreateProduct() {
                   <span className="text-sm">Order Qty Self Service</span>
                 </label>
               </div>
-              {/* <InputToggle
-                value={formik.values.is_self_service}
-                onClick={(v) => {
-                  setIsSelfService(!isSelfService);
-                  formik.setFieldValue("is_self_service", v);
-                  formik.values.variants.map((variant, index) => {
-                    formik.setFieldValue(
-                      `variants[${index}].is_self_service`,
-                      v,
-                    );
-                  });
-                }}
-                label={isSelfService ? "Self Service" : "Full Service"}
-              /> */}
             </div>
             <div className="mt-6">
               <InputToggle
@@ -403,8 +498,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.code &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.code
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.code
                       ? formik.errors.variants[index].code
                       : null
                   }
@@ -419,8 +514,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.name &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.name
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.name
                       ? formik.errors.variants[index].name
                       : null
                   }
@@ -443,8 +538,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.price &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.price
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.price
                       ? formik.errors.variants[index].price
                       : null
                   }
@@ -461,8 +556,8 @@ export default function CreateProduct() {
                   options={serviceType}
                   error={
                     formik.touched.variants?.[index]?.type &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.type
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.type
                       ? formik.errors.variants[index].type
                       : null
                   }
@@ -489,8 +584,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.stock &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.stock
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.stock
                       ? formik.errors.variants[index].stock
                       : null
                   }
@@ -510,8 +605,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.unit &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.unit
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.unit
                       ? formik.errors.variants[index].unit
                       : null
                   }
@@ -526,16 +621,21 @@ export default function CreateProduct() {
                   value={
                     formik.values.variants[index].outlet_id === ""
                       ? outlets[0].value
-                      : formik.values.variants[index].outlet_id
+                      :
+                      formik.values.variants[index].outlet_id
                   }
-                  onChange={(v) =>
+                  onChange={(v) => {
                     formik.setFieldValue(`variants[${index}].outlet_id`, v)
+                    setChoosedOutletId(v)
+                    console.log(v);
+
+                  }
                   }
                   options={outlets}
                   error={
                     formik.touched.variants?.[index]?.outlet_id &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.outlet_id
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.outlet_id
                       ? formik.errors.variants[index].outlet_id
                       : null
                   }
@@ -550,13 +650,13 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.description &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.description
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.description
                       ? formik.errors.variants[index].description
                       : null
                   }
                 />
-                <div className="flex gap-4">
+                <div className="flex gap-4 p-4 rounded-md border-gray-200 my-4 border">
                   {/* Pilihan Non Decimal */}
                   <label className="flex cursor-pointer items-center space-x-2">
                     <input
@@ -601,7 +701,7 @@ export default function CreateProduct() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2 border p-4 rounded-md border-gray-200 my-4">
                 <InputToggle
                   value={formik.values.variants[index].machine_washer}
                   onClick={(v) => {
@@ -634,8 +734,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.washer_duration &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.washer_duration
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.washer_duration
                       ? formik.errors.variants[index].washer_duration
                       : null
                   }
@@ -673,8 +773,8 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.dryer_duration &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.dryer_duration
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.dryer_duration
                       ? formik.errors.variants[index].dryer_duration
                       : null
                   }
@@ -712,13 +812,78 @@ export default function CreateProduct() {
                   }
                   error={
                     formik.touched.variants?.[index]?.iron_duration &&
-                    typeof formik.errors.variants?.[index] === "object" &&
-                    formik.errors.variants[index]?.iron_duration
+                      typeof formik.errors.variants?.[index] === "object" &&
+                      formik.errors.variants[index]?.iron_duration
                       ? formik.errors.variants[index].iron_duration
                       : null
                   }
                 />
               </div>
+
+              {/* Machine Section */}
+              <div className={formik.values.variants[index].machine_dryer ||
+                formik.values.variants[index].machine_washer
+                ? "border p-4 rounded-md mb-6 border-gray-200 space-y-6"
+                : `hidden`}>
+
+                {/* daftar mesin yang sudah dipilih */}
+                {formik.values.variants[index].machine_ids &&
+                  formik.values.variants[index].machine_ids.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="mb-2 font-semibold">Exclusive Machines</h4>
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 text-gray-600">
+                          <tr>
+                            <th className="px-4 py-2 text-left">Machine</th>
+                            <th className="px-4 py-2 text-left">Outlet</th>
+                            <th className="px-4 py-2 text-left">Duration</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {formik.values.variants[index].machine_ids.map((m, idx) => {
+                            const machine = machineExclusive.find((mc) => mc.id === m.machine_id);
+
+                            return (
+                              <tr key={idx}>
+                                <td className="px-4 py-2">
+                                  {machine ? machine.name : m.machine_id}
+                                </td>
+                                <td className="px-4 py-2">
+                                  {machine ? machine.outlet.name : "-"}
+                                </td>
+                                <td className="px-4 py-2">{m.duration} menit</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+
+                <button
+                  className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  onClick={() => {
+                    setCurrentVariantIndex(index);
+
+                    // ambil machine_ids dari Formik untuk variant ini
+                    const selectedMachines = formik.values.variants[index].machine_ids || [];
+
+                    // mapping jadi bentuk { id, duration }
+                    setCheckedRows(
+                      selectedMachines.map((m) => ({
+                        id: m.machine_id,
+                        duration: m.duration,
+                      }))
+                    );
+
+                    setIsViewSkuExclusive(true);
+                  }}
+                >
+                  Add Exclusive Machine
+                </button>
+              </div>
+
             </div>
           ))}
           <div className="w-full">
@@ -726,7 +891,7 @@ export default function CreateProduct() {
               onClick={addVariant}
               className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
-              Add Item
+              Add Item SKU
             </button>
           </div>
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-6 md:grid-cols-1">
@@ -747,6 +912,114 @@ export default function CreateProduct() {
           </div>
         </div>
       </div>
+      <Modal isOpen={isViewSkuExclusive}>
+        <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+          <div
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            onClick={handleCloseModal}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                Exclusive SKU
+              </h2>
+            </div>
+            <div className="space-y-4 rounded-lg bg-white p-4 dark:bg-gray-700">
+              <Input
+                label={"Search Machine"}
+                name={"searchExclusive"}
+                id={"searchExclusive"}
+                value={searchExclusive}
+                onChange={(v) => setSearchExclusive(v)}
+                error={null}
+              />
+
+              <button
+                onClick={() => {
+                  if (currentVariantIndex !== null) {
+                    const newMachines = checkedRows.map((m) => ({
+                      machine_id: m.id,
+                      duration: m.duration,
+                    }));
+
+                    formik.setFieldValue(
+                      `variants[${currentVariantIndex}].machine_ids`,
+                      newMachines
+                    );
+                  }
+
+                  handleCloseModal(); // reset & close modal
+                }}
+                className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              >
+                Submit
+              </button>
+
+            </div>
+          </div>
+
+          <div className="mt-4 h-70 overflow-y-auto px-4">
+            <div className="w-full rounded-md border">
+              <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th className={`px-6 py-3`}>
+                      <input
+                        ref={checkboxRef}
+                        type="checkbox"
+                        checked={allChecked}
+                        data-state={allChecked ? "checked" : someChecked ? "indeterminate" : "unchecked"}
+                        onChange={toggleAll}
+                      />
+                    </th>
+                    <th className={`px-6 py-3`}>Machine</th>
+                    <th className={`px-6 py-3`}>Outlet </th>
+                    <th className={`px-6 py-3`}>Duration</th >
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMachine.map((m) => {
+                    const selected = checkedRows.find((row) => row.id === m.id);
+                    return (
+                      <tr key={m.id} className="border-b">
+                        <td className="px-6 py-4">
+                          <input
+                            type="checkbox"
+                            checked={!!selected}
+                            onChange={() => toggleRow(m)}
+                          />
+                        </td>
+                        <td className="px-6 py-4">{m.name}</td>
+                        <td className="px-6 py-4">{m.outlet?.name}</td>
+                        <td className="px-6 py-4">
+                          {selected && (
+                            <input
+                              type="number"
+                              value={selected.duration}
+                              onChange={(e) => {
+                                const newVal = Number(e.target.value);
+                                setCheckedRows(
+                                  checkedRows.map((row) =>
+                                    row.id === m.id ? { ...row, duration: newVal } : row
+                                  )
+                                );
+                              }}
+                              className="w-20 rounded border p-1"
+                            />
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

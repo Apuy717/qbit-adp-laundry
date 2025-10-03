@@ -30,6 +30,8 @@ import { EDepartmentEmployee } from "@/types/employee";
 import { ERoles } from "@/stores/authReducer";
 import { CiCircleAlert } from "react-icons/ci";
 import { Outlet } from "@/types/outlet";
+import SearchDropdown from "@/components/Outlets/SearchDropdownOutlet";
+import { MachineType } from "@/types/machineType";
 
 interface MyResponse {
   statusCode: number;
@@ -38,6 +40,12 @@ interface MyResponse {
   total: number;
   err: string | string[];
 }
+
+type MachineId = {
+  machine_id: string;
+  duration: number;
+};
+
 const CELLS = ["Name", "Total SKU", "Created at", "Status", "Action"];
 
 export default function Product() {
@@ -65,7 +73,7 @@ export default function Product() {
   const [addpriceSku, setAddpriceSku] = useState<boolean>(false);
   const [productOrSku, setProductOrSku] = useState<boolean>(false);
   const [updateOrAddSku, setUpdateOrAddSku] = useState<boolean>(false);
-  const [addSkuModal, setaddSkuModal] = useState<boolean>(false);
+  const [addSkuModal, setAddSkuModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
     () => () => { },
@@ -74,7 +82,8 @@ export default function Product() {
   const [outletExclude, setOutletExclude] = useState<Outlet[]>([]);
   const [productName, setProductName] = useState<string>("");
   const [skuName, setskuName] = useState<string>("");
-  const [selectedRadio, setSelectedRadio] = useState<boolean>(false);
+  const [selectedRadioSelfService, setSelectedRadioSelfService] = useState<boolean>(false);
+  const [selectedRadioDecimal, setSelectedRadioDecimal] = useState<boolean>(false);
   const [productId, setProductId] = useState<string | null>(null);
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
     FilterByOutletContext,
@@ -86,16 +95,18 @@ export default function Product() {
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter();
 
-  const [checkedOutlets, setCheckedOutlets] = useState<any[]>([]);
+  const [machineExclusive, setMachineExclusive] = useState<MachineType[]>([]);
+  const [isViewSkuExclusive, setIsViewSkuExclusive] = useState<boolean>(false);
+  const [currentVariantIndex, setCurrentVariantIndex] = useState<number | null>(null);
+  const [choosedOutletId, setChoosedOutletId] = useState<string>("")
 
-
-  const [filterByCategory, setFilterByCategory] = useState<string>("all");
   enum TabActive {
     PRODUCT = "PRODUCT",
     SKU = "SKU",
   }
 
   const [searchExclude, setSearchExclude] = useState<string>("")
+
   const filteredOutlets = outletExclude.filter((i) =>
     i.name.toLowerCase().includes(searchExclude.toLowerCase())
   );
@@ -118,7 +129,6 @@ export default function Product() {
       setCheckedRows(outletExclude.map((item) => item.id))
       formikExcludeSku.setFieldValue("outlet_ids", outletExclude.map((item) => item.id));
     }
-    console.log(checkedRows);
   }
 
   // Toggle individual checkbox
@@ -412,7 +422,6 @@ export default function Product() {
       id: "",
       outlet_id: "",
       name: "",
-      // slug: "",
       picture: "",
       description: "",
       is_deleted: "",
@@ -432,14 +441,13 @@ export default function Product() {
       machine_iron: false,
       iron_duration: 0,
       is_quantity_decimal: false,
-      machine_ids: [],
+      machine_ids: [] as MachineId[],
 
       sku_id: "",
     },
     validationSchema: Yup.object({
       outlet_id: Yup.string(),
       name: Yup.string().max(100, "Max 225 char!"),
-      // slug: Yup.string().max(100, "Max 225 char!"),
       description: Yup.string().max(100, "Max 255 char!").optional(),
       category_id: Yup.string(),
       variants: Yup.array().of(
@@ -543,6 +551,7 @@ export default function Product() {
               iron_duration: values.iron_duration,
               is_deleted: values.is_deleted,
               is_quantity_decimal: values.is_quantity_decimal,
+              machine_ids: values.machine_ids,
             },
             token: `${auth.auth.access_token}`,
           });
@@ -581,7 +590,7 @@ export default function Product() {
           setIsViewDetail(false);
           setUpdateModal(false);
           setAddpriceSku(false);
-          setaddSkuModal(false);
+          setAddSkuModal(false);
         }
       }
       setLoading(false);
@@ -683,26 +692,113 @@ export default function Product() {
       setIsViewDetail(false);
     }
   };
-  const removeExclude = async (id: any) => {
-    setLoading(true);
 
-    const res: any = await fetch(`/api/product/exclude/remove/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "*/*",
-        Authorization: `Bearer ${auth.auth.access_token}`,
-      },
-    });
-    console.log(res);
+  function updateMachineIds(formik: any, newMachines: MachineId[]) {
+    formik.setFieldValue("machine_ids", newMachines);
+    console.log("Updated machine_ids:", newMachines);
+  }
 
-    if (res?.status === 200) {
-      setDeleteModal(false);
-      toast.success("Delete data success!");
-      setRefresh(true);
+  useEffect(() => {
+    async function GotMachines() {
+      let urlwithQuery = `/api/machine`;
+      const res = await PostWithToken<iResponse<MachineType[]>>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.auth.access_token}`,
+        data: {
+          outlet_ids:
+            choosedOutletId !== "" && choosedOutletId !== "all"
+              ? [choosedOutletId]
+              : outlets.slice(1).map((o: iDropdown) => o.value),
+        },
+      });
+      console.log(res.data);
+      const mapingMachine = res.data.map((i: any) => {
+        return {
+          label: i.name,
+          value: i.id,
+        };
+      });
+
+      if (res?.statusCode === 200) {
+        setMachineExclusive(res.data);
+      }
     }
-    setLoading(false);
+
+    GotMachines();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [, choosedOutletId, outlets]);
+
+  const [searchExclusive, setSearchExclusive] = useState<string>("")
+
+  const filteredMachine = machineExclusive.filter((i) => {
+    const search = searchExclusive.toLowerCase();
+    return (
+      i.name.toLowerCase().includes(search) ||
+      i.outlet.name.toLowerCase().includes(search)
+    );
+  });
+
+  // State to track which rows are checked
+  const [checkedRowsMachine, setCheckedRowsMachine] = useState<{ id: string; duration: number }[]>([]);
+
+
+  // Check if all rows are checked
+  const allCheckedmMachine = checkedRows.length === machineExclusive.length
+
+  // Check if some rows are checked (for indeterminate state)
+  const someCheckedMachine = checkedRows.length > 0 && !allChecked
+
+  // Toggle all checkboxes
+  const toggleAllMachine = () => {
+    if (checkedRowsMachine.length === filteredMachine.length) {
+      // kalau semua sudah terpilih → kosongkan
+      setCheckedRowsMachine([]);
+    } else {
+      // kalau belum semua → ambil semua + kasih duration default
+      setCheckedRowsMachine(
+        filteredMachine.map((m) => ({
+          id: m.id,
+          duration: m.default_duration ?? 0
+        }))
+      );
+    }
   };
+
+  const handleCloseModalMachine = () => {
+    setCheckedRows([]);
+    setCurrentVariantIndex(null);
+    setIsViewSkuExclusive(false);
+  };
+
+
+  function toggleRowMachine(m: any, formik: any, checkedRowsMachine: any[], setCheckedRowsMachine: any) {
+    const alreadyChecked = checkedRowsMachine.find((row) => row.id === m.id);
+
+    let newCheckedRows;
+    if (alreadyChecked) {
+      // kalau ada, berarti uncheck → buang dari list
+      newCheckedRows = checkedRowsMachine.filter((row) => row.id !== m.id);
+    } else {
+      // kalau belum ada → tambahkan
+      newCheckedRows = [...checkedRowsMachine, { id: m.id, duration: m.duration || 0 }];
+    }
+
+    setCheckedRowsMachine(newCheckedRows);
+
+    // update ke formik machine_ids
+    formik.setFieldValue(
+      "machine_ids",
+      newCheckedRows.map((row) => ({
+        machine_id: row.id,
+        duration: row.duration,
+      }))
+    );
+  }
+
+
+  const checkboxRefMachine = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -855,8 +951,7 @@ export default function Product() {
                           "is_self_service",
                           prod.is_self_service,
                         );
-                        setSelectedRadio(prod.is_self_service);
-
+                        setSelectedRadioSelfService(prod.is_self_service);
                         setUpdateModal(true);
                         setProductOrSku(true);
                       }}
@@ -1016,11 +1111,21 @@ export default function Product() {
                         i.is_self_service,
                       );
                       formik.setFieldValue(
-                        "is_self_service",
+                        "is_quantity_decimal",
                         i.is_quantity_decimal,
                       );
-                      setSelectedRadio(i.is_self_service);
+                      setSelectedRadioDecimal(i.is_quantity_decimal);
+                      setSelectedRadioSelfService(i.is_self_service);
+                      formik.setFieldValue(
+                        `machine_ids`,
+                        i.sku_machines ?
+                          i.sku_machines.map((item: any) => ({
+                            machine_id: item.machine.id,
+                            duration: item.duration,
+                          })) : [] // pastikan backend kasih array [{ machine_id, duration }]
+                      );
 
+                      setCurrentVariantIndex(k);
                       setUpdateModal(true);
                       setUpdateOrAddSku(true);
                       setProductOrSku(false);
@@ -1104,7 +1209,8 @@ export default function Product() {
             className="rounded-md bg-blue-500 px-10 py-2 text-white"
             onClick={() => {
               if (productId !== null) {
-                setSelectedRadio(false);
+                setSelectedRadioSelfService(false);
+                setSelectedRadioDecimal(false);
                 formik.setFieldValue("product_id", MapingProduct[0].value);
                 formik.setFieldValue("code", "");
                 formik.setFieldValue("name", "");
@@ -1126,7 +1232,7 @@ export default function Product() {
 
                 setProductOrSku(false);
                 setUpdateOrAddSku(false);
-                setaddSkuModal(true);
+                setAddSkuModal(true);
               } else {
                 toast.warn("Product not selected!");
               }
@@ -1277,7 +1383,7 @@ export default function Product() {
                           "is_self_service",
                           i.is_self_service,
                         );
-                        setSelectedRadio(i.is_self_service);
+                        setSelectedRadioSelfService(i.is_self_service);
                         setUpdateModal(true);
                         setUpdateOrAddSku(true);
                         setProductOrSku(false);
@@ -1331,7 +1437,7 @@ export default function Product() {
             className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
               setUpdateModal(false);
-              setaddSkuModal(false);
+              setAddSkuModal(false);
             }}
           >
             <IoCloseOutline color="white" size={20} />
@@ -1489,7 +1595,7 @@ export default function Product() {
                   value="false"
                   checked={formik.values.is_self_service === false}
                   onChange={() => {
-                    setSelectedRadio(false);
+                    setSelectedRadioSelfService(false);
                     formik.setFieldValue(`is_self_service`, false);
                   }}
                   className="h-5 w-5 checked:bg-blue-600"
@@ -1505,7 +1611,7 @@ export default function Product() {
                   value="true"
                   checked={formik.values.is_self_service === true}
                   onChange={() => {
-                    setSelectedRadio(true);
+                    setSelectedRadioSelfService(true);
                     formik.setFieldValue(`is_self_service`, true);
                   }}
                   className="h-5 w-5 checked:bg-blue-600"
@@ -1625,6 +1731,61 @@ export default function Product() {
                 }
               />
             </div>
+            <div className={formik.values.machine_dryer ||
+              formik.values.machine_washer
+              ? "border p-4 rounded-md mb-6 border-gray-200 space-y-6"
+              : `hidden`}>
+
+              {/* daftar mesin yang sudah dipilih */}
+              {formik.values.machine_ids.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="mb-2 font-semibold">Exclusive Machines</h4>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-gray-600">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Machine</th>
+                        <th className="px-4 py-2 text-left">Outlet</th>
+                        <th className="px-4 py-2 text-left">Duration</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {formik.values.machine_ids.map((m, idx) => {
+                        const machine = machineExclusive.find((mc) => mc.id === m.machine_id);
+                        return (
+                          <tr key={idx}>
+                            <td className="px-4 py-2">{machine ? machine.name : m.machine_id}</td>
+                            <td className="px-4 py-2">{machine ? machine.outlet.name : "-"}</td>
+                            <td className="px-4 py-2">{m.duration} menit</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <button
+                className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                onClick={() => {
+
+
+                  // ambil machine_ids dari Formik untuk variant ini
+                  const selectedMachines = formik.values.machine_ids || [];
+
+                  // mapping jadi bentuk { id, duration }
+                  setCheckedRowsMachine(
+                    selectedMachines.map((m) => ({
+                      id: m.machine_id,
+                      duration: m.duration,
+                    }))
+                  );
+
+                  setIsViewSkuExclusive(true);
+                }}
+              >
+                Add Exclusive Machine
+              </button>
+            </div>
             <button
               onClick={formik.submitForm}
               className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
@@ -1669,31 +1830,6 @@ export default function Product() {
                       : null
                   }
                 />
-                {/* <Input
-                  label={"Slug"}
-                  name={"slug"}
-                  id={"slug"}
-                  value={formik.values.slug}
-                  onChange={(v) => formik.setFieldValue("slug", v)}
-                  error={
-                    formik.touched.slug && formik.errors.slug
-                      ? formik.errors.slug
-                      : null
-                  }
-                /> */}
-                {/* <InputDropdown
-                  label={"Category*"}
-                  name={"category_id"}
-                  id={"category_id"}
-                  value={formik.values.category_id}
-                  onChange={(v) => formik.setFieldValue("category_id", v)}
-                  options={categorys}
-                  error={
-                    formik.touched.category_id && formik.errors.category_id
-                      ? formik.errors.category_id
-                      : null
-                  }
-                /> */}
 
                 <InputFile
                   label={"Picture"}
@@ -1735,9 +1871,9 @@ export default function Product() {
                     type="radio"
                     name="agreement"
                     value="false"
-                    checked={selectedRadio === false}
+                    checked={selectedRadioSelfService === false}
                     onChange={() => {
-                      setSelectedRadio(false);
+                      setSelectedRadioSelfService(false);
                       formik.setFieldValue(`is_self_service`, false);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
@@ -1751,9 +1887,9 @@ export default function Product() {
                     type="radio"
                     name="agreement"
                     value="true"
-                    checked={selectedRadio === true}
+                    checked={selectedRadioSelfService === true}
                     onChange={() => {
-                      setSelectedRadio(true);
+                      setSelectedRadioSelfService(true);
                       formik.setFieldValue(`is_self_service`, true);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
@@ -1934,16 +2070,16 @@ export default function Product() {
                   }
                 />
               </div>
-              <div className="my-4 flex gap-4 p-2">
+              <div className="my-4 flex gap-4 p-4 mt-6 rounded-md border-gray-200 border">
                 {/* Pilihan Ya */}
                 <label className="flex cursor-pointer items-center space-x-2">
                   <input
                     type="radio"
                     name="agreement"
                     value="false"
-                    checked={selectedRadio === false}
+                    checked={selectedRadioSelfService === false}
                     onChange={() => {
-                      setSelectedRadio(false);
+                      setSelectedRadioSelfService(false);
                       formik.setFieldValue(`is_self_service`, false);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
@@ -1957,9 +2093,9 @@ export default function Product() {
                     type="radio"
                     name="agreement"
                     value="true"
-                    checked={selectedRadio === true}
+                    checked={selectedRadioSelfService === true}
                     onChange={() => {
-                      setSelectedRadio(true);
+                      setSelectedRadioSelfService(true);
                       formik.setFieldValue(`is_self_service`, true);
                     }}
                     className="h-5 w-5 checked:bg-blue-600"
@@ -1967,7 +2103,7 @@ export default function Product() {
                   <span className="text-sm">Self Service</span>
                 </label>
               </div>
-              <div className="my-4 flex gap-4 p-2">
+              <div className="my-4 flex gap-4 p-4 mt-6 rounded-md border-gray-200 border">
                 {/* Pilihan Non Decimal */}
                 <label className="flex cursor-pointer items-center space-x-2">
                   <input
@@ -1995,10 +2131,10 @@ export default function Product() {
                     }
                     className="h-5 w-5 checked:bg-blue-600"
                   />
-                  <span className="text-sm">Order Quantity Decimal</span>
+                  <span className="text-sm">Order Qty Decimal</span>
                 </label>
               </div>
-              <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2 border p-4 rounded-md border-gray-200 my-4">
                 <InputToggle
                   value={formik.values.machine_washer}
                   onClick={(v) => {
@@ -2081,6 +2217,69 @@ export default function Product() {
                       : null
                   }
                 />
+              </div>
+
+              <div className={formik.values.machine_dryer ||
+                formik.values.machine_washer
+                ? "border p-4 rounded-md mb-6 border-gray-200 space-y-6"
+                : `hidden`}>
+
+                {/* daftar mesin yang sudah dipilih */}
+                {formik.values.machine_ids &&
+                  formik.values.machine_ids.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="mb-2 font-semibold">Exclusive Machines</h4>
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 text-gray-600">
+                          <tr>
+                            <th className="px-4 py-2 text-left">Machine</th>
+                            <th className="px-4 py-2 text-left">Outlet</th>
+                            <th className="px-4 py-2 text-left">Duration</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {formik.values.machine_ids.map((m, idx) => {
+                            const machine = machineExclusive.find((mc) => mc.id === m.machine_id);
+
+                            return (
+                              <tr key={idx}>
+                                <td className="px-4 py-2">
+                                  {machine ? machine.name : m.machine_id}
+                                </td>
+                                <td className="px-4 py-2">
+                                  {machine ? machine.outlet.name : "-"}
+                                </td>
+                                <td className="px-4 py-2">{m.duration} menit</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+
+                <button
+                  className="w-auto rounded-md bg-blue-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                  onClick={() => {
+
+
+                    // ambil machine_ids dari Formik untuk variant ini
+                    const selectedMachines = formik.values.machine_ids || [];
+
+                    // mapping jadi bentuk { id, duration }
+                    setCheckedRowsMachine(
+                      selectedMachines.map((m) => ({
+                        id: m.machine_id,
+                        duration: m.duration,
+                      }))
+                    );
+
+                    setIsViewSkuExclusive(true);
+                  }}
+                >
+                  Add Exclusive Machine
+                </button>
               </div>
               <button
                 onClick={formik.submitForm}
@@ -2264,87 +2463,6 @@ export default function Product() {
           </div>
         </div>
       </Modal>
-      {/* <Modal isOpen={isViewSkuExclude}>
-        <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
-          <div
-            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
-            onClick={() => {
-              setIsViewSkuExclude(false);
-            }}
-          >
-            <IoCloseOutline color="white" size={20} />
-          </div>
-
-          <div className="">
-            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                Exclude SKU
-              </h2>
-            </div>
-            <div className="space-y-4 rounded-lg bg-white p-4 dark:bg-gray-700 lg:flex lg:space-x-4 lg:space-y-0">
-              <InputDropdown
-                label={"Outlets*"}
-                name={"Outlets"}
-                id={"Outlets"}
-                value={formikExcludeSku.values.outlet_id}
-                onChange={(v) => formikExcludeSku.setFieldValue("outlet_ids", v)}
-                options={outlets}
-                error={
-                  formikExcludeSku.touched.outlet_id &&
-                  formikExcludeSku.errors.outlet_id
-                    ? formikExcludeSku.errors.outlet_id
-                    : null
-                }
-              />
-
-              <button
-                onClick={() => {
-                  formikExcludeSku.submitForm();
-                }}
-                className="inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10"
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 h-70 overflow-y-auto">
-            <Table
-              colls={["#", "Outlet", "City", "Action"]}
-              onPaginate={(page) => setCurrentPageProduct(page)}
-              currentPage={0}
-              totalItem={0}
-            >
-              {excludes.map((i: any, k: number) => (
-                <tr
-                  key={k}
-                  className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                  <td className="px-6 py-4">{k + 1}</td>
-                  <td className="px-6 py-4">{i.outlet?.name}</td>
-                  <td className="px-6 py-4">{i.outlet?.city.split("--")[1]}</td>
-                  <td className="px-6 py-4">
-                    <div className="group relative">
-                      <button
-                        onClick={() => {
-                          setDeleteModal(true)
-                          setDeleteFunction(() => () => removeExclude(i.id));
-                          setRefresh(!refresh);
-                        }}
-                      >
-                        <FiTrash size={18} />
-                      </button>
-                      <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
-                        Remove Exclude
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </Table>
-          </div>
-        </div>
-      </Modal> */}
 
       <Modal isOpen={false}>
         <div className="relative h-min w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
@@ -2433,6 +2551,119 @@ export default function Product() {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isViewSkuExclusive}>
+        <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+          <div
+            className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
+            onClick={handleCloseModalMachine}
+          >
+            <IoCloseOutline color="white" size={20} />
+          </div>
+
+          <div className="">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+                Exclusive SKU
+              </h2>
+            </div>
+            <div className="space-y-4 rounded-lg bg-white p-4 dark:bg-gray-700">
+              <Input
+                label={"Search Machine"}
+                name={"searchExclusive"}
+                id={"searchExclusive"}
+                value={searchExclusive}
+                onChange={(v) => setSearchExclusive(v)}
+                error={null}
+              />
+
+              <button
+                onClick={() => {
+                  if (currentVariantIndex !== null) {
+                    updateMachineIds(formik, checkedRowsMachine.map((m) => ({
+                      machine_id: m.id,
+                      duration: m.duration,
+                    })));
+                  }
+                  handleCloseModalMachine();
+                }}
+              >
+                Submit
+              </button>
+
+            </div>
+          </div>
+
+          <div className="mt-4 h-70 overflow-y-auto px-4">
+            <div className="w-full rounded-md border">
+              <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th className={`px-6 py-3`}>
+                      <input
+                        ref={checkboxRefMachine}
+                        type="checkbox"
+                        checked={allCheckedmMachine}
+                        data-state={allCheckedmMachine ? "checked" : someCheckedMachine ? "indeterminate" : "unchecked"}
+                        onChange={toggleAllMachine}
+                      />
+                    </th>
+                    <th className={`px-6 py-3`}>Machine</th>
+                    <th className={`px-6 py-3`}>Outlet </th>
+                    <th className={`px-6 py-3`}>Duration</th >
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMachine.map((m) => {
+                    const selected = checkedRowsMachine.find((row) => row.id === m.id);
+                    return (
+                      <tr key={m.id} className="border-b">
+                        <td className="px-6 py-4">
+                          <input
+                            type="checkbox"
+                            checked={!!checkedRowsMachine.find((row) => row.id === m.id)}
+                            onChange={() => toggleRowMachine(m, formik, checkedRowsMachine, setCheckedRowsMachine)}
+                          />
+                        </td>
+                        <td className="px-6 py-4">{m.name}</td>
+                        <td className="px-6 py-4">{m.outlet?.name}</td>
+                        <td className="px-6 py-4">
+                          {selected && (
+                            <input
+                              type="number"
+                              value={selected?.duration ?? ""}
+                              onChange={(e) => {
+                                const newVal = Number(e.target.value);
+
+                                // Update di state lokal
+                                const updated = checkedRowsMachine.map((row) =>
+                                  row.id === m.id ? { ...row, duration: newVal } : row
+                                );
+                                setCheckedRowsMachine(updated);
+
+                                // Update juga di Formik
+                                formik.setFieldValue(
+                                  "machine_ids",
+                                  updated.map((row) => ({
+                                    machine_id: row.id,
+                                    duration: row.duration,
+                                  }))
+                                );
+                              }}
+                              className="w-20 rounded border p-1"
+                            />
+
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </Modal>

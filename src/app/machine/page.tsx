@@ -150,7 +150,7 @@ export default function PageMachine() {
   }, []);
 
   useEffect(() => {
-    async function GotPRItems() {
+    async function Gotmachines() {
       let urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}`;
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}&search=${fixValueSearch}`;
@@ -182,7 +182,7 @@ export default function PageMachine() {
         setLoadingSearch(false);
       }, 100);
     }
-    if (!modal) GotPRItems();
+    if (!modal) Gotmachines();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentPage,
@@ -380,6 +380,15 @@ export default function PageMachine() {
     }
   }
 
+  const sortedItems = [...items].sort((a, b) => {
+    const sort = isOnline ? "Online" : "Offline"
+    const statusA = status[a.machine_id]?.lwt === sort ? 1 : 0;
+    const statusB = status[b.machine_id]?.lwt === sort ? 1 : 0;
+    return statusB - statusA; // Online (1) akan di atas Offline (0)
+  });
+  console.log(sortedItems);
+
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName={"Machine"} />
@@ -407,6 +416,13 @@ export default function PageMachine() {
             onClick={() => setModalForm(true)}
           >
             Add Machine
+          </button>
+          <button
+            className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.TECHNICIAN && "hidden"} ${isOnline ? "bg-green-500" : "bg-red-500"} font-edium inline-flex items-center justify-center rounded-md px-10 
+            py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={() => setIsOnline(!isOnline)}
+          >
+            {isOnline ? "Sort Online" : "Sort Offline"}
           </button>
         </div>
       </div>
@@ -447,7 +463,7 @@ export default function PageMachine() {
         onPaginate={(page) => setCurrentPage(page)}
         showing={100}
       >
-        {items.map((i, k) => (
+        {sortedItems.map((i, k) => (
           <tr
             className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600"
@@ -482,7 +498,7 @@ export default function PageMachine() {
             </td>
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
-                <td className="whitespace-nowrap px-6 py-4">
+                <td className="group relative whitespace-nowrap px-6 py-4 hover:cursor-pointer">
                   {status[i.machine_id]?.lwt == "Online" ? (
                     <div className="rounded-xl bg-green-500 px-2 text-center">
                       <p className="text-white">{status[i.machine_id]?.lwt}</p>
@@ -492,6 +508,9 @@ export default function PageMachine() {
                       <p className="text-white">{status[i.machine_id]?.lwt}</p>
                     </div>
                   )}
+                  <div className="absolute bottom-[50%] mb-2 hidden transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                    {i.name}
+                  </div>
                 </td>
               )}
             {(role.name === ERoles.PROVIDER ||
