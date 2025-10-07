@@ -4,7 +4,7 @@ export type TypeProduct = {
   picture: string,
   slug: string,
   description: string | null,
-  is_self_service:boolean,
+  is_self_service: boolean,
   is_deleted: false,
   created_at: string,
   updated_at: string,
@@ -42,6 +42,11 @@ export interface iSku {
   created_at: string,
   updated_at: string,
   outlet_price_skus: { price: string }[]
-  is_self_service:boolean
+  is_self_service: boolean,
+  machine_ids: iMachineIds[]
+}
 
+export interface iMachineIds {
+  machine_id: string,
+  duration: number
 }

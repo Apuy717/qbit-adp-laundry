@@ -36,9 +36,9 @@ export function ModalProductComponent(props: iModalProduct) {
     if (!props.showModal) return
 
     async function GotItems() {
-      let urlwithQuery = `/api/product/outlet?outlet_id=${props.outlet_id}&page=${currentPage}&limit=${10}&is_self_service=${props.isSelfService}`;
+      let urlwithQuery = `/api/product/outlet?outlet_id=${props.outlet_id}&is_self_service=${props.isSelfService}`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/product/outlet?outlet_id=${props.outlet_id}&page=${currentPage}&limit=${10}&search=${fixValueSearch}&is_self_service=${props.isSelfService}`;
+        urlwithQuery = `/api/product/outlet?outlet_id=${props.outlet_id}&search=${fixValueSearch}&is_self_service=${props.isSelfService}`;
       }
 
       const res = await GetWithToken<iResponse<TypeProduct[]>>({

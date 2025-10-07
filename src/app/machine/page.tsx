@@ -69,58 +69,60 @@ export default function PageMachine() {
   const router = useRouter();
 
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
-  // const refSocket = useRef<Socket | undefined>();
+  const [isOnline, setIsOnline] = useState<boolean>(true);
 
-  // useEffect(() => {
-  //   refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
-  //     transports: ["websocket", "polling"],
-  //     reconnection: true, // Enable automatic reconnection
-  //     reconnectionAttempts: Infinity, // Try to reconnect indefinitely
-  //     reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
-  //     reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
-  //     randomizationFactor: 0.5, // Random factor to vary the delay time
-  //     timeout: 20000, // Timeout duration for connection attempts (in ms)
-  //   });
+  const refSocket = useRef<Socket | undefined>();
 
-  //   refSocket.current.connect();
+  useEffect(() => {
+    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
+      transports: ["websocket", "polling"],
+      reconnection: true, // Enable automatic reconnection
+      reconnectionAttempts: Infinity, // Try to reconnect indefinitely
+      reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
+      reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
+      randomizationFactor: 0.5, // Random factor to vary the delay time
+      timeout: 20000, // Timeout duration for connection attempts (in ms)
+    });
 
-  //   refSocket.current.emit("ping", "ping");
+    refSocket.current.connect();
 
-  //   refSocket.current.on("ping", (msg) => {
-  //     console.log("==== PING ====");
-  //     console.log(msg);
-  //     console.log("==== PING ====");
-  //   });
+    refSocket.current.emit("ping", "ping");
 
-  //   refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
-  //     console.log("==== Msg Server Socket ====");
-  //     console.log(msg);
-  //     console.log("==== Msg Server Socket ====");
-  //     setSwitchMachine((old) => {
-  //       const fAlreadyData = old.findIndex(
-  //         (f) => f.machine_id === msg.machine_id,
-  //       );
+    refSocket.current.on("ping", (msg) => {
+      console.log("==== PING ====");
+      console.log(msg);
+      console.log("==== PING ====");
+    });
 
-  //       if (fAlreadyData === -1) {
-  //         // Jika belum ada di array dan statusnya ON, tambahkan
-  //         return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
-  //       }
+    refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
+      console.log("==== Msg Server Socket ====");
+      console.log(msg);
+      console.log("==== Msg Server Socket ====");
+      setSwitchMachine((old) => {
+        const fAlreadyData = old.findIndex(
+          (f) => f.machine_id === msg.machine_id,
+        );
 
-  //       if (msg.status === EStatusSwithMachine.ON) {
-  //         // Jika sudah ada dan statusnya ON, update data
-  //         return old.map((item, index) =>
-  //           index === fAlreadyData ? { ...item, ...msg } : item,
-  //         );
-  //       } else {
-  //         // Jika sudah ada dan statusnya bukan ON, hapus dari array
-  //         return old.filter((_, index) => index !== fAlreadyData);
-  //       }
-  //     });
-  //   });
-  //   return () => {
-  //     refSocket.current?.disconnect();
-  //   };
-  // }, []);
+        if (fAlreadyData === -1) {
+          // Jika belum ada di array dan statusnya ON, tambahkan
+          return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
+        }
+
+        if (msg.status === EStatusSwithMachine.ON) {
+          // Jika sudah ada dan statusnya ON, update data
+          return old.map((item, index) =>
+            index === fAlreadyData ? { ...item, ...msg } : item,
+          );
+        } else {
+          // Jika sudah ada dan statusnya bukan ON, hapus dari array
+          return old.filter((_, index) => index !== fAlreadyData);
+        }
+      });
+    });
+    return () => {
+      refSocket.current?.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     async function GotAllOutlet() {
@@ -150,7 +152,7 @@ export default function PageMachine() {
   }, []);
 
   useEffect(() => {
-    async function GotPRItems() {
+    async function Gotmachines() {
       let urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}`;
       if (fixValueSearch.length >= 1) {
         urlwithQuery = `/api/machine?page=${currentPage}&limit=${100}&search=${fixValueSearch}`;
@@ -182,7 +184,7 @@ export default function PageMachine() {
         setLoadingSearch(false);
       }, 100);
     }
-    if (!modal) GotPRItems();
+    if (!modal) Gotmachines();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentPage,
@@ -380,6 +382,15 @@ export default function PageMachine() {
     }
   }
 
+  const sortedItems = [...items].sort((a, b) => {
+    const sort = isOnline ? "Online" : "Offline"
+    const statusA = status[a.machine_id]?.lwt === sort ? 1 : 0;
+    const statusB = status[b.machine_id]?.lwt === sort ? 1 : 0;
+    return statusB - statusA; // Online (1) akan di atas Offline (0)
+  });
+  console.log(sortedItems);
+
+
   return (
     <div className="min-h-screen">
       <Breadcrumb pageName={"Machine"} />
@@ -407,6 +418,13 @@ export default function PageMachine() {
             onClick={() => setModalForm(true)}
           >
             Add Machine
+          </button>
+          <button
+            className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.TECHNICIAN && "hidden"} ${isOnline ? "bg-green-500" : "bg-red-500"} font-edium inline-flex items-center justify-center rounded-md px-10 
+            py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+            onClick={() => setIsOnline(!isOnline)}
+          >
+            {isOnline ? "Sort Online" : "Sort Offline"}
           </button>
         </div>
       </div>
@@ -447,7 +465,7 @@ export default function PageMachine() {
         onPaginate={(page) => setCurrentPage(page)}
         showing={100}
       >
-        {items.map((i, k) => (
+        {sortedItems.map((i, k) => (
           <tr
             className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 
             dark:bg-gray-800 dark:hover:bg-gray-600"
@@ -482,7 +500,7 @@ export default function PageMachine() {
             </td>
             {(role.name === ERoles.PROVIDER ||
               role.name === ERoles.TECHNICIAN) && (
-                <td className="whitespace-nowrap px-6 py-4">
+                <td className="group relative whitespace-nowrap px-6 py-4 hover:cursor-pointer">
                   {status[i.machine_id]?.lwt == "Online" ? (
                     <div className="rounded-xl bg-green-500 px-2 text-center">
                       <p className="text-white">{status[i.machine_id]?.lwt}</p>
@@ -492,6 +510,9 @@ export default function PageMachine() {
                       <p className="text-white">{status[i.machine_id]?.lwt}</p>
                     </div>
                   )}
+                  <div className="absolute bottom-[50%] mb-2 hidden transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                    {i.name}
+                  </div>
                 </td>
               )}
             {(role.name === ERoles.PROVIDER ||
