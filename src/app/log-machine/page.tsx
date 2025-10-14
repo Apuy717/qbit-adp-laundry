@@ -155,6 +155,7 @@ export default function LogMachine() {
           "machine",
           "status",
           "access by",
+          "Status Machine",
           "Turn off by",
           "start at",
           "end at",
@@ -183,6 +184,7 @@ export default function LogMachine() {
             <td className="whitespace-nowrap px-6 py-4">{i.machine.name}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase">{i.status == "maintance" ? "MAINTENANCE" : i.status}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase">{i.accessed_by}</td>
+            <td className="whitespace-nowrap px-6 py-4 uppercase">{i.order_item_stage.status}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase"> {i.order_item_stage.status === "finished" ? i.turn_off_by_system ? "Otomatis" : "Manual" : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{new Date(i.created_at).toLocaleDateString("id", {
               day: "2-digit",
