@@ -155,6 +155,8 @@ export default function LogMachine() {
           "machine",
           "status",
           "access by",
+          "Status Machine",
+          "Turn off by",
           "start at",
           "end at",
           "target",
@@ -182,6 +184,8 @@ export default function LogMachine() {
             <td className="whitespace-nowrap px-6 py-4">{i.machine.name}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase">{i.status == "maintance" ? "MAINTENANCE" : i.status}</td>
             <td className="whitespace-nowrap px-6 py-4 uppercase">{i.accessed_by}</td>
+            <td className="whitespace-nowrap px-6 py-4 uppercase">{i.order_item_stage.status}</td>
+            <td className="whitespace-nowrap px-6 py-4 uppercase"> {i.order_item_stage.status === "finished" ? i.turn_off_by_system ? "Otomatis" : "Manual" : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{new Date(i.created_at).toLocaleDateString("id", {
               day: "2-digit",
               month: "short",
@@ -190,16 +194,16 @@ export default function LogMachine() {
               minute: "2-digit",
               second: "2-digit",
             })}</td>
-            <td className="whitespace-nowrap px-6 py-4">{new Date(i.updated_at).toLocaleDateString("id", {
+            <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage.status === "finished" ? new Date(i.updated_at).toLocaleDateString("id", {
               day: "2-digit",
               month: "short",
               year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
               second: "2-digit",
-            })}</td>
+            }) : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.duration} (minutes)</td>
-            <td className="whitespace-nowrap px-6 py-4">{i.time_used} (minutes)</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage.status === "finished" ? `${i.time_used} (minutes)` : "-"}</td>
           </tr>
         ))}
       </Table>
