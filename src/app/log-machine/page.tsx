@@ -190,16 +190,16 @@ export default function LogMachine() {
               minute: "2-digit",
               second: "2-digit",
             })}</td>
-            <td className="whitespace-nowrap px-6 py-4">{new Date(i.updated_at).toLocaleDateString("id", {
+            <td className="whitespace-nowrap px-6 py-4">{i.status !== "finished" ? new Date(i.updated_at).toLocaleDateString("id", {
               day: "2-digit",
               month: "short",
               year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
               second: "2-digit",
-            })}</td>
+            }) : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.duration} (minutes)</td>
-            <td className="whitespace-nowrap px-6 py-4">{i.time_used} (minutes)</td>
+            <td className="whitespace-nowrap px-6 py-4">{i.status !== "finished" ? `${i.time_used} (minutes)` : "-"}</td>
           </tr>
         ))}
       </Table>
