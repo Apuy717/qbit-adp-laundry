@@ -5,12 +5,13 @@ import { GetWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { Employee } from "@/types/employee";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaRegUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-export default function DetailEmployee({ params }: { params: { id: string } }) {
+export default function DetailEmployee() {
+  const params = useParams();
   const router = useRouter()
   const { auth } = useSelector((s: RootState) => s.auth)
   const [employee, setEmployee] = useState<Employee | null>(null)

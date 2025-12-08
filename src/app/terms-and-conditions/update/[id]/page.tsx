@@ -4,20 +4,17 @@ import {
   iDropdown,
   Input,
   InputDropdown,
-  InputTextArea,
-  InputTextArea2,
-  InputTextAreaWithKeydown,
+  InputTextArea2
 } from "@/components/Inputs/InputComponent";
 import { GetWithToken, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { useFormik } from "formik";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
-import * as Yup from "yup";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { json } from "stream/consumers";
 import { TNC } from "@/types/tnc";
+import { useFormik } from "formik";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
 
 interface MyResponse {
   statusCode: number;
@@ -26,11 +23,8 @@ interface MyResponse {
   err: string | string[];
 }
 
-export default function TermsAndConditions({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function TermsAndConditions() {
+  const params = useParams();
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter();
   const [outlets, setOutlets] = useState<iDropdown[]>([]);
@@ -218,8 +212,8 @@ export default function TermsAndConditions({
                 }
                 error={
                   formik.touched.items?.[index]?.label &&
-                  typeof formik.errors.items?.[index] === "object" &&
-                  formik.errors.items[index]?.label
+                    typeof formik.errors.items?.[index] === "object" &&
+                    formik.errors.items[index]?.label
                     ? formik.errors.items[index].label
                     : null
                 }
@@ -244,8 +238,8 @@ export default function TermsAndConditions({
                 // }}
                 error={
                   formik.touched.items?.[index]?.text &&
-                  typeof formik.errors.items?.[index] === "object" &&
-                  formik.errors.items[index]?.text
+                    typeof formik.errors.items?.[index] === "object" &&
+                    formik.errors.items[index]?.text
                     ? formik.errors.items[index].text
                     : null
                 }

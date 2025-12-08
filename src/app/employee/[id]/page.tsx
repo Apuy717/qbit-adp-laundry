@@ -15,7 +15,7 @@ import { Outlet } from "@/types/outlet";
 import { TRole } from "@/types/role";
 import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -34,7 +34,8 @@ interface iResponse<T> {
   err: string | string[];
 }
 
-export default function UpdateEmployee({ params }: { params: { id: string } }) {
+export default function UpdateEmployee() {
+  const params = useParams();
   const [province, setProvince] = useState<iDropdown[]>([]);
   const [city, setCity] = useState<iDropdown[]>([]);
   const [subdistrict, setSubDistrict] = useState<iDropdown[]>([]);
@@ -49,7 +50,6 @@ export default function UpdateEmployee({ params }: { params: { id: string } }) {
   const [modalOutlet, setModalOutlet] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [searchOutlet, setSearchOutlet] = useState<string>("");
 
   useEffect(() => {
     if (
