@@ -8,6 +8,8 @@ import { HeaderReport } from "../components/HeaderReport";
 import { FeaturesReportSection } from "../components/FeaturesReportSection";
 import { TableReport } from "../components/TableReport";
 import { TablePrinter } from "../components/TableExcel";
+import { useSelector } from "react-redux";
+import { RootState } from "@/stores/store";
 // import { transactions } from "../data-dummy/transactions";
 
 export default function OmzetDaily() {
@@ -21,11 +23,13 @@ export default function OmzetDaily() {
 
   const tableRef = useRef<HTMLTableElement | null>(null);
 
+  const { auth, role, department } = useSelector((s: RootState) => s.auth);
+
   const retrieveDataDaily = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_OMZET_DAILY}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.access_token}` },
         body: JSON.stringify({
           outlet_ids: [getDataById],
           started_at: startDate || "2025-11-01",
