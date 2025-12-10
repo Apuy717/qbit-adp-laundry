@@ -8,7 +8,7 @@ type MerchantDataType = {
   transaction: string;
   total: string;
   outlet: {
-    id: number;
+    id: string;
     name: string;
   }
 }

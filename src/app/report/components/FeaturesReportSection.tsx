@@ -10,7 +10,7 @@ type FeaturesReportType = {
   handleRefreshData: () => void;
   handleDownloadExcel: () => void;
   setChoiceOutlet: React.Dispatch<React.SetStateAction<string | number>>
-  setGetDataById: React.Dispatch<React.SetStateAction<number | null>>
+  setGetDataById: React.Dispatch<React.SetStateAction<number[] | string[] | []>>
 }
 
 export function FeaturesReportSection(props: FeaturesReportType) {
@@ -23,20 +23,10 @@ export function FeaturesReportSection(props: FeaturesReportType) {
             defaultDate={props.endDate}
             onChange={props.setEndDate}
           />
-          <select onChange={(event) => {
-            console.log(event.target.value);
-            props.setChoiceOutlet(event.target.value);
-          }} className="block px-6 pr-10 py-3 rounded bg-white dark:bg-slate-800 dark:text-slate-100 text-slate-800 border-2 border-slate-200 dark:border-slate-700 dark:shadow"> 
-            <option value="all">All</option>
-            {props.optionsOutlet != null && props.optionsOutlet.map((data, id) => (
-              <option key={id} value={data.id}>{data.name}</option>
-            ))}
-          </select>
         </div>
-
         <div className="flex items-center gap-x-6">
           <button
-            onClick={props.handleRefreshData}
+            onClick={() => window.location.reload()}
             className="p-3 rounded-full bg-slate-400/50 dark:bg-slate-800 dark:border dark:border-slate-100"
           >
             <IoIosRefresh className="dark:text-slate-100" />
