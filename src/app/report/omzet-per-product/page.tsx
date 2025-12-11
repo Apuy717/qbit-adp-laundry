@@ -335,15 +335,15 @@ export default function OmzetPerProduct() {
     <main className="relative min-h-screen">
       {/* table printer */}
       <HeaderReport title="Report Merchant - Omzet Per Product" description=" Welcome to bossq merchant"/>
-      <div className="flex items-center gap-x-2 mt-8 mb-6">
-          {rangeDateOptions && rangeDateOptions.map((option) => (
-            <>
-              <button onClick={() => {
-                handleFilterDataByDate(option);
-                setCurrentOptionRange(option);
-              }} type="button" className={`px-8 py-3 rounded transition-all hover:bg-slate-100 shadow ${currentOptionRange == option ? "bg-slate-100 scale-90" : "bg-white"}`}>{option}</button>
-            </>
-          ))}
+      <div className="w-sm lg:w-fit overflow-x-auto mt-8 mb-6">
+          <div className="grid grid-flow-col auto-cols-[180px] gap-x-2">
+            {rangeDateOptions && rangeDateOptions.map((option) => (
+                <button key={option} onClick={() => {
+                  handleFilterDataByDate(option);
+                  setCurrentOptionRange(option);
+                }} type="button" className={`dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 lg:px-6 lg:py-3 py-2.5 rounded transition-all hover:bg-slate-100 shadow ${currentOptionRange == option ? "bg-slate-100 scale-90" : "bg-white"}`}>{option}</button>
+            ))}
+          </div>
         </div>
       
       <section className="mb-4 mt-8 flex flex-col items-end justify-between gap-y-3 lg:flex-row lg:items-center lg:gap-y-0">

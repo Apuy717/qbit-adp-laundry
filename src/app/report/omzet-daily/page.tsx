@@ -366,15 +366,15 @@ const formatDailyReport = (data: any) => {
       <TablePrinter ref={tableRef} merchantData={merchantData} />
       <HeaderReport title="Report Merchant - Omzet Daily" description=" Welcome to bossq merchant"/>
 
-      <div className="flex items-center gap-x-2 mt-8 mb-6">
-          {rangeDateOptions && rangeDateOptions.map((option) => (
-            <>
-              <button key={option} onClick={() => {
-                handleFilterDataByDate(option);
-                setCurrentOptionRange(option);
-              }} type="button" className={`px-8 py-3 rounded transition-all hover:bg-slate-100 shadow ${currentOptionRange == option ? "bg-slate-100 scale-90" : "bg-white"}`}>{option}</button>
-            </>
-          ))}
+      <div className="w-sm lg:w-fit overflow-x-auto mt-8 mb-6">
+          <div className="grid grid-flow-col auto-cols-[180px] gap-x-2">
+            {rangeDateOptions && rangeDateOptions.map((option) => (
+                <button key={option} onClick={() => {
+                  handleFilterDataByDate(option);
+                  setCurrentOptionRange(option);
+                }} type="button" className={`dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 lg:px-6 lg:py-3 py-2.5 rounded transition-all hover:bg-slate-100 shadow ${currentOptionRange == option ? "bg-slate-100 scale-90" : "bg-white"}`}>{option}</button>
+            ))}
+          </div>
         </div>
       
       <section className="mb-4 mt-8 flex flex-col items-end justify-between gap-y-3 lg:flex-row lg:items-center lg:gap-y-0">
@@ -459,20 +459,20 @@ const formatDailyReport = (data: any) => {
                                                     {/* <div className="absolute top-0 -bottom-10 h-32 w-28 bg-slate-400"></div> */}
                                                   </td>
                                                   <td className="text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 relative">
-                                                    <button onClick={() => setOpenRow(openRow === index ? null : index)} type="button">
+                                                    <button onClick={() => setOpenRow(openRow === index ? null : index)} type="button" className="dark:text-slate-100">
                                                       {openRow == index ? "Hide Detail" : "Show Detail"}
                                                     </button>
                                                     {/* <div className="absolute top-0 -bottom-10 h-32 w-28 bg-slate-400"></div> */}
                                                   </td>
                                                 </tr>
                                                 {openRow === index && (
-                                                <tr>
-                                                  <td colSpan={5} className="px-6 py-4 bg-slate-100 dark:bg-slate-800">
+                                                <tr className="dark:bg-slate-700 dark:hover:bg-slate-600">
+                                                  <td colSpan={5} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 dark:text-slate-100">
 
-                                                    <div className="p-4 bg-white dark:bg-slate-900 rounded-lg shadow flex flex-col gap-4">
+                                                    <div className="p-4 bg-white dark:bg-slate-700 rounded-lg shadow flex flex-col gap-4">
 
                                                       {item.detail != null && item.detail.map((detail, i) => (
-                                                        <div key={i} className="border-b pb-3 last:border-none">
+                                                        <div key={i} className="border-b pb-3 last:border-none dark:text-slate-100">
                                                           <p><b>Order Date:</b> {detail.order_date}</p>
                                                           <p className="mt-1.5"><b>Stage Name:</b> {detail.stage_name}</p>
                                                           <p className="mt-1.5"><b>Total Stage:</b> {detail.total_stage}</p>
