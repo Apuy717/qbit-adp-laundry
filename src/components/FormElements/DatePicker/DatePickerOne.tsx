@@ -4,16 +4,18 @@ import { useEffect, useRef } from "react";
 interface iDatePickerInput {
   label: string;
   defaultDate: Date | string;
-  onChange: (v: string) => void
+  onChange: (v: string) => void;
 }
 
 const DatePickerOne = (props: iDatePickerInput) => {
-  const refInput = useRef<HTMLInputElement | null>(null)
+  const refInput = useRef<HTMLInputElement | null>(null);
+  const fpInstance = useRef<flatpickr.Instance | null>(null);
 
   useEffect(() => {
-    if (refInput.current === null) return
+    if (!refInput.current) return;
+
     // Init flatpickr
-    flatpickr(refInput.current, {
+    fpInstance.current = flatpickr(refInput.current, {
       enableTime: true,
       minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 2)),
       mode: "single",
@@ -24,29 +26,15 @@ const DatePickerOne = (props: iDatePickerInput) => {
       defaultHour: 23,
       defaultMinute: 59,
       defaultSeconds: 59,
-      defaultDate: (() => {
-        // Get current date
-        const currentDate = new Date(props.defaultDate);
-
-        // Apply UTC+7 offset
-        // const offsetInMinutes = 7 * 60; // UTC+7 in minutes
-        // const utcPlus7Date = new Date(currentDate.getTime() + offsetInMinutes * 60 * 1000);
-
-        return currentDate;
-      })(),
+      defaultDate: new Date(props.defaultDate),
       disableMobile: true,
-
       prevArrow:
-        '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+        '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
-        '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+        '<svg class="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
       onChange: (selectedDates) => {
         if (selectedDates.length > 0) {
-          // Mengonversi ke format ISO tanpa milidetik
-          // const offsetInMinutes = 7 * 60;
-          // const date = new Date(selectedDates[0].getTime() + offsetInMinutes * 60 * 1000);
-          // const isoDate = date.toISOString().split(".")[0];
-          const pad = (n: any) => n.toString().padStart(2, '0');
+          const pad = (n: any) => n.toString().padStart(2, "0");
           const date = `${selectedDates[0].getFullYear()}-${pad(selectedDates[0].getMonth() + 1)}-${pad(selectedDates[0].getDate())} ${pad(selectedDates[0].getHours())}:${pad(selectedDates[0].getMinutes())}:${pad(selectedDates[0].getSeconds())}`;
           props.onChange(date);
         }
@@ -54,14 +42,22 @@ const DatePickerOne = (props: iDatePickerInput) => {
     });
 
     return () => {
-      refInput.current = null
+      fpInstance.current?.destroy();
+      fpInstance.current = null;
+    };
+  }, []);
+
+  // 🔁 Jika props.defaultDate berubah, update tanggal di flatpickr
+  useEffect(() => {
+    if (fpInstance.current && props.defaultDate) {
+      fpInstance.current.setDate(new Date(props.defaultDate), false);
     }
-  }, [props]);
+  }, [props.defaultDate]);
 
   return (
     <div className="w-full relative">
       <label
-        className={`text-md absolute  z-10 bg-white transition-all duration-500 dark:dark:bg-boxdark -top-3 left-4 text-gray-500`}
+        className={`text-md absolute z-10 bg-white dark:bg-boxdark -top-3 left-4 text-gray-500 transition-all duration-500`}
       >
         {props.label}
       </label>
@@ -72,7 +68,6 @@ const DatePickerOne = (props: iDatePickerInput) => {
           placeholder="yyyy/mm/dd"
           data-class="flatpickr-right"
         />
-
         <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
           <svg
             width="18"
@@ -93,4 +88,3 @@ const DatePickerOne = (props: iDatePickerInput) => {
 };
 
 export default DatePickerOne;
-

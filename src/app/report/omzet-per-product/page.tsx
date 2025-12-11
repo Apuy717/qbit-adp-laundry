@@ -1,22 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect, useContext, forwardRef } from "react";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import { MerchantDataContext } from "@/contexts/merchantDataContext";
-import { HeaderReport } from "../components/HeaderReport";
-import { FeaturesReportSection } from "../components/FeaturesReportSection";
-import { TableReport } from "../components/TableReport";
-import { TablePrinter } from "../components/TableExcel";
-import { useSelector } from "react-redux";
-import { RootState } from "@/stores/store";
-import { toRupiah } from "../utils/toRupiah";
-import { FilterByOutletContext } from "@/contexts/selectOutletContex";
-import { useRouter } from "next/navigation";
-import { io, Socket } from "socket.io-client";
-import { iResponse, PostWithToken } from "@/libs/FetchData";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { RootState } from "@/stores/store";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useRef, useState } from "react";
 import { IoIosRefresh, IoMdDownload } from "react-icons/io";
+import { useSelector } from "react-redux";
+import { io, Socket } from "socket.io-client";
+import { HeaderReport } from "../components/HeaderReport";
+import { toRupiah } from "../utils/toRupiah";
 // import { transactions } from "../data-dummy/transactions";
 
 type PerProductType = {
@@ -99,58 +93,6 @@ export default function OmzetPerProduct() {
 
   const router = useRouter();
 
-  const refSocket = useRef<Socket | undefined>();
-
-  useEffect(() => {
-    refSocket.current = io(`${process.env.NEXT_PUBLIC_API_DOMAIN}`, {
-      transports: ["websocket", "polling"],
-      reconnection: true, // Enable automatic reconnection
-      reconnectionAttempts: Infinity, // Try to reconnect indefinitely
-      reconnectionDelay: 1000, // Delay between reconnect attempts (in ms)
-      reconnectionDelayMax: 5000, // Maximum delay between attempts (in ms)
-      randomizationFactor: 0.5, // Random factor to vary the delay time
-      timeout: 20000, // Timeout duration for connection attempts (in ms)
-    });
-
-    refSocket.current.connect();
-
-    refSocket.current.emit("ping", "ping");
-
-    refSocket.current.on("ping", (msg) => {
-      console.log("==== PING ====");
-      console.log(msg);
-      console.log("==== PING ====");
-    });
-
-    refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
-      console.log("==== Msg Server Socket ====");
-      console.log(msg);
-      console.log("==== Msg Server Socket ====");
-      setSwitchMachine((old) => {
-        const fAlreadyData = old.findIndex(
-          (f) => f.machine_id === msg.machine_id,
-        );
-
-        if (fAlreadyData === -1) {
-          // Jika belum ada di array dan statusnya ON, tambahkan
-          return msg.status === EStatusSwithMachine.ON ? [...old, msg] : old;
-        }
-
-        if (msg.status === EStatusSwithMachine.ON) {
-          // Jika sudah ada dan statusnya ON, update data
-          return old.map((item, index) =>
-            index === fAlreadyData ? { ...item, ...msg } : item,
-          );
-        } else {
-          // Jika sudah ada dan statusnya bukan ON, hapus dari array
-          return old.filter((_, index) => index !== fAlreadyData);
-        }
-      });
-    });
-    return () => {
-      refSocket.current?.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
       async function GotPerOutlet() {
