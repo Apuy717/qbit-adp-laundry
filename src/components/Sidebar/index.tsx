@@ -188,6 +188,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ERoles.OUTLET_ADMIN,
           ],
         },
+
       ],
     },
     {
@@ -228,6 +229,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             { label: "Empty Wash", route: "/empty-wash" },
             { label: "Maintenance", route: "/machine-service" },
             { label: "Log Machine", route: "/log-machine" }
+          ],
+        },
+        {
+          icon: <MdOutlineReportGmailerrorred size={24} />,
+          label: "Log Tasmota",
+          route: "/log-tasmota",
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            ERoles.TECHNICIAN,
           ],
         },
         {
