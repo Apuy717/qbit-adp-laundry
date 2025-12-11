@@ -16,6 +16,7 @@ import {
   FaUsers
 } from "react-icons/fa";
 import { GrDocumentText } from "react-icons/gr";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosApps, IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
@@ -130,6 +131,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               { label: "Audit", route: "/audit" },
               { label: "Master Expense", route: "/purchase-request/item" },
               { label: "Expense", route: "/purchase-request/trx" },
+            ],
+        },
+        {
+          icon: <HiOutlineDocumentReport size={23}/>,
+          label: "Report",
+          route: "/report/omzet-per-outlet",
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.AUDITOR,
+            EDepartmentEmployee.FINANCE,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.SPV,
+            EDepartmentEmployee.HO,
+            EDepartmentEmployee.OWNER,
+            ERoles.OUTLET_ADMIN,
+            ERoles.FINANCE
+          ],
+          children: ERoles.FINANCE === role.name ?
+            [
+              { label: "Report", route: "/report" },
+            ] :
+            [
+              { label: "Per Outlet", route: "/report/omzet-per-outlet" },
+              { label: "Per Product", route: "/report/omzet-per-product" },
+              { label: "Daily", route: "/report/omzet-daily" },
             ],
         },
         {

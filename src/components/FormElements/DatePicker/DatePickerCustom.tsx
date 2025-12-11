@@ -1,14 +1,44 @@
 import flatpickr from "flatpickr";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface iDatePickerInput {
   label: string;
   defaultDate: Date | string;
+  startDate: string;
   onChange: (v: string) => void
 }
 
-const DatePickerOne = (props: iDatePickerInput) => {
-  const refInput = useRef<HTMLInputElement | null>(null)
+const DatePickerCustom = (props: iDatePickerInput) => {
+    const [maxDate, setMaxDate] = useState<Date | string>("");
+  const refInput = useRef<HTMLInputElement | null>(null);
+
+  const handleSetMaxDate = (): string => {
+    // expalation : 2025-12-01 23:59:00 || .split(" ")[0] => 2025-12-01 .split("-") => ["2025", "12", "01"];
+    let [year, month, day] = props.startDate.split(" ")[0].split("-");
+    let nextThreeMonth: any = parseInt(month) + 3;
+    let newYear = parseInt(year);
+
+    if(nextThreeMonth > 12) {
+      newYear = parseInt(year) + 1;
+      nextThreeMonth = nextThreeMonth - 12;
+    }
+
+    if(nextThreeMonth < 10) {
+      nextThreeMonth = String(nextThreeMonth).padStart(2, "0");
+    }
+
+    const result = `${newYear}-${nextThreeMonth}-${day}`;
+
+    return result;
+  }
+
+  // useEffect(() => {
+  //   const resultMaxDate = handleSetMaxDate();
+  //   setMaxDate(resultMaxDate);
+
+  //   console.log("Works!");
+  //   console.log(resultMaxDate);
+  // }, [props.startDate]);
 
   useEffect(() => {
     if (refInput.current === null) return
@@ -16,6 +46,7 @@ const DatePickerOne = (props: iDatePickerInput) => {
     flatpickr(refInput.current, {
       enableTime: true,
       minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 2)),
+      maxDate: new Date(maxDate),
       mode: "single",
       time_24hr: true,
       static: true,
@@ -92,5 +123,5 @@ const DatePickerOne = (props: iDatePickerInput) => {
   );
 };
 
-export default DatePickerOne;
+export default DatePickerCustom
 
