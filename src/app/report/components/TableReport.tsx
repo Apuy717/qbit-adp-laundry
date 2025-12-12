@@ -25,7 +25,7 @@ export function TableReport(props: TableReportType) {
                     No
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
-                    Merchant
+                    Outlet
                   </th>
                   <th className="px-6 py-4 text-left lg:text-center text-xs font-medium uppercase tracking-wider">
                     Transaction

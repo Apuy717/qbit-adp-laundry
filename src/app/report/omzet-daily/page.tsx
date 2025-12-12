@@ -66,19 +66,6 @@ export default function OmzetDaily() {
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
 
-
-  // const [dailyReport, setDailyReport] = useState<DailyReportType[]>([]);
-
-  enum EStatusSwithMachine {
-    ON = "ON",
-    OFF = "OFF",
-  }
-
-  interface iSwitchMachine {
-    machine_id: string;
-    status: EStatusSwithMachine;
-  }
-
   const formatDailyReport = (data: any) => {
     return {
       order_date: data.order_date,
@@ -98,8 +85,6 @@ export default function OmzetDaily() {
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
     FilterByOutletContext,
   );
-
-  const [switchMachine, setSwitchMachine] = useState<iSwitchMachine[]>([]);
 
   const router = useRouter();
 
@@ -242,7 +227,7 @@ export default function OmzetDaily() {
   return (
     <main className="relative min-h-screen">
       <TablePrinter ref={tableRef} merchantData={merchantData} />
-      <Breadcrumb pageName={"Report Merchant - Omzet Daily"} />
+      <Breadcrumb pageName={"Report Outlet - Omzet Daily"} />
 
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -267,7 +252,7 @@ export default function OmzetDaily() {
       </div>
 
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
-        <div className="mx-auto flex w-full items-center gap-x-4 ">
+        <div className="mx-auto flex flex-col md:flex-row w-full items-center gap-4 ">
           <DatePickerOne
             label="Start"
             defaultDate={startDate}
@@ -294,7 +279,7 @@ export default function OmzetDaily() {
           [
             "#",
             "Order Date",
-            "Merchant",
+            "Outlet",
             "Transaction",
             "Amount",
             "Detail"
