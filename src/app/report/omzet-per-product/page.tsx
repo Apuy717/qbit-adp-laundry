@@ -12,6 +12,7 @@ import { io, Socket } from "socket.io-client";
 import { HeaderReport } from "../components/HeaderReport";
 import { toRupiah } from "../utils/toRupiah";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
 // import { transactions } from "../data-dummy/transactions";
 
 type PerProductType = {
@@ -42,7 +43,6 @@ export default function OmzetPerProduct() {
   const [startDate, setStartDate] = useState<Date>(startOfMonth);
   const [endDate, setEndDate] = useState<Date>(endOfMonth);
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [filterIsDeleted, setFilterIsDeleted] = useState<boolean | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
@@ -50,6 +50,16 @@ export default function OmzetPerProduct() {
 
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 10;
+  const setStartItems = (currentPage - 1) * itemsPerPage;
+  const setEndItems = setStartItems + itemsPerPage;
+
+  const currentItems = perProductData.slice(setStartItems, setEndItems);
+  const howManyPages = Math.ceil(perProductData.length / itemsPerPage);
+
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, perProductData.length);
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
 
@@ -252,7 +262,10 @@ export default function OmzetPerProduct() {
               <thead className="hidden sm:table-header-group">
                 <tr className="border-b border-slate-200 bg-slate-50 dark:bg-slate-800 dark:text-slate-100">
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
-                    Name
+                    #
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
+                    Product Name
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
                     SKU Name
@@ -267,7 +280,7 @@ export default function OmzetPerProduct() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {perProductData != null && perProductData.map((item, index) => (
+                {perProductData.length > 0 ? currentItems.map((item, index) => (
                   <tr
                     key={index}
                     className="grid grid-cols-2 items-start gap-2 rounded-xl border border-white/10 
@@ -275,27 +288,56 @@ export default function OmzetPerProduct() {
                        transition hover:bg-slate-50 sm:table-row
                        sm:rounded-none sm:bg-transparent sm:p-0 sm:hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 cursor-pointer"
                   >
+                    <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100 hidden lg:table-cell">
+                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product Name : </span>
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
+
                     <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
+                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product Name : </span>
                       {item.product_name}
                     </td>
 
                     <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product SKU Name : </span>
                       {item.product_sku_name}
                     </td>
 
                     <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 sm:text-sm lg:text-center dark:text-slate-100">
+                      <span className="lg:hidden text-slate-700 text-sm font-medium">Quantity : </span>
                       {item.quantity}
                     </td>
 
-                    <td className="text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                    <td className="text-left lg:text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                      <span className="lg:hidden text-slate-700 text-sm font-medium">Amount : </span>
                       {toRupiah(item.amount)}
                     </td>
                   </tr>
-                ))}
+                )) : (<><SkeletonTableRow howMuch={5}/>
+                </>)}
               </tbody>
             </table>
           </div>
         </div>
+
+        <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto">
+          <div className="hidden lg:block">
+            <span className="text-slate-800 dark:text-slate-100"> Showing <span className="font-bold">{start} - {end}</span> of : <span className="font-bold">{perProductData.length}</span></span>
+          </div>
+          <div className="flex items-center">
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} type="button" className="cursor-pointer ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Prev</button>
+            <ul className="flex items-center">
+            {Array.from({length: howManyPages}).map((_, i) => (
+              <li onClick={() => setCurrentPage(i + 1)} key={i} className={`flex h-8 items-center justify-center px-3 leading-tight 
+                          dark:border-gray-700 dark:bg-gray-800 
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-200 dark:bg-slate-700" : "bg-transparent"}`}>
+                <button type="button">{i + 1}</button>
+              </li>
+            ))}
+            <button disabled={currentPage === howManyPages} onClick={() => setCurrentPage(p => p + 1)} type="button" className="cursor-pointer flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</button>
+          </ul>
+          </div>
+      </div>
       </section>
     </main>
   );

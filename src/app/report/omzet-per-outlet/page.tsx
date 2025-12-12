@@ -11,6 +11,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { TableReport } from "../components/TableReport";
+import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
 // import { transactions } from "../data-dummy/transactions";
 
 type MerchantDataType = {
@@ -43,14 +44,23 @@ export default function OmzetPerOutlet() {
   const [endDate, setEndDate] = useState<Date>(endOfMonth);
 
   const [fixValueSearch, setFixValueSearch] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [filterIsDeleted, setFilterIsDeleted] = useState<boolean | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [totalItem, setTotalItem] = useState(0);
-
+  
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 10;
+  const setStartItems = (currentPage - 1) * itemsPerPage;
+  const setEndItems = setStartItems + itemsPerPage;
+
+  const currentItems = merchantData.slice(setStartItems, setEndItems);
+  const howManyPages = Math.ceil(merchantData.length / itemsPerPage);
+
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, merchantData.length);
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
 
@@ -247,7 +257,27 @@ export default function OmzetPerOutlet() {
         </div>
       </div>
 
-      <TableReport merchantData={merchantData} />
+      {merchantData.length > 0 ? (<TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}/>) : (<>
+      <SkeletonTableRow howMuch={4}/>
+      </>)}
+      <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow">
+        <div className="hidden lg:block">
+          <span className="text-slate-800 dark:text-slate-100"> Showing <span className="font-bold">{start} - {end}</span> of : <span className="font-bold">{merchantData.length}</span></span>
+        </div>
+        <div className="flex items-center">
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} type="button" className="cursor-pointer ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Prev</button>
+          <ul className="flex items-center">
+          {Array.from({length: howManyPages}).map((_, i) => (
+            <li onClick={() => setCurrentPage(i + 1)} key={i} className={`flex h-8 items-center justify-center px-3 leading-tight 
+                        dark:border-gray-700 dark:bg-gray-800 
+                        dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-200 dark:bg-slate-700" : "bg-transparent"}`}>
+              <button type="button">{i + 1}</button>
+            </li>
+          ))}
+          <button disabled={currentPage === howManyPages} onClick={() => setCurrentPage(p => p + 1)} type="button" className="cursor-pointer flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</button>
+        </ul>
+        </div>
+      </div>
     </main>
   );
 }
