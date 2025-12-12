@@ -257,10 +257,10 @@ export default function OmzetPerOutlet() {
         </div>
       </div>
 
-      {merchantData.length > 0 ? (<TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}/>) : (<>
-      <SkeletonTableRow howMuch={4}/>
-      </>)}
-      <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow">
+      <TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}>
+        <SkeletonTableRow howMuch={4} />
+      </TableReport>
+      <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto">
         <div className="hidden lg:block">
           <span className="text-slate-800 dark:text-slate-100"> Showing <span className="font-bold">{start} - {end}</span> of : <span className="font-bold">{merchantData.length}</span></span>
         </div>

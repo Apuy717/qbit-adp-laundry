@@ -13,6 +13,7 @@ type TableReportType = {
   merchantData: MerchantDataType;
   currentPage: number;
   itemsPerPage: number;
+  children: React.ReactNode;
 }
 
 export function TableReport(props: TableReportType) {
@@ -39,7 +40,7 @@ export function TableReport(props: TableReportType) {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {props.merchantData != null && props.merchantData.map((item, index) => (
+                {props.merchantData.length > 0 ? props.merchantData.map((item, index) => (
                   
                   <tr
                     key={index}
@@ -68,7 +69,11 @@ export function TableReport(props: TableReportType) {
                       {toRupiah(item.total)}
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <>
+                    {props.children}
+                  </>
+                )}
               </tbody>
             </table>
           </div>
