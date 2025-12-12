@@ -62,6 +62,9 @@ export default function OmzetDaily() {
   const [totalItem, setTotalItem] = useState(0);
 
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
+  const [determineIsActive, setDetermineIsActive] = useState<string>("");
+
+  const [thereIsNotOption, setThereIsNotOption] = useState<boolean>(false);
 
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
@@ -239,6 +242,107 @@ export default function OmzetDaily() {
     setCurrentOptionRange(matched || "");
   }, [startDate, endDate]);
 
+
+
+  useEffect(() => {
+    const normalize = (d: Date) => {
+      const n = new Date(d);
+      n.setHours(0, 0, 0, 0);
+      return n;
+    };
+
+    const dayDiff = (start: Date, end: Date) => {
+      const s = normalize(start);
+      const e = normalize(end);
+      return Math.round((e.getTime() - s.getTime()) / 86400000);
+    };
+
+    const isToday = (start: string | Date, end: string | Date) => {
+      const today = normalize(new Date());
+      const s = normalize(new Date(start));
+      const e = normalize(new Date(end));
+      return s.getTime() === today.getTime() && e.getTime() === today.getTime();
+    };
+
+    const isRangeThreeDays = (start: string | Date, end: string | Date) => {
+      return dayDiff(new Date(start), new Date(end)) === 3;
+    };
+
+    const isRangeSevenDays = (start: string | Date, end: string | Date) => {
+      return dayDiff(new Date(start), new Date(end)) === 7;
+    };
+
+    const isRangeFourteenDays = (start: string | Date, end: string | Date) => {
+      return dayDiff(new Date(start), new Date(end)) === 14;
+    };
+
+    const isRangeLastMonth = (start: string | Date, end: string | Date) => {
+      const s = new Date(start);
+      const e = new Date(end);
+
+      const today = new Date();
+      let lastMonth = today.getMonth() - 1;
+      let year = today.getFullYear();
+
+      if (lastMonth < 0) {
+        lastMonth = 11;
+        year--;
+      }
+
+      return (
+        s.getFullYear() === year &&
+        e.getFullYear() === year &&
+        s.getMonth() === lastMonth &&
+        e.getMonth() === lastMonth
+      );
+    };
+
+    const isRangeThisMonth = (start: string | Date, end: string | Date) => {
+      const today = new Date();
+      const s = new Date(start);
+      const e = new Date(end);
+
+      return (
+        s.getFullYear() === today.getFullYear() &&
+        e.getFullYear() === today.getFullYear() &&
+        s.getMonth() === today.getMonth() &&
+        e.getMonth() === today.getMonth()
+      );
+    };
+
+    if (!startDate || !endDate) return;
+
+    if (isToday(startDate, endDate)) {
+      setDetermineIsActive("Today");
+      console.log("Today");
+      setThereIsNotOption(false);
+    } else if (isRangeThreeDays(startDate, endDate)) {
+      setDetermineIsActive("3 Days Ago");
+      console.log("3 Days Ago");
+      setThereIsNotOption(false);
+    } else if (isRangeSevenDays(startDate, endDate)) {
+      setDetermineIsActive("7 Days Ago");
+      console.log("7 Days Ago");
+      setThereIsNotOption(false);
+    } else if (isRangeFourteenDays(startDate, endDate)) {
+      setDetermineIsActive("14 Days Ago");
+      console.log("14 Days Ago");
+      setThereIsNotOption(false);
+    } else if (isRangeLastMonth(startDate, endDate)) {
+      setDetermineIsActive("Prev Month");
+      console.log("Prev Month");
+      setThereIsNotOption(false);
+    } else if (isRangeThisMonth(startDate, endDate)) {
+      setDetermineIsActive("Current Month");
+      console.log("Current Month")
+      setThereIsNotOption(false);;
+    } else {
+      setDetermineIsActive("There is not!");
+      setThereIsNotOption(true);
+      console.log("There is not!");
+    }
+  }, [startDate, endDate]);
+
   return (
     <main className="relative min-h-screen">
       <TablePrinter ref={tableRef} merchantData={merchantData} />
@@ -247,13 +351,14 @@ export default function OmzetDaily() {
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {rangeDateOptions.map((option) => {
-            const isActive = currentOptionRange === option;
+            const isActive = currentOptionRange === option || determineIsActive === option;
             return (
               <button
+                disabled={thereIsNotOption}
                 key={option}
                 onClick={() => handleFilterDataByDate(option)}
                 type="button"
-                className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 shadow-sm border border-slate-200 dark:border-slate-700
+                className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 shadow-sm border border-slate-200 dark:border-slate-700 disabled:opacity-70
                   ${isActive
                     ? "bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 scale-95"
                     : "bg-white text-slate-800 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
@@ -301,10 +406,10 @@ export default function OmzetDaily() {
           ]
         }
         onPaginate={(page) => setCurrentPage(page)}
-        currentPage={0}
-        totalItem={0}
+        currentPage={currentPage}
+        totalItem={totalItem}
       >
-        {dailyReport != null && dailyReport.map((item, index) => (
+        {dailyReport.length > 0 ? dailyReport.map((item, index) => (
           <React.Fragment key={index}>
             <tr
               className="grid grid-cols-2 justify-start items-start gap-2 rounded-xl border border-white/10 
@@ -353,7 +458,28 @@ export default function OmzetDaily() {
               </tr>
             )}
           </React.Fragment>
-        ))}
+        )) : Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i} className="animate-pulse border-b dark:border-gray-700">
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-6 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-20 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-28 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="h-4 w-16 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                            </td>
+                        </tr>
+                    ))}
       </Table>
 
     </main>
