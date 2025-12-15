@@ -288,33 +288,34 @@ export default function OmzetPerProduct() {
                        transition hover:bg-slate-50 sm:table-row
                        sm:rounded-none sm:bg-transparent sm:p-0 sm:hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 cursor-pointer"
                   >
-                    <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100 hidden lg:table-cell">
-                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product Name : </span>
+                    <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100 dark:bg-slate-800 hidden lg:table-cell">
+                      <span className="lg:hidden text-slate-700 dark:text-slate-400 text-sm font-medium">Product Name : </span>
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
 
                     <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
-                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product Name : </span>
+                      <span className="lg:hidden text-slate-700 dark:text-slate-400 text-sm font-medium">Product Name : </span>
                       {item.product_name}
                     </td>
 
                     <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
-                      <span className="lg:hidden text-slate-700 text-sm font-medium">Product SKU Name : </span>
+                      <span className="lg:hidden text-slate-700 dark:text-slate-400 text-sm font-medium">Product SKU Name : </span>
                       {item.product_sku_name}
                     </td>
 
                     <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 sm:text-sm lg:text-center dark:text-slate-100">
-                      <span className="lg:hidden text-slate-700 text-sm font-medium">Quantity : </span>
+                      <span className="lg:hidden text-slate-700 dark:text-slate-400 text-sm font-medium">Quantity : </span>
                       {item.quantity}
                     </td>
 
                     <td className="text-left lg:text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
-                      <span className="lg:hidden text-slate-700 text-sm font-medium">Amount : </span>
+                      <span className="lg:hidden text-slate-700 dark:text-slate-400 text-sm font-medium">Amount : </span>
                       {toRupiah(item.amount)}
                     </td>
                   </tr>
-                )) : (<><SkeletonTableRow howMuch={5}/>
-                </>)}
+                )) : (Array.from({length: 5}).map((_, i) => (
+                        <SkeletonTableRow key={i} howMuch={5}/>
+                )))}
               </tbody>
             </table>
           </div>

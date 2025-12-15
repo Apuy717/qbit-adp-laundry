@@ -258,7 +258,9 @@ export default function OmzetPerOutlet() {
       </div>
 
       <TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}>
-        <SkeletonTableRow howMuch={4} />
+        {Array.from({length: 5}).map((_, i) => (
+          <SkeletonTableRow key={i} howMuch={4} />
+        ))}
       </TableReport>
       <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto">
         <div className="hidden lg:block">

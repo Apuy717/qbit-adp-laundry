@@ -349,7 +349,9 @@ export default function OmzetDaily() {
               )}
             </React.Fragment>
           )): <>
-          <SkeletonTableRow howMuch={6}/>
+          {Array.from({length: 5}).map((_, i) => (
+            <SkeletonTableRow key={i} howMuch={6}/>
+          ))}
           </>}
         </Table>
 

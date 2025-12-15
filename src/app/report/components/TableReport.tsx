@@ -50,22 +50,22 @@ export function TableReport(props: TableReportType) {
                        sm:rounded-none sm:bg-transparent sm:p-0 sm:hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 cursor-pointer"
                   >
                     <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
-                      <span className="font-semibold text-slate-600 lg:hidden">No : </span>
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden">No : </span>
                       {(props.currentPage - 1) * props.itemsPerPage + index + 1}
                     </td>
 
                     <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
-                      <span className="font-semibold text-slate-600 lg:hidden text-sm">Outlet Name : </span>
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Outlet Name : </span>
                       {item.outlet.name}
                     </td>
 
                     <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 sm:text-sm lg:text-center dark:text-slate-100">
-                      <span className="font-semibold text-slate-600 lg:hidden text-sm">Transaction : </span>
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Transaction : </span>
                       {item.transaction}
                     </td>
 
                     <td className="text-text lg:text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
-                      <span className="font-semibold text-slate-600 lg:hidden text-sm">Amount : </span>
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Amount : </span>
                       {toRupiah(item.total)}
                     </td>
                   </tr>
