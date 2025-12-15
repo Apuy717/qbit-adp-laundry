@@ -338,7 +338,7 @@ export default function OmzetPerProduct() {
             {Array.from({length: howManyPages}).map((_, i) => (
               <li onClick={() => setCurrentPage(i + 1)} key={i} className={`flex h-8 items-center justify-center px-3 leading-tight 
                           dark:border-gray-700 dark:bg-gray-800 
-                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-200 dark:bg-slate-700" : "bg-transparent"}`}>
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-500/25 dark:bg-slate-700" : "bg-transparent"}`}>
                 <button type="button">{i + 1}</button>
               </li>
             ))}
