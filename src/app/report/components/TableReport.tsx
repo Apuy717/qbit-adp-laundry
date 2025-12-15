@@ -19,7 +19,7 @@ type TableReportType = {
 export function TableReport(props: TableReportType) {
   return (<>
   <section>
-        <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead className="hidden sm:table-header-group">
@@ -39,7 +39,7 @@ export function TableReport(props: TableReportType) {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:bg-slate-700">
                 {props.merchantData.length > 0 ? props.merchantData.map((item, index) => (
                   
                   <tr

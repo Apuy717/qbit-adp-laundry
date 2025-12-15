@@ -50,6 +50,8 @@ export default function OmzetPerProduct() {
 
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
   const setStartItems = (currentPage - 1) * itemsPerPage;
@@ -102,8 +104,7 @@ export default function OmzetPerProduct() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setPerProductData(res.data);
-        console.log(res.data);
-
+        setIsLoading(false);
       }
 
       setTimeout(() => {
@@ -256,7 +257,7 @@ export default function OmzetPerProduct() {
       {/* <TableReport merchantData={merchantData}/> */}
 
       <section>
-        <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead className="hidden sm:table-header-group">
@@ -279,7 +280,7 @@ export default function OmzetPerProduct() {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:bg-slate-700">
                 {perProductData.length > 0 ? currentItems.map((item, index) => (
                   <tr
                     key={index}
@@ -313,9 +314,15 @@ export default function OmzetPerProduct() {
                       {toRupiah(item.amount)}
                     </td>
                   </tr>
-                )) : (Array.from({length: 5}).map((_, i) => (
+                )) : isLoading ? (Array.from({length: 5}).map((_, i) => (
                         <SkeletonTableRow key={i} howMuch={5}/>
-                )))}
+                ))) : currentItems.length <= 0 && (<>
+                   <tr>
+                        <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            No data found for
+                        </td>
+                    </tr>
+                </>)}
               </tbody>
             </table>
           </div>

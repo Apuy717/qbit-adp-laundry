@@ -7,7 +7,7 @@ import { MerchantDataContext } from "@/contexts/merchantDataContext";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
@@ -62,6 +62,8 @@ export default function OmzetDaily() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [totalItem, setTotalItem] = useState(0);
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
   const itemsPerPage = 10;
@@ -74,6 +76,7 @@ export default function OmzetDaily() {
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, dailyReport.length);
 
+  const pathname = usePathname();
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
 
@@ -132,8 +135,7 @@ export default function OmzetDaily() {
         if (res.total) setTotalItem(res.total);
         const changeFormat = res.data.map((daily) => formatDailyReport(daily));
         setDailyReport(changeFormat);
-        console.log(changeFormat);
-
+        setIsLoading(false);
       }
 
       setTimeout(() => {
@@ -348,11 +350,17 @@ export default function OmzetDaily() {
                 </tr>
               )}
             </React.Fragment>
-          )): <>
+          )): isLoading ? <>
           {Array.from({length: 5}).map((_, i) => (
-            <SkeletonTableRow key={i} howMuch={6}/>
+            <SkeletonTableRow key={i} howMuch={6} currentPath={pathname}/>
           ))}
-          </>}
+          </> : currentItems.length <= 0 && (
+             <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No data found
+                </td>
+              </tr>
+          )}
         </Table>
 
         <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shado overflow-x-auto">

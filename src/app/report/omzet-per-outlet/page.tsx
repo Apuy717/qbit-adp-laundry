@@ -48,6 +48,8 @@ export default function OmzetPerOutlet() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [totalItem, setTotalItem] = useState(0);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
@@ -105,8 +107,7 @@ export default function OmzetPerOutlet() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setMerchantData(res.data);
-        console.log(res.data);
-
+        setIsLoading(false);
       }
 
       setTimeout(() => {
@@ -210,7 +211,7 @@ export default function OmzetPerOutlet() {
 
   return (
     <main className="relative min-h-screen">
-      <Breadcrumb pageName={"Report Outlet - Omzet Per Outltet"} />
+      <Breadcrumb pageName={"Report Outlet - Omzet Per Outlet"} />
 
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -258,9 +259,15 @@ export default function OmzetPerOutlet() {
       </div>
 
       <TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}>
-        {Array.from({length: 5}).map((_, i) => (
+        {isLoading ? Array.from({length: 5}).map((_, i) => (
           <SkeletonTableRow key={i} howMuch={4} />
-        ))}
+        )) : currentItems.length <= 0 && (
+           <tr>
+              <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No data found
+              </td>
+            </tr>
+        )}
       </TableReport>
       <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto">
         <div className="hidden lg:block">
