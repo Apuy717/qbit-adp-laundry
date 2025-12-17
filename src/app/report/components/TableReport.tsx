@@ -55,7 +55,7 @@ export function TableReport(props: TableReportType) {
                   </td>
 
                   <td className="whitespace-nowrap px-6 py-4 text-center">
-                    {item.transaction}
+                    {Intl.NumberFormat("id-ID").format(Number(item.transaction))}
                   </td>
 
                   <td className="whitespace-nowrap px-6 py-4 text-right">
