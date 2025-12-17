@@ -7,12 +7,13 @@ import { MerchantDataContext } from "@/contexts/merchantDataContext";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { TablePrinter } from "../components/TableExcel";
 import { toRupiah } from "../utils/toRupiah";
+import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
 // import { transactions } from "../data-dummy/transactions";
 
 type DetailDailyType = {
@@ -61,8 +62,21 @@ export default function OmzetDaily() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [totalItem, setTotalItem] = useState(0);
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
+  const itemsPerPage = 10;
+  const setStartItems = (currentPage - 1) * itemsPerPage;
+  const setEndItems = setStartItems + itemsPerPage;
+
+  const currentItems = dailyReport.slice(setStartItems, setEndItems);
+  const howManyPages = Math.ceil(dailyReport.length / itemsPerPage);
+
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, dailyReport.length);
+
+  const pathname = usePathname();
 
   const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
 
@@ -121,8 +135,7 @@ export default function OmzetDaily() {
         if (res.total) setTotalItem(res.total);
         const changeFormat = res.data.map((daily) => formatDailyReport(daily));
         setDailyReport(changeFormat);
-        console.log(changeFormat);
-
+        setIsLoading(false);
       }
 
       setTimeout(() => {
@@ -274,72 +287,102 @@ export default function OmzetDaily() {
         </div>
       </div>
 
-      <Table
-        colls={
-          [
-            "#",
-            "Order Date",
-            "Outlet",
-            "Transaction",
-            "Amount",
-            "Detail"
-          ]
-        }
-        onPaginate={(page) => setCurrentPage(page)}
-        currentPage={0}
-        totalItem={0}
-      >
-        {dailyReport != null && dailyReport.map((item, index) => (
-          <React.Fragment key={index}>
-            <tr
-              className="grid grid-cols-2 justify-start items-start gap-2 rounded-xl border border-white/10 
-        bg-white/5 p-4 shadow-lg backdrop-blur-xl transition hover:bg-slate-50 sm:table-row
-        sm:rounded-none sm:bg-transparent sm:p-0 sm:hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 cursor-pointer"
-            >
-              <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
-                {index + 1}
-              </td>
-              <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
-                {item.order_date}
-              </td>
-              <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
-                {item.outlet.name}
-              </td>
-              <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 sm:text-sm lg:text-center dark:text-slate-100">
-                {item.transaction}
-              </td>
-              <td className="text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 relative">
-                {toRupiah(item.total)}
-              </td>
-              <td className="text-right font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
-                <button
-                  onClick={() => setOpenRow(openRow === index ? null : index)}
-                  type="button"
-                  className="dark:text-slate-100"
-                >
-                  {openRow === index ? "Hide Detail" : "Show Detail"}
-                </button>
-              </td>
-            </tr>
-
-            {openRow === index && (
-              <tr className="dark:bg-slate-700 dark:hover:bg-slate-600">
-                <td colSpan={6} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 dark:text-slate-100">
-                  <div className="p-4 bg-white dark:bg-slate-700 rounded-lg shadow flex flex-col gap-4">
-                    {item.detail != null && item.detail.map((detail, i) => (
-                      <div key={i} className="border-b pb-3 last:border-none dark:text-slate-100">
-                        <p><b>Order Date:</b> {detail.order_date}</p>
-                        <p className="mt-1.5"><b>Stage Name:</b> {detail.stage_name}</p>
-                        <p className="mt-1.5"><b>Total Stage:</b> {detail.total_stage}</p>
-                      </div>
-                    ))}
-                  </div>
+      <>
+        <Table
+          colls={
+            [
+              "#",
+              "Order Date",
+              "Outlet",
+              "Transaction",
+              "Amount",
+              "Detail"
+            ]
+          }
+          onPaginate={(page) => setCurrentPage(page)}
+          currentPage={0}
+          totalItem={0}
+        >
+          {dailyReport.length > 0 ? currentItems.map((item, index) => (
+            <React.Fragment key={index}>
+              <tr
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600 p-3 lg:h-fit h-20"
+              >
+                <td className="text-xs text-center lg:text-left sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
+                <td className="text-xs lg:text-left text-center sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
+                  {item.order_date}
+                </td>
+                <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 lg:text-left text-center">
+                  {item.outlet.name}
+                </td>
+                <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 text-center sm:text-sm lg:text-left dark:text-slate-100">
+                  {item.transaction}
+                </td>
+                <td className="lg:text-left text-center font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 relative">
+                  {toRupiah(item.total)}
+                </td>
+                <td className="text-center lg:text-left font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
+                  <button
+                    onClick={() => setOpenRow(openRow === index ? null : index)}
+                    type="button"
+                    className="dark:text-slate-100"
+                  >
+                    {openRow === index ? "Hide Detail" : "Show Detail"}
+                  </button>
                 </td>
               </tr>
-            )}
-          </React.Fragment>
-        ))}
-      </Table>
+
+              {openRow === index && (
+                <tr className="dark:bg-slate-700 dark:hover:bg-slate-600">
+                  <td colSpan={6} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 dark:text-slate-100">
+                    <div className="p-4 bg-white dark:bg-slate-700 rounded-lg shadow flex flex-col gap-4">
+                      {item.detail != null && item.detail.map((detail, i) => (
+                        <div key={i} className="border-b pb-3 last:border-none dark:text-slate-100">
+                          <p><b>Order Date:</b> {detail.order_date}</p>
+                          <p className="mt-1.5"><b>Stage Name:</b> {detail.stage_name}</p>
+                          <p className="mt-1.5"><b>Total Stage:</b> {detail.total_stage}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          )): isLoading ? <>
+          {Array.from({length: 5}).map((_, i) => (
+            <SkeletonTableRow key={i} howMuch={6} currentPath={pathname}/>
+          ))}
+          </> : currentItems.length <= 0 && (
+             <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  No data found
+                </td>
+              </tr>
+          )}
+        </Table>
+
+        <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shado overflow-x-auto">
+          <div className="hidden lg:block">
+            <span className="text-slate-800 dark:text-slate-100"> Showing <span className="font-bold">{start} - {end}</span> of : <span className="font-bold">{dailyReport.length}</span></span>
+          </div>
+          <div className="flex items-center">
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} type="button" className="cursor-pointer ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Prev</button>
+            <ul className="flex items-center">
+            {Array.from({length: howManyPages}).map((_, i) => (
+              <li onClick={() => setCurrentPage(i + 1)} key={i} className={`flex h-8 items-center justify-center px-3 leading-tight 
+                          dark:border-gray-700 dark:bg-gray-800 
+                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-500/25 dark:bg-slate-700" : "bg-transparent"}`}>
+                <button type="button">{i + 1}</button>
+              </li>
+            ))}
+            <button disabled={currentPage === howManyPages} onClick={() => setCurrentPage(p => p + 1)} type="button" className="cursor-pointer flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</button>
+          </ul>
+          </div>
+      </div>
+      </>
+      
 
     </main>
   );

@@ -11,18 +11,21 @@ type MerchantDataType = {
 
 type TableReportType = {
   merchantData: MerchantDataType;
+  currentPage: number;
+  itemsPerPage: number;
+  children: React.ReactNode;
 }
 
 export function TableReport(props: TableReportType) {
   return (<>
   <section>
-        <div className="w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead className="hidden sm:table-header-group">
                 <tr className="border-b border-slate-200 bg-slate-50 dark:bg-slate-800 dark:text-slate-100">
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
-                    No
+                    #
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">
                     Outlet
@@ -36,8 +39,9 @@ export function TableReport(props: TableReportType) {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
-                {props.merchantData != null && props.merchantData.map((item, index) => (
+              <tbody className="divide-y divide-slate-100 dark:bg-slate-700">
+                {props.merchantData.length > 0 ? props.merchantData.map((item, index) => (
+                  
                   <tr
                     key={index}
                     className="grid grid-cols-2 items-start gap-2 rounded-xl border border-white/10 
@@ -46,22 +50,30 @@ export function TableReport(props: TableReportType) {
                        sm:rounded-none sm:bg-transparent sm:p-0 sm:hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 cursor-pointer"
                   >
                     <td className="text-xs sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
-                      #{index + 1}
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden">No : </span>
+                      {(props.currentPage - 1) * props.itemsPerPage + index + 1}
                     </td>
 
                     <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Outlet Name : </span>
                       {item.outlet.name}
                     </td>
 
                     <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 sm:text-sm lg:text-center dark:text-slate-100">
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Transaction : </span>
                       {item.transaction}
                     </td>
 
-                    <td className="text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                    <td className="text-text lg:text-right font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100">
+                      <span className="font-semibold text-slate-600 dark:text-slate-400 lg:hidden text-sm">Amount : </span>
                       {toRupiah(item.total)}
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <>
+                    {props.children}
+                  </>
+                )}
               </tbody>
             </table>
           </div>
