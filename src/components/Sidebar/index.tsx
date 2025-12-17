@@ -139,6 +139,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           route: "#",
           role: [
             ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
             EDepartmentEmployee.HQ,
             EDepartmentEmployee.AUDITOR,
             EDepartmentEmployee.FINANCE,
