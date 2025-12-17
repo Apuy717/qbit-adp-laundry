@@ -139,21 +139,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           route: "#",
           role: [
             ERoles.SUPER_ADMIN,
-            ERoles.PROVIDER,
             EDepartmentEmployee.HQ,
             EDepartmentEmployee.AUDITOR,
             EDepartmentEmployee.FINANCE,
             EDepartmentEmployee.AM,
-            EDepartmentEmployee.SPV,
             EDepartmentEmployee.HO,
             EDepartmentEmployee.OWNER,
-            ERoles.OUTLET_ADMIN,
             ERoles.FINANCE
           ],
-          children: ERoles.FINANCE === role.name ?
-            [
-              { label: "Report" },
-            ] :
+          children:
             [
               { label: "Daily", route: "/report/omzet-daily" },
               { label: "Per Outlet", route: "/report/omzet-per-outlet" },
