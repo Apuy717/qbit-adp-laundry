@@ -252,7 +252,7 @@ export default function CreateProduct() {
               : outlets.slice(1).map((o: iDropdown) => o.value),
         },
       });
-      console.log(res.data);
+      
       const mapingMachine = res.data.map((i: any) => {
         return {
           label: i.name,
@@ -627,7 +627,7 @@ export default function CreateProduct() {
                   onChange={(v) => {
                     formik.setFieldValue(`variants[${index}].outlet_id`, v)
                     setChoosedOutletId(v)
-                    console.log(v);
+                    
 
                   }
                   }

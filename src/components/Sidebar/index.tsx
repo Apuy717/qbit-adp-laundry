@@ -134,9 +134,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ],
         },
         {
-          icon: <HiOutlineDocumentReport size={23}/>,
+          icon: <HiOutlineDocumentReport size={23} />,
           label: "Report",
-          route: "/report/omzet-per-outlet",
+          route: "#",
           role: [
             ERoles.SUPER_ADMIN,
             ERoles.PROVIDER,
@@ -152,12 +152,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           ],
           children: ERoles.FINANCE === role.name ?
             [
-              { label: "Report", route: "/report" },
+              { label: "Report" },
             ] :
             [
+              { label: "Daily", route: "/report/omzet-daily" },
               { label: "Per Outlet", route: "/report/omzet-per-outlet" },
               { label: "Per Product", route: "/report/omzet-per-product" },
-              { label: "Daily", route: "/report/omzet-daily" },
             ],
         },
         {
@@ -238,7 +238,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           role: [
             ERoles.SUPER_ADMIN,
             ERoles.PROVIDER,
-            ERoles.TECHNICIAN,
           ],
         },
         {
@@ -339,8 +338,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     if (role.name === ERoles.OUTLET_ADMIN) {
                       // const check = menuItem.role.filter(f => f === role.name && f === department)
                       const check = menuItem.role.filter(f => f.toLowerCase() === department?.toLowerCase())
-                      console.log(check.length);
-
                       return (
                         <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
                           <SidebarItem

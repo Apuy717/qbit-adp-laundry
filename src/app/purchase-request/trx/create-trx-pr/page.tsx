@@ -199,8 +199,6 @@ export default function CreateProduct() {
                 (v) => {
                   formik.setFieldValue("outlet_id", v)
                   setOutletId(v)
-                  console.log(v);
-
                 }
               }
               options={outlets}

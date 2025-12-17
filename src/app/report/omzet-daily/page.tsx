@@ -253,8 +253,8 @@ export default function OmzetDaily() {
                 type="button"
                 className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 shadow-sm border border-slate-200 dark:border-slate-700
                   ${isActive
-                    ? "bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 scale-95"
-                    : "bg-white text-slate-800 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                    ? "bg-slate-800 text-gray-100 dark:bg-slate-200 dark:text-slate-900 scale-95"
+                    : "bg-white text-gray-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-gray-400 dark:hover:bg-slate-700"
                   }`}
               >
                 {option}
@@ -296,7 +296,10 @@ export default function OmzetDaily() {
               "Outlet",
               "Transaction",
               "Amount",
-              "Detail"
+              "Washer",
+              "Dryer",
+              "Iron",
+              "Other"
             ]
           }
           onPaginate={(page) => setCurrentPage(page)}
@@ -306,24 +309,28 @@ export default function OmzetDaily() {
           {dailyReport.length > 0 ? currentItems.map((item, index) => (
             <React.Fragment key={index}>
               <tr
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600 p-3 lg:h-fit h-20"
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
               >
-                <td className="text-xs text-center lg:text-left sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
+                <td className="whitespace-nowrap px-6 py-4">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
-                <td className="text-xs lg:text-left text-center sm:px-6 sm:py-4 sm:text-sm sm:text-slate-500 dark:text-slate-100">
+                <td className="whitespace-nowrap px-6 py-4">
                   {item.order_date}
                 </td>
-                <td className="sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 lg:text-left text-center">
+                <td className="whitespace-nowrap px-6 py-4">
                   {item.outlet.name}
                 </td>
-                <td className="font-mono col-span-2 text-xs sm:col-span-1 sm:px-6 sm:py-4 text-center sm:text-sm lg:text-left dark:text-slate-100">
+                <td className="whitespace-nowrap px-6 py-4 text-center">
                   {item.transaction}
                 </td>
-                <td className="lg:text-left text-center font-medium text-green-400 sm:px-6 sm:py-4 sm:text-slate-800 dark:text-slate-100 relative">
+                <td className="whitespace-nowrap px-6 py-4">
                   {toRupiah(item.total)}
                 </td>
-                <td className="text-center lg:text-left font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "dryer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "iron")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "washer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "other")?.total_stage ?? 0}</td>
+                {/* <td className="text-center lg:text-left font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
                   <button
                     onClick={() => setOpenRow(openRow === index ? null : index)}
                     type="button"
@@ -331,11 +338,11 @@ export default function OmzetDaily() {
                   >
                     {openRow === index ? "Hide Detail" : "Show Detail"}
                   </button>
-                </td>
+                </td> */}
               </tr>
 
               {openRow === index && (
-                <tr className="dark:bg-slate-700 dark:hover:bg-slate-600">
+                <tr className="bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                   <td colSpan={6} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 dark:text-slate-100">
                     <div className="p-4 bg-white dark:bg-slate-700 rounded-lg shadow flex flex-col gap-4">
                       {item.detail != null && item.detail.map((detail, i) => (
@@ -350,40 +357,93 @@ export default function OmzetDaily() {
                 </tr>
               )}
             </React.Fragment>
-          )): isLoading ? <>
-          {Array.from({length: 5}).map((_, i) => (
-            <SkeletonTableRow key={i} howMuch={6} currentPath={pathname}/>
-          ))}
+          )) : isLoading ? <>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonTableRow key={i} howMuch={6} currentPath={pathname} />
+            ))}
           </> : currentItems.length <= 0 && (
-             <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  No data found
-                </td>
-              </tr>
+            <tr>
+              <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No data found
+              </td>
+            </tr>
           )}
         </Table>
 
-        <div className="flex items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shado overflow-x-auto">
-          <div className="hidden lg:block">
-            <span className="text-slate-800 dark:text-slate-100"> Showing <span className="font-bold">{start} - {end}</span> of : <span className="font-bold">{dailyReport.length}</span></span>
+        <div
+          className={
+            dailyReport.length === 0
+              ? `hidden`
+              : `flex flex-col md:flex-row items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto`
+          }
+        >
+          <div className=" lg:block">
+            <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
+              Showing{" "}
+              <span className="font-bold">
+                {start} - {end}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold">{dailyReport.length}</span>
+            </span>
           </div>
-          <div className="flex items-center">
-            <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} type="button" className="cursor-pointer ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Prev</button>
-            <ul className="flex items-center">
-            {Array.from({length: howManyPages}).map((_, i) => (
-              <li onClick={() => setCurrentPage(i + 1)} key={i} className={`flex h-8 items-center justify-center px-3 leading-tight 
-                          dark:border-gray-700 dark:bg-gray-800 
-                          dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white border border-gray-300 bg-white text-gray-500 ${currentPage === i + 1 ? "bg-slate-500/25 dark:bg-slate-700" : "bg-transparent"}`}>
-                <button type="button">{i + 1}</button>
-              </li>
-            ))}
-            <button disabled={currentPage === howManyPages} onClick={() => setCurrentPage(p => p + 1)} type="button" className="cursor-pointer flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</button>
-          </ul>
-          </div>
-      </div>
-      </>
-      
 
+          <div className="flex items-center">
+            {/* Tombol Prev */}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              type="button"
+              className={`ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+             ${currentPage === 1
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Prev
+            </button>
+
+            {/* Daftar Halaman */}
+            <ul className="flex items-center">
+              {Array.from({ length: howManyPages }).map((_, i) => {
+                const page = i + 1;
+                const isActive = currentPage === page;
+                return (
+                  <li key={page}>
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      type="button"
+                      className={`flex h-8 items-center justify-center px-3 leading-tight 
+                        dark:border-gray-700 dark:bg-gray-800 
+                        dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white
+                ${isActive
+                          ? "border border-gray-400 bg-gray-400 dark:bg-gray-400 dark:border-gray-700 text-white dark:text-white"
+                          : "border border-gray-300 bg-white text-gray-500"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Tombol Next */}
+            <button
+              disabled={currentPage === howManyPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              type="button"
+              className={`ms-0 flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+              ${currentPage === howManyPages
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </>
     </main>
   );
 }

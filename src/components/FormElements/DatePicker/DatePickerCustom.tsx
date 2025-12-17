@@ -32,14 +32,6 @@ const DatePickerCustom = (props: iDatePickerInput) => {
     return result;
   }
 
-  // useEffect(() => {
-  //   const resultMaxDate = handleSetMaxDate();
-  //   setMaxDate(resultMaxDate);
-
-  //   console.log("Works!");
-  //   console.log(resultMaxDate);
-  // }, [props.startDate]);
-
   useEffect(() => {
     if (refInput.current === null) return
     // Init flatpickr

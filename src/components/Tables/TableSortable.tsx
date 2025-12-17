@@ -75,7 +75,8 @@ const TableSortable: React.FC<iTableSortable> = (props) => {
                         <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
                             Showing{" "}
                             <span className="font-semibold text-gray-900 dark:text-white">
-                                1-{props.showing ?? 10}
+                                {Math.min((props.currentPage - 1) * ITEMS_PER_PAGE_GROUP + 1, props.totalItem)}-
+                                {Math.min(props.currentPage * ITEMS_PER_PAGE_GROUP, props.totalItem)}
                             </span>{" "}
                             of{" "}
                             <span className="font-semibold text-gray-900 dark:text-white">
