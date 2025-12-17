@@ -15,7 +15,7 @@ import { Outlet } from "@/types/outlet";
 import { ERoles } from "@/types/Roles";
 import CountryList from "country-list-with-dial-code-and-flag";
 import { useFormik } from "formik";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CiCircleAlert } from "react-icons/ci";
 import { FaArrowLeft } from "react-icons/fa";
@@ -52,11 +52,9 @@ interface MyResponse {
   err: string | string[];
 }
 
-export default function UpdateOutlet({
-  params,
-}: {
-  params: { outlet_id: string };
-}) {
+export default function UpdateOutlet() {
+  const paramsOutlet = useParams();
+
   const [outlet, setOutlet] = useState<Outlet | null>(null);
   const [areas, setAreas] = useState<any[]>([]);
   const [areaModal, setAreaModal] = useState<boolean>(false);
@@ -118,7 +116,7 @@ export default function UpdateOutlet({
     // Ambil data provinsi lalu lanjut ke detail outlet
     GotProvince(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [paramsOutlet.outlet_id, credential.auth.access_token, router]);
 
   /** Ambil daftar provinsi */
   async function GotProvince(isUpdate: boolean) {
@@ -149,7 +147,7 @@ export default function UpdateOutlet({
     try {
       const res = await GetWithToken<iResponseOutlet>({
         router,
-        url: `/api/outlet/${params.outlet_id}`,
+        url: `/api/outlet/${paramsOutlet.outlet_id}`,
         token: `${credential.auth.access_token}`,
       });
 
@@ -157,8 +155,7 @@ export default function UpdateOutlet({
         toast.warning("Outlet not found, try again!");
         return;
       }
-      console.log(res.data);
-      
+
       const outlet = res.data;
 
       // Set value formik hanya sekali
@@ -166,7 +163,7 @@ export default function UpdateOutlet({
         id: outlet.id,
         name: outlet.name,
         area_id: outlet.outlet_area_grouping?.outlet_area?.id || "",
-        country:outlet.country,
+        country: outlet.country,
         province: outlet.province,
         city: outlet.city,
         district: outlet.district,
@@ -372,7 +369,6 @@ export default function UpdateOutlet({
       // is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -382,7 +378,6 @@ export default function UpdateOutlet({
         data: values,
         token: `${credential.auth.access_token}`,
       });
-      console.log(res.data);
 
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {

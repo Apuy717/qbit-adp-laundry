@@ -65,9 +65,6 @@ export default function LogMachine() {
           ended_at: endDate,
         },
       });
-      console.log(res.data);
-
-
       if (res?.statusCode === 200) {
         setItems(res.data);
       }

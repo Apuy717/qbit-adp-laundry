@@ -1,43 +1,29 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import {
-  iDropdown,
-  Input,
-  InputDropdown,
-  InputTextArea,
-  InputTextAreaWithKeydown,
-} from "@/components/Inputs/InputComponent";
-import { GetWithToken, PostWithToken } from "@/libs/FetchData";
-import { RootState } from "@/stores/store";
-import { useFormik } from "formik";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
-import * as Yup from "yup";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import Link from "next/link";
-import { ERoles } from "@/stores/authReducer";
 import Table from "@/components/Tables/Table";
+import { PostWithToken } from "@/libs/FetchData";
+import { ERoles } from "@/stores/authReducer";
+import { RootState } from "@/stores/store";
 import { TNC } from "@/types/tnc";
-import { FiEdit, FiEye } from "react-icons/fi";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
+import { FiEdit, FiEye } from "react-icons/fi";
+import { useSelector } from "react-redux";
 
 interface MyResponse {
   statusCode: number;
   msg: string;
   data: any;
-  // total: number;
   err: string | string[];
 }
 
 export default function TermsAndConditions() {
   const auth = useSelector((s: RootState) => s.auth);
   const router = useRouter();
-  const [outlets, setOutlets] = useState<iDropdown[]>([]);
   const [terms, setTerms] = useState<TNC[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalTerms, setTotalTerms] = useState(0);
   const [isViewDetail, setIsViewDetail] = useState<boolean>(false);
   const [idx, setIdx] = useState<number>(0);
 

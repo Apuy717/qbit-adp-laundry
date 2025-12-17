@@ -39,8 +39,6 @@ interface iSwitchMachine {
 export default function PageMachine() {
   const { client, status } = useMqtt();
 
-  console.log(status);
-
   function handlePower(deviceId: string, power: "ON" | "OFF") {
     if (client) {
       client.publish(`cmnd/${deviceId}/POWER`, power, { qos: 1 }, (err) => {
@@ -88,16 +86,8 @@ export default function PageMachine() {
 
     refSocket.current.emit("ping", "ping");
 
-    refSocket.current.on("ping", (msg) => {
-      console.log("==== PING ====");
-      console.log(msg);
-      console.log("==== PING ====");
-    });
-
     refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
-      console.log("==== Msg Server Socket ====");
-      console.log(msg);
-      console.log("==== Msg Server Socket ====");
+      
       setSwitchMachine((old) => {
         const fAlreadyData = old.findIndex(
           (f) => f.machine_id === msg.machine_id,
@@ -176,8 +166,6 @@ export default function PageMachine() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setItems(res.data);
-        console.log(res.data);
-
       }
 
       setTimeout(() => {
@@ -388,8 +376,6 @@ export default function PageMachine() {
     const statusB = status[b.machine_id]?.lwt === sort ? 1 : 0;
     return statusB - statusA; // Online (1) akan di atas Offline (0)
   });
-  console.log(sortedItems);
-
 
   return (
     <div className="min-h-screen">

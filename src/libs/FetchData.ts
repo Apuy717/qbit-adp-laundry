@@ -31,7 +31,6 @@ export interface iResponse<T> {
 const baseUrl = process.env.NEXT_PUBLIC_API_DOMAIN
 
 export async function GET<R>({ url }: GetOptions): Promise<R> {
-  console.log(baseUrl);
   try {
     const res = await fetch(url, {
       method: 'GET',
