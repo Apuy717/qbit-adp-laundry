@@ -155,7 +155,6 @@ export default function UpdateOutlet() {
         toast.warning("Outlet not found, try again!");
         return;
       }
-      console.log(res.data);
 
       const outlet = res.data;
 
@@ -370,7 +369,6 @@ export default function UpdateOutlet() {
       // is_deleted: Yup.boolean().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
 
       if (loading) return;
       setLoading(true);
@@ -380,7 +378,6 @@ export default function UpdateOutlet() {
         data: values,
         token: `${credential.auth.access_token}`,
       });
-      console.log(res.data);
 
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {

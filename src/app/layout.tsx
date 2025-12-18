@@ -17,6 +17,7 @@ import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { FilterPageProvider } from "@/contexts/selectOutletContex";
 import { MqttProvider } from "@/contexts/MqttContext";
+import { ReportOutletLayout } from "@/contexts/merchantDataContext";
 
 export default function RootLayout({
   children,
@@ -45,7 +46,8 @@ export default function RootLayout({
                 <LayoutProvider>
                   <AuthProvider>
                     <MqttProvider>
-                      {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
+                      <ReportOutletLayout>
+                        {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
                         <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
                       -top-20 z-99999 bg-orange-500 flex items-center justify-center text-2xl text-white 
                       uppercase">
@@ -54,6 +56,7 @@ export default function RootLayout({
                       )}
 
                       {loading ? <Loader /> : children}
+                      </ReportOutletLayout>
                     </MqttProvider>
                   </AuthProvider>
                 </LayoutProvider>

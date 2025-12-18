@@ -160,7 +160,7 @@ export default function CreateOutlet() {
       total_dryer: Yup.number().required("Must be filled!"),
     }),
     onSubmit: async (values) => {
-      console.log(values);
+      
       
       if (loading) return;
       setLoading(true);
@@ -227,7 +227,7 @@ export default function CreateOutlet() {
   useEffect(() => {
     async function GotProvince() {
       const res = await GET<MyResponse>({ url: "/api/address/province" });
-      console.log(res.data);
+      
 
       if (
         res.statusCode === 200 &&
@@ -272,7 +272,7 @@ export default function CreateOutlet() {
       url: `/api/address/city?province_id=${province_id}`,
     });
 
-    console.log(res.data);
+    
 
     if (
       res?.statusCode === 200 &&
@@ -305,7 +305,7 @@ export default function CreateOutlet() {
     const res = await GET<MyResponse>({
       url: `/api/address/sub-district?city_id=${city_id}`,
     });
-    console.log(res.data);
+    
     
 
     if (

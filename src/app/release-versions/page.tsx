@@ -62,7 +62,7 @@ export default function ReleaseVersions() {
         router: router,
         token: `${auth.access_token}`,
       })
-      // console.log(res.data);
+      // 
 
 
       if (res?.statusCode === 200) {
@@ -133,7 +133,7 @@ export default function ReleaseVersions() {
           setCreateModal(false)
         }
       } catch (error: any) {
-        console.log(error);
+        
         toast.error(error)
       }
     },
@@ -192,7 +192,7 @@ export default function ReleaseVersions() {
           setCreateModal(false)
         }
       } catch (error: any) {
-        console.log(error);
+        
         toast.error(error)
       }
     },
@@ -424,7 +424,7 @@ export default function ReleaseVersions() {
                 onChange={(e) => {
                   const file = e.currentTarget.files?.[0] || null;
                   formikCreate.setFieldValue("apk", file);
-                  console.log(formikCreate.values.apk);
+                  
 
                 }}
               />

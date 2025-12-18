@@ -253,8 +253,6 @@ export default function EmptyWash() {
                   <button
                     className="bg-green-500 hover:bg-green-700 p-2 rounded uppercase"
                     onClick={() => {
-                      // handlePower(i.machine.machine_id, "ON")
-                      console.log(status);
                       if (i.is_mqtt) {
                         if (isPowerOff(i.machine.machine_id) && isDeviceOnline(i.machine.machine_id)) {
                           setModalApproved(true);

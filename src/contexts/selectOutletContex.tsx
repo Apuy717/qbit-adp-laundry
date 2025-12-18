@@ -183,7 +183,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               });
             }
           }
-          console.log(maping);
+          
 
           setDefaultSelectedOutlet(defaultOutlet);
           setData(maping);
@@ -297,7 +297,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                         fS.outlet_id === f.outlet_id,
                                     );
                                     if (!checkAlready) {
-                                      console.log(i.area_id);
+                                      
 
                                       checkAll.push({
                                         area_id: i.area_id,
@@ -332,7 +332,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                         fS.outlet_id === f.outlet_id,
                                     );
                                     if (!checkAlready) {
-                                      console.log(i.cv_id);
+                                      
 
                                       checkAll.push({
                                         cv_id: i.cv_id,
@@ -359,7 +359,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                   }
                                 });
                               }
-                              console.log(data);
+                              
                             }}
                           />
                         </td>

@@ -16,6 +16,7 @@ import {
   FaUsers
 } from "react-icons/fa";
 import { GrDocumentText } from "react-icons/gr";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosApps, IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
@@ -133,6 +134,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ],
         },
         {
+          icon: <HiOutlineDocumentReport size={23} />,
+          label: "Report",
+          route: "#",
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.AUDITOR,
+            EDepartmentEmployee.FINANCE,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.HO,
+            EDepartmentEmployee.OWNER,
+            ERoles.FINANCE
+          ],
+          children:
+            [
+              { label: "Daily", route: "/report/omzet-daily" },
+              { label: "Per Outlet", route: "/report/omzet-per-outlet" },
+              { label: "Per Product", route: "/report/omzet-per-product" },
+            ],
+        },
+        {
           icon: <TbIroningSteam size={24} />,
           label: "Iron",
           route: "#",
@@ -160,6 +183,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ERoles.OUTLET_ADMIN,
           ],
         },
+
       ],
     },
     {
@@ -200,6 +224,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             { label: "Empty Wash", route: "/empty-wash" },
             { label: "Maintenance", route: "/machine-service" },
             { label: "Log Machine", route: "/log-machine" }
+          ],
+        },
+        {
+          icon: <MdOutlineReportGmailerrorred size={24} />,
+          label: "Log Tasmota",
+          route: "/log-tasmota",
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
           ],
         },
         {
@@ -300,8 +333,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     if (role.name === ERoles.OUTLET_ADMIN) {
                       // const check = menuItem.role.filter(f => f === role.name && f === department)
                       const check = menuItem.role.filter(f => f.toLowerCase() === department?.toLowerCase())
-                      console.log(check.length);
-
                       return (
                         <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
                           <SidebarItem

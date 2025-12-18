@@ -136,11 +136,11 @@ export default function Product() {
     if (checkedRows.includes(id)) {
       setCheckedRows(checkedRows.filter((rowId) => rowId !== id))
       formikExcludeSku.setFieldValue("outlet_ids", checkedRows.filter((rowId) => rowId !== id));
-      console.log(checkedRows);
+      
     } else {
       setCheckedRows([...checkedRows, id])
       formikExcludeSku.setFieldValue("outlet_ids", [...checkedRows, id]);
-      console.log(checkedRows);
+      
     }
   }
   const checkboxRef = useRef<HTMLInputElement>(null);
@@ -183,7 +183,7 @@ export default function Product() {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
         setOutlets(mapingOutlet);
       }
-      console.log(mapingOutlet);
+      
 
     };
     GotOutlets();
@@ -229,7 +229,7 @@ export default function Product() {
           item.skus.map((skuItem) => skuItem),
         );
         // setTotalSkus(mapSku);
-        // console.log(mapSku);
+        // 
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -258,7 +258,7 @@ export default function Product() {
       if (res?.statusCode === 200) {
         setTotalSkus(res.data);
         setPaginationSkus(res.total);
-        console.log(totalSkus);
+        
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -342,11 +342,11 @@ export default function Product() {
 
       if (res.statusCode === 200) {
         setOutletExclude(res.data)
-        console.log(outletExclude);
+        
         const unique = excludes.filter((item: any) =>
           outletExclude.some((d) => d.id === item.outlet_id)
         );
-        console.log(unique.map((i: any) => i.outlet_id));
+        
         setCheckedRows(unique.map((i: any) => i.outlet_id))
       }
     };
@@ -363,7 +363,7 @@ export default function Product() {
           url: urlwithQuery,
           token: `${auth.auth.access_token}`,
         });
-        console.log(res.data);
+        
 
         if (res?.statusCode === 200) {
           setExcludes(res.data);
@@ -607,7 +607,7 @@ export default function Product() {
       sku_id: Yup.string(),
     }),
     onSubmit: async (values) => {
-      console.log(values);
+      
       setLoading(true);
 
       const res = await PostWithToken<any>({
@@ -621,7 +621,7 @@ export default function Product() {
       }
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
-        console.log(res.data);
+        
         setSearchExclude("")
       }
       setLoading(false);
@@ -695,7 +695,7 @@ export default function Product() {
 
   function updateMachineIds(formik: any, newMachines: MachineId[]) {
     formik.setFieldValue("machine_ids", newMachines);
-    console.log("Updated machine_ids:", newMachines);
+    
   }
 
   useEffect(() => {
@@ -712,7 +712,7 @@ export default function Product() {
               : outlets.slice(1).map((o: iDropdown) => o.value),
         },
       });
-      console.log(res.data);
+      
       const mapingMachine = res.data.map((i: any) => {
         return {
           label: i.name,

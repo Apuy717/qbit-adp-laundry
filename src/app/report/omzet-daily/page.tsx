@@ -1,0 +1,449 @@
+"use client";
+
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
+import Table from "@/components/Tables/Table";
+import { MerchantDataContext } from "@/contexts/merchantDataContext";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { iResponse, PostWithToken } from "@/libs/FetchData";
+import { RootState } from "@/stores/store";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { IoMdDownload } from "react-icons/io";
+import { useSelector } from "react-redux";
+import { TablePrinter } from "../components/TableExcel";
+import { toRupiah } from "../utils/toRupiah";
+import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
+// import { transactions } from "../data-dummy/transactions";
+
+type DetailDailyType = {
+  outlet_id: string;
+  order_date: string;
+  stage_name: string;
+  total_stage: string;
+}
+
+type DailyReportType = {
+  order_date: string;
+  transaction: string;
+  total: string;
+  outlet: {
+    id: string;
+    name: string;
+  }
+  detail: DetailDailyType[];
+};
+
+export default function OmzetDaily() {
+  const { merchantData, setMerchantData } = useContext(MerchantDataContext);
+  const [dailyReport, setDailyReport] = useState<DailyReportType[]>([]);
+
+  const [openRow, setOpenRow] = useState<number | null>(null);
+  let startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1,
+  );
+  let endOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0,
+  );
+  endOfMonth.setHours(23, 59, 59, 0);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [startDate, setStartDate] = useState<Date>(startOfMonth);
+  const [endDate, setEndDate] = useState<Date>(endOfMonth);
+
+  const [fixValueSearch, setFixValueSearch] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [filterIsDeleted, setFilterIsDeleted] = useState<boolean | undefined>();
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
+  const [totalItem, setTotalItem] = useState(0);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
+
+  const itemsPerPage = 10;
+  const setStartItems = (currentPage - 1) * itemsPerPage;
+  const setEndItems = setStartItems + itemsPerPage;
+
+  const currentItems = dailyReport.slice(setStartItems, setEndItems);
+  const howManyPages = Math.ceil(dailyReport.length / itemsPerPage);
+
+  const start = (currentPage - 1) * itemsPerPage + 1;
+  const end = Math.min(currentPage * itemsPerPage, dailyReport.length);
+
+  const pathname = usePathname();
+
+  const rangeDateOptions = ["Today", "3 Days Ago", "7 Days Ago", "14 Days Ago", "Prev Month", "Current Month"];
+
+  const formatDailyReport = (data: any) => {
+    return {
+      order_date: data.order_date,
+      transaction: data.transaction,
+      total: data.total,
+      outlet: {
+        id: data["outlet.id"],
+        name: data["outlet.name"],
+      },
+      detail: data.detail
+    }
+  }
+
+  const tableRef = useRef<HTMLTableElement | null>(null);
+
+  const { auth, role, department } = useSelector((s: RootState) => s.auth);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
+
+  const router = useRouter();
+
+  useEffect(() => {
+    async function GotDaily() {
+      let urlwithQuery = `/api/v2/report/omzet/daily`;
+      if (fixValueSearch.length >= 1) {
+        urlwithQuery = `/api/v2/report/omzet/daily?page=${currentPage}&limit=${100}&search=${fixValueSearch}`;
+      }
+      let sttsFilter = {};
+      if (filterIsDeleted) sttsFilter = { is_deleted: filterIsDeleted };
+
+      const pad = (n: any) => n.toString().padStart(2, "0");
+      const stdDate = new Date(startDate);
+      const eDate = new Date(endDate);
+      const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+      const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
+
+      const res = await PostWithToken<iResponse<DailyReportType[]>>({
+        router: router,
+        url: urlwithQuery,
+        token: `${auth.access_token}`,
+        data: {
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o: any) => o.outlet_id)
+              : defaultSelectedOutlet.map((o: any) => o.outlet_id),
+          started_at: _startedAt,
+          ended_at: _endedAt,
+        },
+      });
+
+      if (res?.statusCode === 200) {
+        if (res.total) setTotalItem(res.total);
+        const changeFormat = res.data.map((daily) => formatDailyReport(daily));
+        setDailyReport(changeFormat);
+        setIsLoading(false);
+      }
+
+      setTimeout(() => {
+        setLoadingSearch(false);
+      }, 100);
+    }
+    if (!modal) GotDaily();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    currentPage,
+    fixValueSearch,
+    refresh,
+    auth.access_token,
+    filterIsDeleted,
+    selectedOutlets,
+    defaultSelectedOutlet,
+    modal,
+    startDate,
+    endDate,
+  ]);
+
+  const [loadingDownload, setLodaingDownload] = useState<boolean>(false);
+
+  async function DownloadXLXS() {
+    setLodaingDownload(true);
+    if (loadingDownload) return;
+    let paymentStts = {};
+
+    const pad = (n: any) => n.toString().padStart(2, "0");
+    const stdDate = new Date(startDate);
+    const eDate = new Date(endDate);
+    const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
+    const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
+
+    const res = await PostWithToken<iResponse<{ filename: string }>>({
+      router: router,
+      url: "/api/v2/report/omzet/daily/download",
+      token: `${auth.access_token}`,
+      data: {
+        outlet_ids:
+          selectedOutlets.length >= 1
+            ? selectedOutlets.map((o) => o.outlet_id)
+            : defaultSelectedOutlet.map((o) => o.outlet_id),
+        started_at: _startedAt,
+        ended_at: _endedAt,
+      },
+    });
+    if (res.statusCode === 200) {
+      const url = `${window.location.origin}/download/${res.data.filename}`;
+      window.open(url, "_blank");
+    }
+
+    setTimeout(() => setLodaingDownload(false), 1000);
+  }
+
+  // === Range date helper ===
+  const getRangeByOption = (option: string): [Date, Date] => {
+    const now = new Date();
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
+    const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+    switch (option) {
+      case "Today":
+        return [startOfDay(now), endOfDay(now)];
+      case "3 Days Ago":
+        return [startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3)), endOfDay(now)];
+      case "7 Days Ago":
+        return [startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)), endOfDay(now)];
+      case "14 Days Ago":
+        return [startOfDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14)), endOfDay(now)];
+      case "Prev Month":
+        return [
+          new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0),
+          new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59),
+        ];
+      case "Current Month":
+      default:
+        return [
+          new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0),
+          new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59),
+        ];
+    }
+  };
+
+  // === Tombol range handler ===
+  const handleFilterDataByDate = (option: string) => {
+    const [s, e] = getRangeByOption(option);
+    setStartDate(s);
+    setEndDate(e);
+    setCurrentOptionRange(option);
+  };
+
+  // === Cek jika range manual, hilangkan tombol aktif ===
+  useEffect(() => {
+    const sameDate = (a: Date, b: Date) => Math.abs(a.getTime() - b.getTime()) < 1000;
+    const matched = rangeDateOptions.find((opt) => {
+      const [s, e] = getRangeByOption(opt);
+      return sameDate(s, startDate) && sameDate(e, endDate);
+    });
+    setCurrentOptionRange(matched || "");
+  }, [startDate, endDate]);
+
+  return (
+    <main className="relative min-h-screen">
+      <TablePrinter ref={tableRef} merchantData={merchantData} />
+      <Breadcrumb pageName={"Report Outlet - Omzet Daily"} />
+
+      <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {rangeDateOptions.map((option) => {
+            const isActive = currentOptionRange === option;
+            return (
+              <button
+                key={option}
+                onClick={() => handleFilterDataByDate(option)}
+                type="button"
+                className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 shadow-sm border border-slate-200 dark:border-slate-700
+                  ${isActive
+                    ? "bg-slate-800 text-gray-100 dark:bg-slate-200 dark:text-slate-900 scale-95"
+                    : "bg-white text-gray-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-gray-400 dark:hover:bg-slate-700"
+                  }`}
+              >
+                {option}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
+        <div className="mx-auto flex flex-col md:flex-row w-full items-center gap-4 ">
+          <DatePickerOne
+            label="Start"
+            defaultDate={startDate}
+            onChange={(val) => setStartDate(new Date(val))}
+          />
+          <DatePickerOne
+            label="End"
+            defaultDate={endDate}
+            onChange={(val) => setEndDate(new Date(val))}
+          />
+          <button
+            onClick={DownloadXLXS}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+              font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
+          </button>
+        </div>
+      </div>
+
+      <>
+        <Table
+          colls={
+            [
+              "#",
+              "Order Date",
+              "Outlet",
+              "Transaction",
+              "Amount",
+              "Washer",
+              "Dryer",
+              "Iron",
+              "Other"
+            ]
+          }
+          onPaginate={(page) => setCurrentPage(page)}
+          currentPage={0}
+          totalItem={0}
+        >
+          {dailyReport.length > 0 ? currentItems.map((item, index) => (
+            <React.Fragment key={index}>
+              <tr
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+              >
+                <td className="whitespace-nowrap px-6 py-4">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {item.order_date}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {item.outlet.name}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">
+                  {item.transaction}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  {toRupiah(item.total)}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "dryer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "iron")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "washer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "other")?.total_stage ?? 0}</td>
+                {/* <td className="text-center lg:text-left font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
+                  <button
+                    onClick={() => setOpenRow(openRow === index ? null : index)}
+                    type="button"
+                    className="dark:text-slate-100"
+                  >
+                    {openRow === index ? "Hide Detail" : "Show Detail"}
+                  </button>
+                </td> */}
+              </tr>
+
+              {openRow === index && (
+                <tr className="bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+                  <td colSpan={6} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 dark:text-slate-100">
+                    <div className="p-4 bg-white dark:bg-slate-700 rounded-lg shadow flex flex-col gap-4">
+                      {item.detail != null && item.detail.map((detail, i) => (
+                        <div key={i} className="border-b pb-3 last:border-none dark:text-slate-100">
+                          <p><b>Order Date:</b> {detail.order_date}</p>
+                          <p className="mt-1.5"><b>Stage Name:</b> {detail.stage_name}</p>
+                          <p className="mt-1.5"><b>Total Stage:</b> {detail.total_stage}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          )) : isLoading ? <>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonTableRow key={i} howMuch={6} currentPath={pathname} />
+            ))}
+          </> : currentItems.length <= 0 && (
+            <tr>
+              <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No data found
+              </td>
+            </tr>
+          )}
+        </Table>
+
+        <div
+          className={
+            dailyReport.length === 0
+              ? `hidden`
+              : `flex flex-col md:flex-row items-center lg:justify-between justify-center w-full mt-4 px-8 py-4 rounded-lg bg-white dark:bg-slate-800 shadow overflow-x-auto`
+          }
+        >
+          <div className=" lg:block">
+            <span className="mb-4 block w-full text-sm font-normal text-gray-500 dark:text-gray-400 md:mb-0 md:inline md:w-auto">
+              Showing{" "}
+              <span className="font-bold">
+                {start} - {end}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold">{dailyReport.length}</span>
+            </span>
+          </div>
+
+          <div className="flex items-center">
+            {/* Tombol Prev */}
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              type="button"
+              className={`ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+             ${currentPage === 1
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Prev
+            </button>
+
+            {/* Daftar Halaman */}
+            <ul className="flex items-center">
+              {Array.from({ length: howManyPages }).map((_, i) => {
+                const page = i + 1;
+                const isActive = currentPage === page;
+                return (
+                  <li key={page}>
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      type="button"
+                      className={`flex h-8 items-center justify-center px-3 leading-tight 
+                        dark:border-gray-700 dark:bg-gray-800 
+                        dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white
+                ${isActive
+                          ? "border border-gray-400 bg-gray-400 dark:bg-gray-400 dark:border-gray-700 text-white dark:text-white"
+                          : "border border-gray-300 bg-white text-gray-500"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Tombol Next */}
+            <button
+              disabled={currentPage === howManyPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              type="button"
+              className={`ms-0 flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+              ${currentPage === howManyPages
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </>
+    </main>
+  );
+}
