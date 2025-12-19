@@ -410,7 +410,7 @@ export default function OmzetDaily() {
             </React.Fragment>
           )) : isLoading ? <>
             {Array.from({ length: 5 }).map((_, i) => (
-              <SkeletonTableRow key={i} howMuch={6} currentPath={pathname} />
+              <SkeletonTableRow key={i} howMuch={9} currentPath={pathname} />
             ))}
           </> : currentItems.length <= 0 && (
             <tr>
