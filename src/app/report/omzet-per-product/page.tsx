@@ -46,6 +46,8 @@ export default function OmzetPerProduct() {
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [totalItem, setTotalItem] = useState(0);
 
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+
   const [currentOptionRange, setCurrentOptionRange] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -102,6 +104,10 @@ export default function OmzetPerProduct() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setPerProductData(res.data);
+
+        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.amount) , 0);
+        setTotalAmount(countAmount);
+
         setIsLoading(false);
       }
 
@@ -123,6 +129,47 @@ export default function OmzetPerProduct() {
     startDate,
     endDate,
   ]);
+
+  function getPaginationRange(currentPage: number, totalPages: number) {
+    const siblingCount = 2;     // kiri & kanan
+    const totalNumbers = siblingCount * 2 + 5;
+
+    if (totalPages <= totalNumbers) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const leftSibling = Math.max(currentPage - siblingCount, 1);
+    const rightSibling = Math.min(currentPage + siblingCount, totalPages);
+
+    const showLeftDots = leftSibling > 2;
+    const showRightDots = rightSibling < totalPages - 1;
+
+    const pages = [];
+
+    // Always show first page
+    pages.push(1);
+
+    if (showLeftDots) {
+      pages.push("...");
+    }
+
+    for (let i = leftSibling; i <= rightSibling; i++) {
+      if (i !== 1 && i !== totalPages) {
+        pages.push(i);
+      }
+    }
+
+    if (showRightDots) {
+      pages.push("...");
+    }
+
+    // Always show last page
+    pages.push(totalPages);
+
+    return pages;
+}
+
+  const pages = getPaginationRange(currentPage, howManyPages);
 
   const [loadingDownload, setLodaingDownload] = useState<boolean>(false);
 
@@ -208,6 +255,10 @@ export default function OmzetPerProduct() {
     <main className="relative min-h-screen">
       <Breadcrumb pageName={"Report Outlet - Omzet Per Product"} />
 
+      {/* <div className="w-full px-5 py-5 rounded-tl-lg rounded-tr-lg bg-slate-800">
+        <span className="text-slate-100 font-medium text-md">Total Amount : {toRupiah(totalAmount.toString())}</span>
+      </div> */}
+
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {rangeDateOptions.map((option) => {
@@ -252,10 +303,14 @@ export default function OmzetPerProduct() {
           </button>
         </div>
       </div>
+
+      <div className="w-full px-6 py-5 rounded-tl-lg rounded-tr-lg dark:bg-slate-800 bg-slate-200/75">
+        <span className="dark:text-slate-100 text-slate-800 font-semibold text-md">Total Amount {currentOptionRange && "in "} {`${currentOptionRange ? currentOptionRange : ""}`} : <span className="font-normal">{toRupiah(totalAmount.toString())}</span></span>
+      </div>
       {/* <TableReport merchantData={merchantData}/> */}
 
       <section>
-        <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
+        <div className="w-full overflow-hidden rounded-bl-xl rounded-br-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
               <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
@@ -308,7 +363,7 @@ export default function OmzetPerProduct() {
                   <SkeletonTableRow key={i} howMuch={5} />
                 ))) : currentItems.length <= 0 && (<>
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <td colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400 dark:bg-slate-800">
                       No data found for
                     </td>
                   </tr>
@@ -336,13 +391,15 @@ export default function OmzetPerProduct() {
             </span>
           </div>
 
-          <div className="flex items-center">
+          <div className="lg:flex items-center">
             {/* Tombol Prev */}
             <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage <= 1}
+              onClick={() =>
+                setCurrentPage(prev => Math.max(prev - 1, 1))
+              }
               type="button"
-              className={`ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+              className={`ms-0 hidden lg:flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
              ${currentPage === 1
                   ? "bg-gray-100 text-gray-400"
                   : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -351,29 +408,44 @@ export default function OmzetPerProduct() {
               Prev
             </button>
 
-            {/* Daftar Halaman */}
-            <ul className="flex items-center">
-              {Array.from({ length: howManyPages }).map((_, i) => {
-                const page = i + 1;
+            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage}/>
+
+            <ul className="lg:flex items-center hidden">
+              {pages.map((p, i) => {
+                const page = p;
                 const isActive = currentPage === page;
+
+                if (p === "...") {
+                  return (
+                    <li key={`dots-${i}`}>
+                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 px-3 leading-tight
+                        border border-gray-300 dark:border-gray-700">
+                        ...
+                      </span>
+                    </li>
+                  );
+                }
+
                 return (
-                  <li key={page}>
+                  <li key={`page-${page}`}>
                     <button
-                      onClick={() => setCurrentPage(page)}
                       type="button"
-                      className={`flex h-8 items-center justify-center px-3 leading-tight 
-                        dark:border-gray-700 dark:bg-gray-800 
-                        dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white
-                ${isActive
-                          ? "border border-gray-300 bg-gray-400 dark:bg-gray-400 dark:border-gray-700 text-white dark:text-white"
-                          : "border border-gray-300 bg-white text-gray-500"
-                        }`}
+                      onClick={() => setCurrentPage(Number(page))}
+                      className={`flex h-8 items-center justify-center px-3 leading-tight
+                        border
+                        ${isActive
+                          ? "bg-gray-400 text-white border-gray-300 dark:bg-gray-400 dark:text-white dark:border-gray-700"
+                          : "bg-white text-gray-500 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+                        }
+                        hover:bg-gray-200 dark:hover:bg-gray-700 dark:hover:text-white
+                      `}
                     >
                       {page}
                     </button>
                   </li>
-                );
-              })}
+              );
+            })}
+
             </ul>
 
             {/* Tombol Next */}
@@ -381,7 +453,7 @@ export default function OmzetPerProduct() {
               disabled={currentPage === howManyPages}
               onClick={() => setCurrentPage((p) => p + 1)}
               type="button"
-              className={`ms-0 flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+              className={`ms-0 hidden lg:flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
               ${currentPage === howManyPages
                   ? "bg-gray-100 text-gray-400"
                   : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -395,4 +467,54 @@ export default function OmzetPerProduct() {
     </main>
   );
 }
+
+type MobilePaginationType = {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: React.Dispatch<React.SetStateAction<number>>;
+}
+
+function MobilePagination(props: MobilePaginationType) {
+  return (
+    <div className="flex items-center justify-between gap-5 sm:hidden">
+      {/* PREV */}
+      <button
+        type="button"
+        onClick={() => props.onPageChange(Math.max(props.currentPage - 1, 1))}
+        disabled={props.currentPage === 1}
+        className={`
+          px-4 py-1.5 text-sm rounded-md border
+          ${props.currentPage === 1
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+          }
+        `}
+      >
+        Prev
+      </button>
+
+      {/* PAGE INFO */}
+      <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
+        {props.currentPage} / {props.totalPages}
+      </span>
+
+      {/* NEXT */}
+      <button
+        type="button"
+        onClick={() => props.onPageChange(Math.min(props.currentPage + 1, props.totalPages))}
+        disabled={props.currentPage === props.totalPages}
+        className={`
+          px-4 py-1.5 text-sm rounded-md border
+          ${props.currentPage === props.totalPages
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+          }
+        `}
+      >
+        Next
+      </button>
+    </div>
+  );
+}
+
 
