@@ -19,7 +19,7 @@ type TableReportType = {
 export function TableReport(props: TableReportType) {
   return (<>
     <section>
-      <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
+      <div className="w-full overflow-hidden rounded-bl-xl rounded-bl-xl border border-slate-200 dark:border-slate-700 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right">
             <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
