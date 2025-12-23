@@ -227,15 +227,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           ],
         },
         {
-          icon: <MdOutlineReportGmailerrorred size={24} />,
-          label: "Log Tasmota",
-          route: "/log-tasmota",
-          role: [
-            ERoles.SUPER_ADMIN,
-            ERoles.PROVIDER,
-          ],
-        },
-        {
           icon: <MdPayment size={22} />,
           label: "Payment Method",
           route: "/payment-method",

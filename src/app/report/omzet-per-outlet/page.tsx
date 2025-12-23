@@ -12,6 +12,7 @@ import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { TableReport } from "../components/TableReport";
 import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
+import { toRupiah } from "../utils/toRupiah";
 // import { transactions } from "../data-dummy/transactions";
 
 type MerchantDataType = {
@@ -57,6 +58,8 @@ export default function OmzetPerOutlet() {
   const itemsPerPage = 10;
   const setStartItems = (currentPage - 1) * itemsPerPage;
   const setEndItems = setStartItems + itemsPerPage;
+
+  const [totalAmount, setTotalAmount] = useState<number>(0);
 
   const currentItems = merchantData.slice(setStartItems, setEndItems);
   const howManyPages = Math.ceil(merchantData.length / itemsPerPage);
@@ -107,6 +110,10 @@ export default function OmzetPerOutlet() {
       if (res?.statusCode === 200) {
         if (res.total) setTotalItem(res.total);
         setMerchantData(res.data);
+
+        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.total) ,0);
+        setTotalAmount(countAmount);
+
         setIsLoading(false);
       }
 
@@ -162,6 +169,47 @@ export default function OmzetPerOutlet() {
 
     setTimeout(() => setLodaingDownload(false), 1000);
   }
+
+  function getPaginationRange(currentPage: number, totalPages: number) {
+    const siblingCount = 2;     // kiri & kanan
+    const totalNumbers = siblingCount * 2 + 5;
+
+    if (totalPages <= totalNumbers) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const leftSibling = Math.max(currentPage - siblingCount, 1);
+    const rightSibling = Math.min(currentPage + siblingCount, totalPages);
+
+    const showLeftDots = leftSibling > 2;
+    const showRightDots = rightSibling < totalPages - 1;
+
+    const pages = [];
+
+    // Always show first page
+    pages.push(1);
+
+    if (showLeftDots) {
+      pages.push("...");
+    }
+
+    for (let i = leftSibling; i <= rightSibling; i++) {
+      if (i !== 1 && i !== totalPages) {
+        pages.push(i);
+      }
+    }
+
+    if (showRightDots) {
+      pages.push("...");
+    }
+
+    // Always show last page
+    pages.push(totalPages);
+
+    return pages;
+}
+
+  const pages = getPaginationRange(currentPage, howManyPages);
 
   // === Range date helper ===
   const getRangeByOption = (option: string): [Date, Date] => {
@@ -258,6 +306,10 @@ export default function OmzetPerOutlet() {
         </div>
       </div>
 
+      <div className="w-full px-6 py-5 rounded-tl-lg rounded-tr-lg dark:bg-slate-800 bg-slate-200/75">
+        <span className="dark:text-slate-100 text-slate-800 font-semibold text-md">Total Amount {currentOptionRange && "in "} {`${currentOptionRange ? currentOptionRange : ""}`} : <span className="font-normal">{toRupiah(totalAmount.toString())}</span></span>
+      </div>
+
       <TableReport merchantData={currentItems} currentPage={currentPage} itemsPerPage={itemsPerPage}>
         {isLoading ? Array.from({ length: 5 }).map((_, i) => (
           <SkeletonTableRow key={i} howMuch={4} />
@@ -287,61 +339,127 @@ export default function OmzetPerOutlet() {
           </span>
         </div>
 
-        <div className="flex items-center">
-          {/* Tombol Prev */}
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            type="button"
-            className={`ms-0 flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+        <div className="lg:flex items-center">
+            {/* Tombol Prev */}
+            <button
+              disabled={currentPage <= 1}
+              onClick={() =>
+                setCurrentPage(prev => Math.max(prev - 1, 1))
+              }
+              type="button"
+              className={`ms-0 hidden lg:flex h-8 items-center justify-center rounded-s-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
              ${currentPage === 1
-                ? "bg-gray-100 text-gray-400"
-                : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              }`}
-          >
-            Prev
-          </button>
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Prev
+            </button>
 
-          {/* Daftar Halaman */}
-          <ul className="flex items-center">
-            {Array.from({ length: howManyPages }).map((_, i) => {
-              const page = i + 1;
-              const isActive = currentPage === page;
-              return (
-                <li key={page}>
-                  <button
-                    onClick={() => setCurrentPage(page)}
-                    type="button"
-                    className={`flex h-8 items-center justify-center px-3 leading-tight 
-                        dark:border-gray-700 dark:bg-gray-800 
-                        dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white
-                ${isActive
-                        ? "border border-gray-300 bg-gray-400 dark:bg-gray-400 dark:border-gray-700 text-white dark:text-white"
-                        : "border border-gray-300 bg-white text-gray-500"
-                      }`}
-                  >
-                    {page}
-                  </button>
-                </li>
+            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage}/>
+
+            <ul className="lg:flex items-center hidden">
+              {pages.map((p, i) => {
+                const page = p;
+                const isActive = currentPage === page;
+
+                if (p === "...") {
+                  return (
+                    <li key={`dots-${i}`}>
+                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 px-3 leading-tight
+                        border border-gray-300 dark:border-gray-700">
+                        ...
+                      </span>
+                    </li>
+                  );
+                }
+
+                return (
+                  <li key={`page-${page}`}>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage(Number(page))}
+                      className={`flex h-8 items-center justify-center px-3 leading-tight
+                        border
+                        ${isActive
+                          ? "bg-gray-400 text-white border-gray-300 dark:bg-gray-400 dark:text-white dark:border-gray-700"
+                          : "bg-white text-gray-500 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+                        }
+                        hover:bg-gray-200 dark:hover:bg-gray-700 dark:hover:text-white
+                      `}
+                    >
+                      {page}
+                    </button>
+                  </li>
               );
             })}
-          </ul>
 
-          {/* Tombol Next */}
-          <button
-            disabled={currentPage === howManyPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            type="button"
-            className={`ms-0 flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
+            </ul>
+
+            {/* Tombol Next */}
+            <button
+              disabled={currentPage === howManyPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              type="button"
+              className={`ms-0 hidden lg:flex h-8 items-center justify-center rounded-e-md border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white 
               ${currentPage === howManyPages
-                ? "bg-gray-100 text-gray-400"
-                : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              }`}
-          >
-            Next
-          </button>
-        </div>
+                  ? "bg-gray-100 text-gray-400"
+                  : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
+            >
+              Next
+            </button>
+          </div>
       </div>
     </main>
+  );
+}
+
+type MobilePaginationType = {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: React.Dispatch<React.SetStateAction<number>>;
+}
+
+function MobilePagination(props: MobilePaginationType) {
+  return (
+    <div className="flex items-center justify-between gap-5 sm:hidden">
+      {/* PREV */}
+      <button
+        type="button"
+        onClick={() => props.onPageChange(Math.max(props.currentPage - 1, 1))}
+        disabled={props.currentPage === 1}
+        className={`
+          px-4 py-1.5 text-sm rounded-md border dark:bg-slate-800 dark:text-slate-100
+          ${props.currentPage === 1
+            ? "bg-gray-100 dark:bg-slate-700 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+          }
+        `}
+      >
+        Prev
+      </button>
+
+      {/* PAGE INFO */}
+      <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
+        {props.currentPage} / {props.totalPages}
+      </span>
+
+      {/* NEXT */}
+      <button
+        type="button"
+        onClick={() => props.onPageChange(Math.min(props.currentPage + 1, props.totalPages))}
+        disabled={props.currentPage === props.totalPages}
+        className={`
+          px-4 py-1.5 text-sm rounded-md border dark:bg-slate-800 dark:text-slate-100
+          ${props.currentPage === props.totalPages
+            ? "bg-gray-100 dark:text-slate-100 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+          }
+        `}
+      >
+        Next
+      </button>
+    </div>
   );
 }
