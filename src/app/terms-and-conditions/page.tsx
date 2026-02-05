@@ -162,73 +162,73 @@ export default function TermsAndConditions() {
         </div>
         <div className="mt-4 p-4">
           <div className="mt-6 h-full w-full space-y-6 rounded-md bg-white p-4 dark:bg-boxdark">
-            <div className="h-full w-full space-y-6 rounded-lg p-4 text-black-2 outline outline-1 outline-slate-400  dark:text-gray-300">
-              <p className="text-3xl font-bold mb-4">{terms[idx]?.title}</p>
-
-              {/* detail info */}
-              {terms[idx] && (
-                <div className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 md:grid-cols-2">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Phone Number
-                      </p>
-                      <p className="text-base font-medium">
-                        {terms[idx]?.phone_number || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Address
-                      </p>
-                      <p className="text-base whitespace-pre-line">
-                        {terms[idx]?.address || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Outlet
-                      </p>
-                      <p className="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-3 text-xs py-1 font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
-                        {terms[idx]?.outlet ? terms[idx]?.outlet.name : "ALL"}
-                      </p>
-                    </div>
+            <p className="text-3xl font-bold mb-4 text-black dark:text-gray-300 uppercase">Receipt</p>
+            {/* detail info */}
+            {terms[idx] && (
+              <div className="mb-6 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Phone Number
+                    </p>
+                    <p className="text-base font-medium">
+                      {terms[idx]?.phone_number || "-"}
+                    </p>
                   </div>
-
-                  <div className="flex flex-col items-start justify-center gap-4 md:items-end">
-                    <div className="flex flex-col items-start gap-2 md:items-end">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Icon
-                      </p>
-                      {terms[idx]?.icon ? (
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_API_DOMAIN}/api/file/${terms[idx]?.icon}`}
-                          alt="Icon"
-                          className="h-14 w-14 rounded-lg border border-slate-200 object-contain bg-white dark:border-slate-700"
-                        />
-                      ) : (
-                        <span className="text-xs text-slate-400">No icon</span>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col items-start gap-2 md:items-end">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Receipt Icon
-                      </p>
-                      {terms[idx]?.receipt_icon ? (
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_API_DOMAIN}/api/file/${terms[idx]?.receipt_icon}`}
-                          alt="Receipt Icon"
-                          className="h-14 w-14 rounded-lg border border-slate-200 object-contain bg-white dark:border-slate-700"
-                        />
-                      ) : (
-                        <span className="text-xs text-slate-400">No receipt icon</span>
-                      )}
-                    </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Address
+                    </p>
+                    <p className="text-base whitespace-pre-line">
+                      {terms[idx]?.address || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Outlet
+                    </p>
+                    <p className="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-3 text-xs py-1 font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                      {terms[idx]?.outlet ? terms[idx]?.outlet.name : "ALL"}
+                    </p>
                   </div>
                 </div>
-              )}
 
+                <div className="flex flex-col items-start justify-center gap-4 md:items-end">
+                  <div className="flex flex-col items-start gap-2 md:items-end">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Icon
+                    </p>
+                    {terms[idx]?.icon ? (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_DOMAIN}/api/file/${terms[idx]?.icon}`}
+                        alt="Icon"
+                        className="h-14 w-14 rounded-lg border border-slate-200 object-contain bg-white dark:border-slate-700"
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-400">No icon</span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-start gap-2 md:items-end">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Receipt Icon
+                    </p>
+                    {terms[idx]?.receipt_icon ? (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_DOMAIN}/api/file/${terms[idx]?.receipt_icon}`}
+                        alt="Receipt Icon"
+                        className="h-14 w-14 rounded-lg border border-slate-200 object-contain bg-white dark:border-slate-700"
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-400">No receipt icon</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="h-full w-full space-y-6 rounded-lg p-4 text-black-2 outline outline-1 outline-slate-400  dark:text-gray-300">
+              <p className="text-2xl font-bold mb-4">{terms[idx]?.title}</p>
               {terms[idx]?.terms_and_conditions_items?.map((i, index) => (
                 <div key={index}>
                   <p className="text-xl font-bold">
