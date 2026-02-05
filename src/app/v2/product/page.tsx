@@ -202,7 +202,9 @@ export default function ProductV2Page() {
                           <th className="p-2">Outlet</th>
                           <th className="p-2">Status</th>
                           <th className="p-2">Description</th>
-                          <th className="p-2">Action</th>
+                          <th className="p-2 whitespace-nowrap">Created by</th>
+                          <th className="p-2 whitespace-nowrap">Updated by</th>
+                          {/* <th className="p-2">Action</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -223,7 +225,6 @@ export default function ProductV2Page() {
                                 </td>
                               )}
                               <td className={`p-2`}>{sku.outlet === null ? "All" : sku.outlet.name}</td>
-                              { }
                               <td className={`p-2`}>
                                 {
                                   sku.is_deleted ?
@@ -232,6 +233,18 @@ export default function ProductV2Page() {
                                 }
                               </td>
                               <td className={`p-2`}>{sku.description.length >= 1 ? sku.description : "-"}</td>
+                              <td className={`p-2 whitespace-nowrap`}>{
+                                sku.sku_creator ? sku.sku_creator.fullname : "-"}
+                                <p className="text-xs text-gray-500">
+                                  {sku.sku_creator ? `${sku.sku_creator.dial_code} ${sku.sku_creator.phone_number}` : ""}
+                                </p>
+                              </td>
+                              <td className={`p-2 whitespace-nowrap`}>{
+                                sku.sku_updater ? sku.sku_updater.fullname : "-"}
+                                <p className="text-xs text-gray-500">
+                                  {sku.sku_updater ? `${sku.sku_updater.dial_code} ${sku.sku_updater.phone_number}` : ""}
+                                </p>
+                              </td>
                             </tr>
                           )
                         })}
@@ -295,7 +308,9 @@ interface iProductSku {
   product: {
     id: string;
     name: string;
-  },
+    product_creator: iUser | null;
+    product_updater: iUser | null;
+  };
   outlet: {
     id: string;
     name: string;
@@ -306,12 +321,19 @@ interface iProductSku {
     outlet: {
       name: string;
     }
-  }[]
+  }[];
+  sku_creator: iUser | null;
+  sku_updater: iUser | null;
 }
-interface iResSku {
-  total: number,
-  data: GroupedLaundryData[]
+
+interface iUser {
+  id: string
+  fullname: string
+  email: string
+  dial_code: string
+  phone_number: string
 }
+
 interface GroupedLaundryData {
   product: string;
   total_items: number;

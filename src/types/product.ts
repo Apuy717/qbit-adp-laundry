@@ -18,6 +18,16 @@ export type TypeProduct = {
     city: string
   },
   skus: iSku[]
+  product_creator: iUser | null,
+  product_updater: iUser | null
+}
+
+interface iUser {
+  id: string
+  fullname: string
+  email: string
+  dial_code: string
+  phone_number: string
 }
 
 export interface iSku {
@@ -44,6 +54,8 @@ export interface iSku {
   outlet_price_skus: { price: string }[]
   is_self_service: boolean,
   machine_ids: iMachineIds[]
+  sku_creator: iUser | null,
+  sku_updater: iUser | null
 }
 
 export interface iMachineIds {
