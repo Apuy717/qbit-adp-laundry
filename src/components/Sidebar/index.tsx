@@ -75,22 +75,38 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           label: "Outlet",
           route: "#",
           role: [
-            ERoles.SUPER_ADMIN,
             ERoles.PROVIDER,
             EDepartmentEmployee.HQ,
             EDepartmentEmployee.AUDITOR,
-            EDepartmentEmployee.FINANCE,
-            EDepartmentEmployee.AM,
-            EDepartmentEmployee.SPV,
             EDepartmentEmployee.HO,
-            ERoles.OUTLET_ADMIN,
-            ERoles.FINANCE
           ],
           children: [
-            { label: "Outlet", route: "/outlet" },
-            { label: "Product Group", route: "/product" },
-            { label: "Product Sku", route: "/v2/product" },
-            { label: "Group by CV", route: "/group-by-cv" },
+            {
+              label: "Outlet",
+              route: "/outlet",
+            },
+            {
+              label: "Product Group",
+              route: "/product",
+              role: [
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.HO,
+              ],
+            },
+            {
+              label: "Product Sku",
+              route: "/v2/product",
+              role: [
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.HO,
+              ],
+            },
+            {
+              label: "Group by CV",
+              route: "/group-by-cv",
+            },
           ],
         },
         {
@@ -146,7 +162,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             EDepartmentEmployee.AM,
             EDepartmentEmployee.HO,
             EDepartmentEmployee.OWNER,
-            ERoles.FINANCE
+            ERoles.FINANCE,
+            EDepartmentEmployee.SPV
           ],
           children:
             [
@@ -322,13 +339,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 <ul className="mb-6 flex flex-col gap-1.5">
                   {group.menuItems.map((menuItem, menuIndex) => {
                     if (role.name === ERoles.OUTLET_ADMIN) {
-                      // const check = menuItem.role.filter(f => f === role.name && f === department)
                       const check = menuItem.role.filter(f => f.toLowerCase() === department?.toLowerCase())
+                      let itemToPass = menuItem
+
+                      if (menuItem.children) {
+                        const filteredChildren = menuItem.children.filter((child: any) => {
+                          // jika child tidak punya roles, ikut ke role induknya
+                          if (!child.role || child.role.length === 0) return check.length > 0
+                          return child.role.some((r: string) => r.toLowerCase() === department?.toLowerCase())
+                        })
+
+                        itemToPass = { ...menuItem, children: filteredChildren }
+                      }
                       return (
                         <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
                           <SidebarItem
                             key={menuIndex}
-                            item={menuItem}
+                            item={itemToPass}
                             pageName={pageName}
                             setPageName={setPageName}
                           />
@@ -336,11 +363,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       )
                     } else {
                       const check = menuItem.role.filter(f => f === role.name)
+                      let itemToPass = menuItem
+
+                      if (menuItem.children) {
+                        const filteredChildren = menuItem.children.filter((child: any) => {
+                          // jika child tidak punya roles, ikut ke role induknya
+                          if (!child.role || child.role.length === 0) return check.length > 0
+                          return child.role.includes(role.name)
+                        })
+
+                        itemToPass = { ...menuItem, children: filteredChildren }
+                      }
                       return (
                         <div key={menuIndex} className={`${check.length === 0 ? "hidden" : "block"}`}>
                           <SidebarItem
                             key={menuIndex}
-                            item={menuItem}
+                            item={itemToPass}
                             pageName={pageName}
                             setPageName={setPageName}
                           />
@@ -349,16 +387,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     }
 
                   })}
-                  {/* {group.menuItems.map((menuItem, menuIndex) => (
-                    <div key={menuIndex} className={`${menuItem.role.filter(f => f === role.name && f === department).length === 0 ? "hidden" : "block"}`}>
-                      <SidebarItem
-                        key={menuIndex}
-                        item={menuItem}
-                        pageName={pageName}
-                        setPageName={setPageName}
-                      />
-                    </div>
-                  ))} */}
                 </ul>
               </div>
             ))}
