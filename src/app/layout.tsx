@@ -48,14 +48,14 @@ export default function RootLayout({
                     <MqttProvider>
                       <ReportOutletLayout>
                         {process.env.NEXT_PUBLIC_APP_ENV === "test" && (
-                        <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
+                          <div className="w-80 h-auto transform origin-left rotate-45 fixed p-2 -right-32 
                       -top-20 z-99999 bg-orange-500 flex items-center justify-center text-2xl text-white 
                       uppercase">
-                          <p>{process.env.NEXT_PUBLIC_APP_ENV}</p>
-                        </div>
-                      )}
+                            <p>{process.env.NEXT_PUBLIC_APP_ENV}</p>
+                          </div>
+                        )}
 
-                      {loading ? <Loader /> : children}
+                        {loading ? <Loader /> : children}
                       </ReportOutletLayout>
                     </MqttProvider>
                   </AuthProvider>

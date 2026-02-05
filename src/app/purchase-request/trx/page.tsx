@@ -6,6 +6,8 @@ import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { iResponse, PostWithToken } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
+import { ERoles } from "@/stores/authReducer";
+import { EDepartmentEmployee } from "@/types/employee";
 import { PRTrx } from "@/types/PRTrx";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -26,7 +28,7 @@ export default function PRTrxPage() {
   const [endDate, setEndDate] = useState<Date | string>(endOfMonth);
 
   const router = useRouter();
-  const { auth } = useSelector((s: RootState) => s.auth);
+  const { auth, role, department } = useSelector((s: RootState) => s.auth);
 
   const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
   const [modalOutlet, setModalOutlet] = useState<boolean>(false);
@@ -129,15 +131,19 @@ export default function PRTrxPage() {
             setEndDate(val)
           }} />
 
-          <button
-            className={`w-auto justify-center rounded-md bg-black px-10 py-3 
+          {(role.name === ERoles.PROVIDER ||
+            department === EDepartmentEmployee.HQ ||
+            department === EDepartmentEmployee.HO) && (
+              <button
+                className={`w-auto justify-center rounded-md bg-black px-10 py-3 
             text-center font-medium text-sm text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={() => {
-              router.push("/purchase-request/trx/create-trx-pr")
-            }}
-          >
-            Add Expense
-          </button>
+                onClick={() => {
+                  router.push("/purchase-request/trx/create-trx-pr")
+                }}
+              >
+                Add Expense
+              </button>
+            )}
           <button
             className={`w-min inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
                       text-center font-edium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
