@@ -79,6 +79,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             EDepartmentEmployee.HQ,
             EDepartmentEmployee.AUDITOR,
             EDepartmentEmployee.HO,
+            ERoles.SUPER_ADMIN,
           ],
           children: [
             {
@@ -92,6 +93,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 ERoles.PROVIDER,
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
+                ERoles.SUPER_ADMIN,
               ],
             },
             {
@@ -101,6 +103,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 ERoles.PROVIDER,
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
+                ERoles.SUPER_ADMIN,
               ],
             },
             {
