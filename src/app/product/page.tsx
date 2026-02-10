@@ -46,7 +46,7 @@ type MachineId = {
   duration: number;
 };
 
-const CELLS = ["Name", "Total SKU", "Created at", "Status", "Action"];
+const CELLS = ["Name", "Total SKU", "Created at", "Status", "Created by", "Updated by", "Action"];
 
 export default function Product() {
   const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
@@ -136,11 +136,11 @@ export default function Product() {
     if (checkedRows.includes(id)) {
       setCheckedRows(checkedRows.filter((rowId) => rowId !== id))
       formikExcludeSku.setFieldValue("outlet_ids", checkedRows.filter((rowId) => rowId !== id));
-      
+
     } else {
       setCheckedRows([...checkedRows, id])
       formikExcludeSku.setFieldValue("outlet_ids", [...checkedRows, id]);
-      
+
     }
   }
   const checkboxRef = useRef<HTMLInputElement>(null);
@@ -183,7 +183,7 @@ export default function Product() {
         formik.setFieldValue("outlet_id", mapingOutlet[0].value);
         setOutlets(mapingOutlet);
       }
-      
+
 
     };
     GotOutlets();
@@ -258,7 +258,7 @@ export default function Product() {
       if (res?.statusCode === 200) {
         setTotalSkus(res.data);
         setPaginationSkus(res.total);
-        
+
       }
       setTimeout(() => {
         setLoadingSearch(false);
@@ -342,11 +342,11 @@ export default function Product() {
 
       if (res.statusCode === 200) {
         setOutletExclude(res.data)
-        
+
         const unique = excludes.filter((item: any) =>
           outletExclude.some((d) => d.id === item.outlet_id)
         );
-        
+
         setCheckedRows(unique.map((i: any) => i.outlet_id))
       }
     };
@@ -363,7 +363,7 @@ export default function Product() {
           url: urlwithQuery,
           token: `${auth.auth.access_token}`,
         });
-        
+
 
         if (res?.statusCode === 200) {
           setExcludes(res.data);
@@ -607,7 +607,7 @@ export default function Product() {
       sku_id: Yup.string(),
     }),
     onSubmit: async (values) => {
-      
+
       setLoading(true);
 
       const res = await PostWithToken<any>({
@@ -621,7 +621,7 @@ export default function Product() {
       }
       if (res?.statusCode === 200) {
         toast.success("Change data success!");
-        
+
         setSearchExclude("")
       }
       setLoading(false);
@@ -695,7 +695,7 @@ export default function Product() {
 
   function updateMachineIds(formik: any, newMachines: MachineId[]) {
     formik.setFieldValue("machine_ids", newMachines);
-    
+
   }
 
   useEffect(() => {
@@ -712,7 +712,7 @@ export default function Product() {
               : outlets.slice(1).map((o: iDropdown) => o.value),
         },
       });
-      
+
       const mapingMachine = res.data.map((i: any) => {
         return {
           label: i.name,
@@ -914,6 +914,14 @@ export default function Product() {
                 )}
               </td>
               <td className="px-6 py-4">
+                {prod.product_creator ? prod.product_creator.fullname : "N/A"}
+                <p className="text-xs mt-1">{prod.product_creator ? `${prod.product_creator.dial_code} ${prod.product_creator.phone_number}` : ""}</p>
+              </td>
+              <td className="px-6 py-4">
+                {prod.product_updater ? prod.product_updater.fullname : "N/A"}
+                <p className="text-xs mt-1">{prod.product_updater ? `${prod.product_updater.dial_code} ${prod.product_updater.phone_number}` : ""}</p>
+              </td>
+              <td className="px-6 py-4">
                 <div className=" flex flex-row items-center space-x-2">
                   <div className="group relative">
                     <button
@@ -999,6 +1007,8 @@ export default function Product() {
             "Dryer",
             "Iron",
             "Description",
+            "Created by",
+            "Updated by",
             "Action",
           ]}
           currentPage={currentPageSku}
@@ -1048,6 +1058,14 @@ export default function Product() {
                 )}
               </td>
               <td className="px-6 py-4">{i.description}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {i.sku_creator ? i.sku_creator.fullname : "N/A"}
+                <p className="text-xs mt-1">{i.sku_creator ? `${i.sku_creator.dial_code} ${i.sku_creator.phone_number}` : ""}</p>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {i.sku_updater ? i.sku_updater.fullname : "N/A"}
+                <p className="text-xs mt-1">{i.sku_updater ? `${i.sku_updater.dial_code} ${i.sku_updater.phone_number}` : ""}</p>
+              </td>
               <td className="flex justify-center space-x-2 whitespace-nowrap px-6 py-4">
                 <div className="group relative">
                   <button
@@ -1259,6 +1277,8 @@ export default function Product() {
               "Dryer",
               "Iron",
               "Description",
+              "Created by",
+              "Updated by",
               "Action",
             ]}
             currentPage={0}
@@ -1318,6 +1338,14 @@ export default function Product() {
                   )}
                 </td>
                 <td className="px-6 py-4">{i.description}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {i.sku_creator ? i.sku_creator.fullname : "N/A"}
+                  <p className="text-xs mt-1">{i.sku_creator ? `${i.sku_creator.dial_code} ${i.sku_creator.phone_number}` : ""}</p>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {i.sku_updater ? i.sku_updater.fullname : "N/A"}
+                  <p className="text-xs mt-1">{i.sku_updater ? `${i.sku_updater.dial_code} ${i.sku_updater.phone_number}` : ""}</p>
+                </td>
                 <td className="flex justify-center space-x-2 whitespace-nowrap px-6 py-4">
                   <div className="group relative">
                     <button

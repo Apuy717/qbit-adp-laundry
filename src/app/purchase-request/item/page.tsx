@@ -118,6 +118,16 @@ const BasicChartPage: React.FC = () => {
 
   const [modal1, setModal1] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [todayString, setTodayString] = useState<string>("")
+
+  useEffect(() => {
+    const formatted = new Date().toLocaleDateString("id", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+    setTodayString(formatted);
+  }, [])
 
   const formik = useFormik({
     initialValues: {
@@ -281,11 +291,7 @@ const BasicChartPage: React.FC = () => {
               </td> */}
 
               <td className="whitespace-nowrap px-6 py-4">
-                {new Date().toLocaleDateString("id", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric"
-                })}
+                {todayString}
               </td>
               <td className="px-6 py-4 whitespace-nowrap space-x-4">
                 <div className="relative group">
