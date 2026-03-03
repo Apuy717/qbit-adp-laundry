@@ -50,10 +50,10 @@ export default function PagePaymentMethod() {
 
       if (res?.statusCode === 200) {
         let outletMaping = res.data.map(i => {
-          const city = i.city.split("--")
+          const city = i.city?.split("--") || []
           return {
             value: i.id,
-            label: `${i.name} ${city.length >= 2 ? city[1] : city}`
+            label: `${i.name} ${city.length >= 2 ? city[1] : i.city || ""}`
           }
         })
         setOutlets([{ value: "All", label: "All" }, ...outletMaping])

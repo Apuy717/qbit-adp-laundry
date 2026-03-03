@@ -196,9 +196,9 @@ export default function EmptyWash() {
                 {i.outlet?.name}
                 <span className="font-light">
                   (
-                  {i.outlet && i.outlet.city.split("--").length >= 2
+                  {i.outlet && i.outlet.city?.split("--").length >= 2
                     ? i.outlet.city.split("--")[1]
-                    : i.outlet?.city}
+                    : i.outlet?.city || ""}
                   )
                 </span>
               </div>

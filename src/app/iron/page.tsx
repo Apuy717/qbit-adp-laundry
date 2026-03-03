@@ -143,7 +143,7 @@ export default function IronPage() {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               {i.outlet.name}
-              <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
+              <p className="text-xs font-thin">{` ` + (i.outlet.city?.split("--")?.[1] || i.outlet.city || "")}</p>
             </td>
             <td className="px-6 py-4">
               {i.order_item_stage.order_item.order.invoice_id}

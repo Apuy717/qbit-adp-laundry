@@ -58,7 +58,7 @@ export default function OutletPage() {
   );
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
-    () => () => {},
+    () => () => { },
   );
   const [mapingUngroupOutlet, setMapingUngroupOutlet] = useState<
     GroupingType[]
@@ -130,7 +130,7 @@ export default function OutletPage() {
             cvName = i.outlet_grouping.outlet_grouping_master.name;
           }
 
-          const city = i.city.split("--");
+          const city = i.city?.split("--") || [];
           const checkArea = maping.findIndex((f) => f.cv_id === cvId);
           const outlet = {
             outlet_id: i.id,
@@ -437,11 +437,10 @@ export default function OutletPage() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.OUTLETS
+              ${tabActive === TabActive.OUTLETS
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.OUTLETS)}
             >
@@ -451,11 +450,10 @@ export default function OutletPage() {
           <li className="me-2" role="presentation">
             <button
               className={`inline-block rounded-t-lg border-b-2 p-4 
-              ${
-                tabActive === TabActive.CV
+              ${tabActive === TabActive.CV
                   ? "border-blue-500 text-blue-500"
                   : "dark:border-form-strokedark"
-              }
+                }
               `}
               onClick={() => setTabActive(TabActive.CV)}
             >
@@ -591,8 +589,8 @@ export default function OutletPage() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        formikUpdateCv.setFieldValue("id",i.id) 
-                        formikUpdateCv.setFieldValue("name",i.name) 
+                        formikUpdateCv.setFieldValue("id", i.id)
+                        formikUpdateCv.setFieldValue("name", i.name)
                         setUpdateCvModal(true)
                       }}
                     >
@@ -605,7 +603,7 @@ export default function OutletPage() {
                   <div className="group relative">
                     <button
                       onClick={() => {
-                        setDeleteFunction(()=>()=>deleteCv(i.id))
+                        setDeleteFunction(() => () => deleteCv(i.id))
                         setDeleteModal(true)
                         setRefresh(!refresh);
                       }}
@@ -761,7 +759,7 @@ export default function OutletPage() {
                   options={mapingGroupCv}
                   error={
                     formikUpdateGrouping.touched.outlet_goruping_master_id &&
-                    formikUpdateGrouping.errors.outlet_goruping_master_id
+                      formikUpdateGrouping.errors.outlet_goruping_master_id
                       ? formikUpdateGrouping.errors.outlet_goruping_master_id
                       : null
                   }
@@ -861,12 +859,12 @@ export default function OutletPage() {
                     error={
                       formikGrouping.touched.groupings?.[index]
                         ?.outlet_goruping_master_id &&
-                      typeof formikGrouping.errors.groupings?.[index] ===
+                        typeof formikGrouping.errors.groupings?.[index] ===
                         "object" &&
-                      formikGrouping.errors.groupings[index]
-                        ?.outlet_goruping_master_id
+                        formikGrouping.errors.groupings[index]
+                          ?.outlet_goruping_master_id
                         ? formikGrouping.errors.groupings[index]
-                            ?.outlet_goruping_master_id
+                          ?.outlet_goruping_master_id
                         : null
                     }
                   />

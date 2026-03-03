@@ -171,8 +171,10 @@ export default function CreateProduct() {
       });
       if (res.statusCode === 422) {
         (res.err as string[]).map((i) => {
-          const field = i.split(" ");
-          if (field.length >= 1) formik.setFieldError(field[0], i);
+          if (i) {
+            const field = i.split(" ");
+            if (field.length >= 1) formik.setFieldError(field[0], i);
+          }
         });
       }
 
@@ -252,7 +254,7 @@ export default function CreateProduct() {
               : outlets.slice(1).map((o: iDropdown) => o.value),
         },
       });
-      
+
       const mapingMachine = res.data.map((i: any) => {
         return {
           label: i.name,
@@ -627,7 +629,7 @@ export default function CreateProduct() {
                   onChange={(v) => {
                     formik.setFieldValue(`variants[${index}].outlet_id`, v)
                     setChoosedOutletId(v)
-                    
+
 
                   }
                   }

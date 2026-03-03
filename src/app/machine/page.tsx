@@ -87,7 +87,7 @@ export default function PageMachine() {
     refSocket.current.emit("ping", "ping");
 
     refSocket.current.on("handsake-switch-machine", (msg: iSwitchMachine) => {
-      
+
       setSwitchMachine((old) => {
         const fAlreadyData = old.findIndex(
           (f) => f.machine_id === msg.machine_id,
@@ -124,10 +124,10 @@ export default function PageMachine() {
 
       if (res?.statusCode === 200) {
         const outletMaping = res.data.map((i) => {
-          const city = i.city.split("--");
+          const city = i.city?.split("--") || [];
           return {
             value: i.id,
-            label: `${i.name} ${city.length >= 2 ? city[1] : city}`,
+            label: `${i.name} ${city.length >= 2 ? city[1] : i.city || ""}`,
           };
         });
 

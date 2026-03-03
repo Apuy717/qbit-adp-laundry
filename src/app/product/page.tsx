@@ -2403,7 +2403,7 @@ export default function Product() {
                 >
                   <td className="px-6 py-4">{k + 1}</td>
                   <td className="px-6 py-4">{i.outlet?.name}</td>
-                  <td className="px-6 py-4">{i.outlet?.city.split("--")[1]}</td>
+                  <td className="px-6 py-4">{i.outlet?.city?.split("--")?.[1] || i.outlet?.city || ""}</td>
                   <td className="px-6 py-4">{rupiah(i.price)}</td>
                 </tr>
               ))}
@@ -2482,7 +2482,7 @@ export default function Product() {
                         />
                       </td>
                       <td className="px-6 py-4">{i.name}</td>
-                      <td className="px-6 py-4">{i.city.split("--")[1]}</td>
+                      <td className="px-6 py-4">{i.city?.split("--")?.[1] || i.city || ""}</td>
                     </tr>
                   ))}
                 </tbody>
