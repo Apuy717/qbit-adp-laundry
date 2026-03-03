@@ -457,7 +457,7 @@ export default function OmzetDaily() {
                 if (p === "...") {
                   return (
                     <li key={`dots-${i}`}>
-                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 px-3 leading-tight
+                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 leading-tight
                         border border-gray-300 dark:border-gray-700">
                         ...
                       </span>
