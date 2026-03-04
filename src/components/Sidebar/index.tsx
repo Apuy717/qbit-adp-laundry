@@ -107,7 +107,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               ],
             },
             {
-              label: "Stock Adjustment",
+              label: "Stocks",
               route: "/stock-adjustment",
               role: [
                 ERoles.PROVIDER,

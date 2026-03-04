@@ -122,23 +122,17 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
 
             const city = i.city?.split("--") || [];
             const checkArea = maping.findIndex((f) => f.area_id === areaId);
-            console.log(checkArea);
-            console.log(city);
 
             const outlet = {
               outlet_id: i.id,
               name: `${i.name} ${city.length >= 2 ? city[1] : city}`,
             };
-            console.log(outlet);
 
             const outletGrouping: Area = {
               area_id: areaId,
               area: areaName,
               outlets: [outlet],
             };
-
-            console.log(checkArea);
-
 
             if (checkArea <= -1) {
               maping.push(outletGrouping);
