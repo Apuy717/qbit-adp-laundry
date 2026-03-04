@@ -414,7 +414,7 @@ export default function AddSkuPage() {
                             {formik.values.outlet_stocks?.map((os: any, osIndex: number) => {
                                 const isAll = formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null;
                                 const selectedOutls = (formik.values.outlet_stocks || []).map((o: any) => o.outlet_id).filter((id: string) => id && id !== 'all');
-                                const osOutletId = isAll ? (os.outlet_id === "" ? (outlets.length > 1 ? outlets[1].value : "") : os.outlet_id) : formik.values.outlet_id;
+                                const osOutletId = isAll ? os.outlet_id : formik.values.outlet_id;
 
                                 return (
                                     <div key={osIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4 relative">
