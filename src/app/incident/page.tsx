@@ -230,9 +230,9 @@ export default function IncidentPage() {
             <td className="flex flex-col whitespace-nowrap px-6 py-4">
               {i.outlet.name}
               <span className="text-xs font-thin">
-                {i.outlet.city.split("--").length >= 2
+                {i.outlet.city?.split("--").length >= 2
                   ? i.outlet.city.split("--")[1]
-                  : i.outlet.city}
+                  : i.outlet.city || ""}
               </span>
             </td>
             <td className="whitespace-nowrap px-6 py-4">

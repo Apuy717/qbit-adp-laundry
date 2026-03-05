@@ -41,7 +41,7 @@ const CategoryPage: React.FC = () => {
       })
       if (res?.statusCode === 200) {
         const outletMaping = res.data.map(i => {
-          const city = i.city.split("--")
+          const city = i.city?.split("--") || []
           return {
             value: i.id,
             label: `${i.name} ${city.length >= 2 ? city[1] : city}`
@@ -190,7 +190,7 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
       <div>
-        <Table colls={["Name",  "Outlet", "Status", "Action"]}
+        <Table colls={["Name", "Outlet", "Status", "Action"]}
           onPaginate={(page) => setCurrentPage(page)}
           currentPage={currentPage}
           totalItem={totalCategory}>

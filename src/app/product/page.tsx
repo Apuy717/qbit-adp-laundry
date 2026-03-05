@@ -30,7 +30,7 @@ import { EDepartmentEmployee } from "@/types/employee";
 import { ERoles } from "@/stores/authReducer";
 import { CiCircleAlert } from "react-icons/ci";
 import { Outlet } from "@/types/outlet";
-import SearchDropdown from "@/components/Outlets/SearchDropdownOutlet";
+import InputDropdownSearch from "@/components/Inputs/InputDropdownSearch";
 import { MachineType } from "@/types/machineType";
 
 interface MyResponse {
@@ -432,8 +432,7 @@ export default function Product() {
       code: "",
       price: "",
       type: "services",
-      stock: "",
-      unit: "",
+      outlet_stocks: [{ outlet_id: "", stock: "", unit: "" }] as any[],
       machine_washer: false,
       washer_duration: 0,
       machine_dryer: false,
@@ -468,7 +467,7 @@ export default function Product() {
 
     onSubmit: async (values) => {
       if (values.type == "services") {
-        Object.assign(values, { stock: null, unit: null });
+        Object.assign(values, { outlet_stocks: [] });
       }
       if (!values.machine_washer) {
         Object.assign(values, { washer_duration: null });
@@ -514,8 +513,7 @@ export default function Product() {
               description: values.description,
               price: parseInt(values.price),
               type: values.type,
-              stock: values.stock,
-              unit: values.unit,
+              outlet_stocks: values.outlet_stocks,
               machine_washer: values.machine_washer,
               washer_duration: values.washer_duration,
               machine_dryer: values.machine_dryer,
@@ -541,8 +539,7 @@ export default function Product() {
               description: values.description,
               price: parseInt(values.price),
               type: values.type,
-              stock: values.stock,
-              unit: values.unit,
+              outlet_stocks: values.outlet_stocks,
               machine_washer: values.machine_washer,
               washer_duration: values.washer_duration,
               machine_dryer: values.machine_dryer,
@@ -1105,8 +1102,17 @@ export default function Product() {
                       formik.setFieldValue("capital_price", i.capital_price);
                       formik.setFieldValue("price", i.price);
                       formik.setFieldValue("type", i.type);
-                      formik.setFieldValue("stock", i.stock);
-                      formik.setFieldValue("unit", i.unit);
+                      {
+                        const mapOutletStocks = (i.OutletStocks || i.outlet_stocks || []).map((os: any) => ({
+                          outlet_id: os.outlet_id || "",
+                          stock: os.stock || "",
+                          unit: os.unit || i.unit || ""
+                        }));
+                        formik.setFieldValue(
+                          "outlet_stocks",
+                          mapOutletStocks.length > 0 ? mapOutletStocks : [{ outlet_id: "", stock: "", unit: "" }]
+                        );
+                      }
                       formik.setFieldValue("machine_washer", i.machine_washer);
                       formik.setFieldValue(
                         "washer_duration",
@@ -1236,8 +1242,7 @@ export default function Product() {
                 formik.setFieldValue("capital_price", "");
                 formik.setFieldValue("price", "");
                 formik.setFieldValue("type", "services");
-                formik.setFieldValue("stock", "");
-                formik.setFieldValue("unit", "");
+                formik.setFieldValue("outlet_stocks", [{ outlet_id: "", stock: "", unit: "" }]);
                 formik.setFieldValue("machine_washer", false);
                 formik.setFieldValue("washer_duration", 0);
                 formik.setFieldValue("machine_dryer", false);
@@ -1385,8 +1390,17 @@ export default function Product() {
                         formik.setFieldValue("capital_price", i.capital_price);
                         formik.setFieldValue("price", i.price);
                         formik.setFieldValue("type", i.type);
-                        formik.setFieldValue("stock", i.stock);
-                        formik.setFieldValue("unit", i.unit);
+                        {
+                          const mapOutletStocks = (i.OutletStocks || i.outlet_stocks || []).map((os: any) => ({
+                            outlet_id: os.outlet_id || "",
+                            stock: os.stock || "",
+                            unit: os.unit || i.unit || ""
+                          }));
+                          formik.setFieldValue(
+                            "outlet_stocks",
+                            mapOutletStocks.length > 0 ? mapOutletStocks : [{ outlet_id: "", stock: "", unit: "" }]
+                          );
+                        }
                         formik.setFieldValue(
                           "machine_washer",
                           i.machine_washer,
@@ -1460,7 +1474,7 @@ export default function Product() {
       </div>
 
       <Modal isOpen={addSkuModal}>
-        <div className="relative w-[90%] rounded-md bg-white p-4  shadow dark:bg-boxdark md:w-[50%] ">
+        <div className="relative w-[95%] rounded-md bg-white p-6 shadow dark:bg-boxdark md:w-[65%]">
           <div
             className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
             onClick={() => {
@@ -1474,42 +1488,59 @@ export default function Product() {
           <div className="flex flex-col space-y-8">
             <Breadcrumb pageName={`Add SKU`} />
           </div>
-          <div className="h-96 space-y-6 overflow-y-scroll py-2">
-            <InputDropdown
-              label={"Outlets*"}
-              name={"Outlets"}
-              id={"Outlets"}
-              value={formik.values.outlet_id}
-              onChange={(v) => formik.setFieldValue("outlet_id", v)}
-              options={outlets}
-              error={
-                formik.touched.outlet_id && formik.errors.outlet_id
-                  ? formik.errors.outlet_id
-                  : null
-              }
-            />
-            <InputDropdown
-              label={"Product*"}
-              name={"Product"}
-              id={"Product"}
-              value={
-                formik.values.product_id !== null
-                  ? formik.values.product_id
-                  : ""
-              }
-              onChange={(v) => {
-                setProductId(v);
-                formik.setFieldValue(`product_id`, v);
-              }}
-              options={MapingProduct}
-              error={
-                formik.touched.product_id &&
-                  typeof formik.errors.product_id === "object" &&
-                  formik.errors.product_id
-                  ? formik.errors.product_id
-                  : null
-              }
-            />
+          <div className="max-h-[75vh] space-y-5 overflow-y-auto py-2 pr-1">
+            <div className="flex flex-col gap-1 w-full">
+              <InputDropdownSearch
+                label="Outlets*"
+                name="outlet_id"
+                id="outlet_id"
+                className="w-full"
+                value={formik.values.outlet_id}
+                onChange={(v) => {
+                  formik.setFieldValue("outlet_id", v);
+                  if (v !== 'all' && v !== null && v !== '') {
+                    const currentStocks = formik.values.outlet_stocks || [];
+                    const existing = currentStocks.find((s: any) => s.outlet_id === v);
+                    let newStocks = [];
+                    if (existing) {
+                      newStocks = [existing];
+                    } else if (currentStocks.length > 0) {
+                      newStocks = [{ ...currentStocks[0], outlet_id: v }];
+                    } else {
+                      newStocks = [{ outlet_id: v, stock: "", unit: "" }];
+                    }
+                    formik.setFieldValue(`outlet_stocks`, newStocks);
+                  }
+                }}
+                options={outlets}
+                error={
+                  formik.touched.outlet_id && formik.errors.outlet_id
+                    ? formik.errors.outlet_id
+                    : null
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1 w-full">
+              <InputDropdownSearch
+                label="Product*"
+                name="product_id_add"
+                id="product_id_add"
+                className="w-full"
+                value={formik.values.product_id !== null ? formik.values.product_id : ""}
+                onChange={(v) => {
+                  setProductId(v);
+                  formik.setFieldValue(`product_id`, v);
+                }}
+                options={MapingProduct}
+                error={
+                  formik.touched.product_id &&
+                    typeof formik.errors.product_id === "object" &&
+                    formik.errors.product_id
+                    ? formik.errors.product_id
+                    : null
+                }
+              />
+            </div>
             <Input
               label={"Code*"}
               name={"code"}
@@ -1569,37 +1600,93 @@ export default function Product() {
                   : null
               }
             />
-            <Input
-              className={formik.values.type === "services" ? `hidden` : ``}
-              label={"Stock*"}
-              name={"stock"}
-              id={"stock"}
-              value={formik.values.stock ? formik.values.stock : ""}
-              onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
-              error={
-                formik.touched.stock &&
-                  typeof formik.errors.stock === "object" &&
-                  formik.errors.stock
-                  ? formik.errors.stock
-                  : null
-              }
-            />
-            <Input
-              className={formik.values.type === "services" ? `hidden` : ``}
-              label={"Unit*"}
-              name={"unit"}
-              id={"unit"}
-              value={formik.values.unit ? formik.values.unit : ""}
-              onChange={(v) => formik.setFieldValue(`unit`, v)}
-              error={
-                formik.touched.unit &&
-                  typeof formik.errors.unit === "object" &&
-                  formik.errors.unit
-                  ? formik.errors.unit
-                  : null
-              }
-            />
+            {formik.values.type === "goods" && (
+              <div className="space-y-4 rounded-md border p-4 border-gray-200">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="font-semibold text-sm">Outlet Stocks</p>
+                  {(formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null) && (
+                    <button
+                      type="button"
+                      className="rounded bg-blue-600 px-3 py-1 text-sm text-white"
+                      onClick={() => {
+                        const newOutletStocks = [...(formik.values.outlet_stocks || []), { outlet_id: "", stock: "", unit: "" }];
+                        formik.setFieldValue("outlet_stocks", newOutletStocks);
+                      }}
+                    >
+                      Add Outlet Stock
+                    </button>
+                  )}
+                </div>
+                {formik.values.outlet_stocks?.map((os: any, osIndex: number) => {
+                  const isAll = formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null;
+                  const selectedOutlets = (formik.values.outlet_stocks || []).map((o: any) => o.outlet_id).filter((id: string) => id && id !== 'all');
+                  const osOutletId = isAll ? (os.outlet_id === "" ? (outlets.length > 1 ? outlets[1].value : "") : os.outlet_id) : formik.values.outlet_id;
+
+                  return (
+                    <div key={osIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4 relative">
+                      <InputDropdownSearch
+                        label="Outlet*"
+                        name={`outlet_stocks[${osIndex}].outlet_id`}
+                        id={`outlet_id_stock_${osIndex}`}
+                        value={osOutletId}
+                        onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].outlet_id`, v)}
+                        options={isAll ? outlets.filter(o => o.value !== 'all' && (o.value === os.outlet_id || !selectedOutlets.includes(o.value))) : outlets.filter(o => o.value === formik.values.outlet_id)}
+                        error={
+                          (formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id &&
+                            typeof formik.errors.outlet_stocks === "object" &&
+                            (formik.errors.outlet_stocks as any)?.[osIndex]?.outlet_id
+                            ? (formik.errors.outlet_stocks as any)[osIndex].outlet_id
+                            : null
+                        }
+                      />
+                      <Input
+                        label="Stock*"
+                        name={`outlet_stocks[${osIndex}].stock`}
+                        id={`stock_${osIndex}`}
+                        value={os.stock === 0 ? "0" : (os.stock || "")}
+                        onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].stock`, v === "" ? "" : parseInt(v))}
+                        error={
+                          (formik.touched as any).outlet_stocks?.[osIndex]?.stock &&
+                            typeof formik.errors.outlet_stocks === "object" &&
+                            (formik.errors.outlet_stocks as any)?.[osIndex]?.stock
+                            ? (formik.errors.outlet_stocks as any)[osIndex].stock
+                            : null
+                        }
+                      />
+                      <Input
+                        label="Unit*"
+                        name={`outlet_stocks[${osIndex}].unit`}
+                        id={`unit_${osIndex}`}
+                        value={os.unit}
+                        onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].unit`, v)}
+                        error={
+                          (formik.touched as any).outlet_stocks?.[osIndex]?.unit &&
+                            typeof formik.errors.outlet_stocks === "object" &&
+                            (formik.errors.outlet_stocks as any)?.[osIndex]?.unit
+                            ? (formik.errors.outlet_stocks as any)[osIndex].unit
+                            : null
+                        }
+                      />
+                      {osIndex > 0 && isAll && (
+                        <button
+                          type="button"
+                          className="absolute bg-red-500 rounded-full top-[1.1rem] right-4 p-1 text-white -mt-2 -mr-2"
+                          onClick={() => {
+                            const newOutletStocks = [...formik.values.outlet_stocks];
+                            newOutletStocks.splice(osIndex, 1);
+                            formik.setFieldValue("outlet_stocks", newOutletStocks);
+                          }}
+                        >
+                          <IoCloseOutline size={20} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <InputTextArea
+              className="mt-6"
               label={"Description"}
               name={"description"}
               id={"description"}
@@ -1881,6 +1968,7 @@ export default function Product() {
               <div className="pt-6 space-y-4">
                 <InputTextArea
                   rows={5}
+                  className="mt-6"
                   label={"Description"}
                   name={"description"}
                   id={"description"}
@@ -1944,7 +2032,7 @@ export default function Product() {
           </div>
         ) : (
           //UPDATE SKU
-          <div className="relative w-[90%] rounded-md bg-white p-4  shadow dark:bg-boxdark md:w-[50%] ">
+          <div className="relative w-[95%] rounded-md bg-white p-6 shadow dark:bg-boxdark md:w-[65%]">
             <div
               className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
               onClick={() => {
@@ -1959,39 +2047,60 @@ export default function Product() {
                 pageName={productOrSku ? `Update Product` : `Update SKU`}
               />
             </div>
-            <div className=" h-96 overflow-y-scroll py-2">
-              <div className="grid grid-cols-1 gap-x-4 gap-y-6">
-                <InputDropdown
-                  label={"Outlets*"}
-                  name={"Outlets"}
-                  id={"Outlets"}
-                  value={formik.values.outlet_id}
-                  onChange={(v) => formik.setFieldValue("outlet_id", v)}
-                  options={outlets}
-                  error={
-                    formik.touched.outlet_id && formik.errors.outlet_id
-                      ? formik.errors.outlet_id
-                      : null
-                  }
-                />
-                <InputDropdown
-                  label={"Product*"}
-                  name={"Product"}
-                  id={"Product"}
-                  value={productId ? productId : ""}
-                  onChange={(v) => {
-                    setProductId(v);
-                    formik.setFieldValue(`product_id`, v);
-                  }}
-                  options={MapingProduct}
-                  error={
-                    formik.touched.product_id &&
-                      typeof formik.errors.product_id === "object" &&
-                      formik.errors.product_id
-                      ? formik.errors.product_id
-                      : null
-                  }
-                />
+            <div className="max-h-[75vh] overflow-y-auto py-2 px-5">
+              <div className="flx flex-col space-y-6">
+                <div className="flex flex-col gap-1 w-full">
+                  <InputDropdownSearch
+                    label="Outlets*"
+                    name="outlet_id_update"
+                    id="outlet_id_update"
+                    className="w-full"
+                    value={formik.values.outlet_id}
+                    onChange={(v) => {
+                      formik.setFieldValue("outlet_id", v);
+                      if (v !== 'all' && v !== null && v !== '') {
+                        const currentStocks = formik.values.outlet_stocks || [];
+                        const existing = currentStocks.find((s: any) => s.outlet_id === v);
+                        let newStocks = [];
+                        if (existing) {
+                          newStocks = [existing];
+                        } else if (currentStocks.length > 0) {
+                          newStocks = [{ ...currentStocks[0], outlet_id: v }];
+                        } else {
+                          newStocks = [{ outlet_id: v, stock: "", unit: "" }];
+                        }
+                        formik.setFieldValue(`outlet_stocks`, newStocks);
+                      }
+                    }}
+                    options={outlets}
+                    error={
+                      formik.touched.outlet_id && formik.errors.outlet_id
+                        ? formik.errors.outlet_id
+                        : null
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1 w-full">
+                  <InputDropdownSearch
+                    label="Product*"
+                    name="product_id_update"
+                    id="product_id_update"
+                    className="w-full"
+                    value={productId ? productId : ""}
+                    onChange={(v) => {
+                      setProductId(v);
+                      formik.setFieldValue(`product_id`, v);
+                    }}
+                    options={MapingProduct}
+                    error={
+                      formik.touched.product_id &&
+                        typeof formik.errors.product_id === "object" &&
+                        formik.errors.product_id
+                        ? formik.errors.product_id
+                        : null
+                    }
+                  />
+                </div>
                 <Input
                   label={"Code*"}
                   name={"code"}
@@ -2040,64 +2149,119 @@ export default function Product() {
                   label={"Type*"}
                   name={"type"}
                   id={"type"}
-                  value={formik.values.id}
+                  value={formik.values.type}
                   onChange={(v) => formik.setFieldValue(`type`, v)}
                   options={serviceType}
                   error={
-                    formik.touched.id &&
-                      typeof formik.errors.id === "object" &&
-                      formik.errors.id
-                      ? formik.errors.id
+                    formik.touched.type &&
+                      typeof formik.errors.type === "object" &&
+                      formik.errors.type
+                      ? formik.errors.type
                       : null
                   }
                 />
-                <Input
-                  className={formik.values.type === "services" ? `hidden` : ``}
-                  label={"Stock*"}
-                  name={"stock"}
-                  id={"stock"}
-                  value={formik.values.stock ? formik.values.stock : ""}
-                  onChange={(v) => formik.setFieldValue(`stock`, parseInt(v))}
-                  error={
-                    formik.touched.stock &&
-                      typeof formik.errors.stock === "object" &&
-                      formik.errors.stock
-                      ? formik.errors.stock
-                      : null
-                  }
-                />
-                <Input
-                  className={formik.values.type === "services" ? `hidden` : ``}
-                  label={"Unit*"}
-                  name={"unit"}
-                  id={"unit"}
-                  value={formik.values.unit ? formik.values.unit : ""}
-                  onChange={(v) => formik.setFieldValue(`unit`, v)}
-                  error={
-                    formik.touched.unit &&
-                      typeof formik.errors.unit === "object" &&
-                      formik.errors.unit
-                      ? formik.errors.unit
-                      : null
-                  }
-                />
+                {formik.values.type === "goods" && !productOrSku && (
+                  <div className="col-span-1 md:col-span-2 space-y-4 rounded-md border p-4 border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-semibold text-sm">Outlet Stocks</p>
+                      {(formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null) && (
+                        <button
+                          type="button"
+                          className="rounded bg-blue-600 px-3 py-1 text-sm text-white"
+                          onClick={() => {
+                            const newOutletStocks = [...(formik.values.outlet_stocks || []), { outlet_id: "", stock: "", unit: "" }];
+                            formik.setFieldValue("outlet_stocks", newOutletStocks);
+                          }}
+                        >
+                          Add Outlet Stock
+                        </button>
+                      )}
+                    </div>
+                    {formik.values.outlet_stocks?.map((os: any, osIndex: number) => {
+                      const isAll = formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null;
+                      const selectedOutlets = (formik.values.outlet_stocks || []).map((o: any) => o.outlet_id).filter((id: string) => id && id !== 'all');
+                      const osOutletId = isAll ? (os.outlet_id === "" ? (outlets.length > 1 ? outlets[1].value : "") : os.outlet_id) : formik.values.outlet_id;
+
+                      return (
+                        <div key={osIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4 relative">
+                          <InputDropdownSearch
+                            label="Outlet*"
+                            name={`outlet_stocks[${osIndex}].outlet_id`}
+                            id={`outlet_id_stock_update_${osIndex}`}
+                            className="w-full"
+                            value={osOutletId}
+                            onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].outlet_id`, v)}
+                            options={isAll ? outlets.filter(o => o.value !== 'all' && (o.value === os.outlet_id || !selectedOutlets.includes(o.value))) : outlets.filter(o => o.value === formik.values.outlet_id)}
+                            error={
+                              (formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id &&
+                                typeof formik.errors.outlet_stocks === "object" &&
+                                (formik.errors.outlet_stocks as any)?.[osIndex]?.outlet_id
+                                ? (formik.errors.outlet_stocks as any)[osIndex].outlet_id
+                                : null
+                            }
+                          />
+                          <Input
+                            label="Stock*"
+                            name={`outlet_stocks[${osIndex}].stock`}
+                            id={`stock_update_${osIndex}`}
+                            value={os.stock === 0 ? "0" : (os.stock || "")}
+                            onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].stock`, v === "" ? "" : parseInt(v))}
+                            error={
+                              (formik.touched as any).outlet_stocks?.[osIndex]?.stock &&
+                                typeof formik.errors.outlet_stocks === "object" &&
+                                (formik.errors.outlet_stocks as any)?.[osIndex]?.stock
+                                ? (formik.errors.outlet_stocks as any)[osIndex].stock
+                                : null
+                            }
+                          />
+                          <Input
+                            label="Unit*"
+                            name={`outlet_stocks[${osIndex}].unit`}
+                            id={`unit_update_${osIndex}`}
+                            value={os.unit || ""}
+                            onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].unit`, v)}
+                            error={
+                              (formik.touched as any).outlet_stocks?.[osIndex]?.unit &&
+                                typeof formik.errors.outlet_stocks === "object" &&
+                                (formik.errors.outlet_stocks as any)?.[osIndex]?.unit
+                                ? (formik.errors.outlet_stocks as any)[osIndex].unit
+                                : null
+                            }
+                          />
+                          {osIndex > 0 && (
+                            <button
+                              type="button"
+                              className="absolute bg-red-500 rounded-full top-[1.1rem] right-4 p-1 text-white -mt-2 -mr-2"
+                              onClick={() => {
+                                const newOutletStocks = [...formik.values.outlet_stocks];
+                                newOutletStocks.splice(osIndex, 1);
+                                formik.setFieldValue("outlet_stocks", newOutletStocks);
+                              }}
+                            >
+                              <IoCloseOutline size={20} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div className="pt-6">
-                <InputTextArea
-                  label={"Description"}
-                  name={"description"}
-                  id={"description"}
-                  value={formik.values.description}
-                  onChange={(v) => formik.setFieldValue(`description`, v)}
-                  error={
-                    formik.touched.description &&
-                      typeof formik.errors.description === "object" &&
-                      formik.errors.description
-                      ? formik.errors.description
-                      : null
-                  }
-                />
-              </div>
+              <InputTextArea
+                className="mt-6"
+                label={"Description"}
+                name={"description"}
+                id={"description"}
+                value={formik.values.description}
+                onChange={(v) => formik.setFieldValue(`description`, v)}
+                error={
+                  formik.touched.description &&
+                    typeof formik.errors.description === "object" &&
+                    formik.errors.description
+                    ? formik.errors.description
+                    : null
+                }
+              />
               <div className="my-4 flex gap-4 p-4 mt-6 rounded-md border-gray-200 border">
                 {/* Pilihan Ya */}
                 <label className="flex cursor-pointer items-center space-x-2">
@@ -2162,7 +2326,7 @@ export default function Product() {
                   <span className="text-sm">Order Qty Decimal</span>
                 </label>
               </div>
-              <div className="grid grid-cols-1 gap-x-4 gap-y-6 pt-4 md:grid-cols-2 border p-4 rounded-md border-gray-200 my-4">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-5 pt-4 md:grid-cols-2 border p-4 rounded-md border-gray-200 my-4">
                 <InputToggle
                   value={formik.values.machine_washer}
                   onClick={(v) => {
@@ -2311,7 +2475,7 @@ export default function Product() {
               </div>
               <button
                 onClick={formik.submitForm}
-                className="mt-4 inline-flex items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
               >
                 Submit
               </button>
@@ -2354,7 +2518,22 @@ export default function Product() {
                 name={"Outlets"}
                 id={"Outlets"}
                 value={formik.values.outlet_id}
-                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                onChange={(v) => {
+                  formik.setFieldValue("outlet_id", v);
+                  if (v !== 'all' && v !== null && v !== '') {
+                    const currentStocks = formik.values.outlet_stocks || [];
+                    const existing = currentStocks.find((s: any) => s.outlet_id === v);
+                    let newStocks = [];
+                    if (existing) {
+                      newStocks = [existing];
+                    } else if (currentStocks.length > 0) {
+                      newStocks = [{ ...currentStocks[0], outlet_id: v }];
+                    } else {
+                      newStocks = [{ outlet_id: v, stock: "", unit: "" }];
+                    }
+                    formik.setFieldValue(`outlet_stocks`, newStocks);
+                  }
+                }}
                 options={outlets}
                 error={
                   formik.touched.outlet_id && formik.errors.outlet_id
@@ -2403,7 +2582,7 @@ export default function Product() {
                 >
                   <td className="px-6 py-4">{k + 1}</td>
                   <td className="px-6 py-4">{i.outlet?.name}</td>
-                  <td className="px-6 py-4">{i.outlet?.city.split("--")[1]}</td>
+                  <td className="px-6 py-4">{i.outlet?.city?.split("--")?.[1] || i.outlet?.city || ""}</td>
                   <td className="px-6 py-4">{rupiah(i.price)}</td>
                 </tr>
               ))}
@@ -2482,7 +2661,7 @@ export default function Product() {
                         />
                       </td>
                       <td className="px-6 py-4">{i.name}</td>
-                      <td className="px-6 py-4">{i.city.split("--")[1]}</td>
+                      <td className="px-6 py-4">{i.city?.split("--")?.[1] || i.city || ""}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2517,7 +2696,22 @@ export default function Product() {
                 name={"Outlets"}
                 id={"Outlets"}
                 value={formik.values.outlet_id}
-                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                onChange={(v) => {
+                  formik.setFieldValue("outlet_id", v);
+                  if (v !== 'all' && v !== null && v !== '') {
+                    const currentStocks = formik.values.outlet_stocks || [];
+                    const existing = currentStocks.find((s: any) => s.outlet_id === v);
+                    let newStocks = [];
+                    if (existing) {
+                      newStocks = [existing];
+                    } else if (currentStocks.length > 0) {
+                      newStocks = [{ ...currentStocks[0], outlet_id: v }];
+                    } else {
+                      newStocks = [{ outlet_id: v, stock: "", unit: "" }];
+                    }
+                    formik.setFieldValue(`outlet_stocks`, newStocks);
+                  }
+                }}
                 options={outlets}
                 error={
                   formik.touched.outlet_id && formik.errors.outlet_id

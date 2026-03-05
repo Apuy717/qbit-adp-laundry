@@ -49,10 +49,10 @@ const BasicChartPage: React.FC = () => {
 
       if (res?.statusCode === 200) {
         const outletMaping = res.data.map(i => {
-          const city = i.city.split("--")
+          const city = i.city?.split("--") || []
           return {
             value: i.id,
-            label: `${i.name} ${city.length >= 2 ? city[1] : city}`
+            label: `${i.name} ${city.length >= 2 ? city[1] : i.city || ""}`
           }
         })
 
@@ -273,11 +273,10 @@ const BasicChartPage: React.FC = () => {
                 {i.slug && i.slug.length >= 1 ? i.slug : "-"}
               </td> */}
               <td className="whitespace-nowrap px-6 py-4">
-                {/* {i.outlet?.name}
+                {i.outlet?.name}
                 <span className="font-light">
-                  {" "} ({i.outlet && i.outlet.city.split("--").length >= 2 ? i.outlet.city.split("--")[1] : i.outlet?.city})
-                </span> */}
-                All
+                  {" "} ({i.outlet && i.outlet.city?.split("--").length >= 2 ? i.outlet.city.split("--")[1] : i.outlet?.city || ""})
+                </span>
               </td>
 
               {/* <td className="whitespace-nowrap px-6 py-4">

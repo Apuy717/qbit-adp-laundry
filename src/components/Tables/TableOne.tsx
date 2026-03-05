@@ -104,9 +104,9 @@ const TableOne = () => {
               </p>
               <span className="text-sm">
                 {
-                  i.outlet.city.split("--").length >= 2 ?
-                    i.outlet.city.split("--")[1] :
-                    i.outlet.city
+                  i.outlet.city?.split("--").length >= 2 ?
+                    i.outlet.city?.split("--")[1] :
+                    i.outlet.city || ""
                 }
               </span>
             </div>

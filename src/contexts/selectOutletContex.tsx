@@ -119,8 +119,10 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               areaName = i.outlet_area_grouping.outlet_area.name;
             }
 
-            const city = i.city.split("--");
+
+            const city = i.city?.split("--") || [];
             const checkArea = maping.findIndex((f) => f.area_id === areaId);
+
             const outlet = {
               outlet_id: i.id,
               name: `${i.name} ${city.length >= 2 ? city[1] : city}`,
@@ -160,7 +162,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               cvName = i.outlet_grouping.outlet_grouping_master.name;
             }
 
-            const city = i.city.split("--");
+            const city = i.city?.split("--") || [];
             const checkArea = maping.findIndex((f) => f.cv_id === cvId);
             const outlet = {
               outlet_id: i.id,
@@ -183,7 +185,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
               });
             }
           }
-          
+
 
           setDefaultSelectedOutlet(defaultOutlet);
           setData(maping);
@@ -297,7 +299,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                         fS.outlet_id === f.outlet_id,
                                     );
                                     if (!checkAlready) {
-                                      
+
 
                                       checkAll.push({
                                         area_id: i.area_id,
@@ -332,7 +334,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                         fS.outlet_id === f.outlet_id,
                                     );
                                     if (!checkAlready) {
-                                      
+
 
                                       checkAll.push({
                                         cv_id: i.cv_id,
@@ -359,7 +361,7 @@ export const FilterPageProvider: FC<iFilterProvider> = ({ children }) => {
                                   }
                                 });
                               }
-                              
+
                             }}
                           />
                         </td>

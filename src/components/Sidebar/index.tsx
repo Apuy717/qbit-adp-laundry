@@ -107,6 +107,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               ],
             },
             {
+              label: "Stocks",
+              route: "/stock-adjustment",
+              role: [
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.HO,
+                ERoles.SUPER_ADMIN,
+              ],
+            },
+            {
               label: "Group by CV",
               route: "/group-by-cv",
             },
