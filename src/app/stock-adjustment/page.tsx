@@ -43,7 +43,7 @@ interface StockAdjustmentLog {
         id: string;
         name: string;
         city: string;
-    };
+    } | null;
 }
 
 interface OutletStockData {
@@ -295,7 +295,7 @@ export default function StockAdjustment() {
                                 {(currentPage - 1) * 10 + index + 1}
                             </td>
                             <td className="px-6 py-4">
-                                <p className="font-bold">{log.outlet.name}</p>
+                                <p className="font-bold">{log.outlet?.name || "This item is no longer stocked by the store."}</p>
                             </td>
                             <td className="px-6 py-4">
                                 <p className="font-bold">{log.product_sku.product.name} - {log.product_sku.name}</p>
