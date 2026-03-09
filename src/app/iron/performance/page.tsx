@@ -138,7 +138,7 @@ export default function IronPerformancePage() {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               {i.outlet.name}
-              <p className="text-xs font-thin">{` ` + i.outlet.city.split("--")[1]}</p>
+              <p className="text-xs font-thin">{` ` + (i.outlet.city?.split("--")?.[1] || i.outlet.city || "")}</p>
             </td>
             <td className="px-6 py-4">
               {formatWorkDuration(i.total_work_duration_minutes)}

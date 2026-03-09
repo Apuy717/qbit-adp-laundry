@@ -86,15 +86,15 @@ export default function DetailEmployee() {
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <p>District</p>
-                    <p>{employee?.district.split("--")[1]}</p>
+                    <p>{employee?.district?.split("--")?.[1] || employee?.district || ""}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <p>City</p>
-                    <p>{employee?.city.split("--")[1]}</p>
+                    <p>{employee?.city?.split("--")?.[1] || employee?.city || ""}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <p>Province</p>
-                    <p>{employee?.province.split("--")[1]}</p>
+                    <p>{employee?.province?.split("--")?.[1] || employee?.province || ""}</p>
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <p>Nationality</p>
@@ -130,7 +130,7 @@ export default function DetailEmployee() {
                   {employee && employee.employee_outlets.map((i, k) => (
                     <div className="flex flex-row items-center justify-between" key={k}>
                       <p>{i.outlet.name}</p>
-                      <p>{i.outlet.city.split("//").length >= 2 ? i.outlet.city.split("//")[1] : i.outlet.name}</p>
+                      <p>{i.outlet.city?.split("//").length >= 2 ? i.outlet.city.split("//")[1] : i.outlet.name}</p>
                     </div>
                   ))}
 

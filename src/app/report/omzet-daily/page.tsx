@@ -138,7 +138,7 @@ export default function OmzetDaily() {
         const changeFormat = res.data.map((daily) => formatDailyReport(daily));
         setDailyReport(changeFormat);
 
-        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.total),0);;
+        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.total), 0);;
         setTotalAmount(countAmount);
 
         setIsLoading(false);
@@ -377,19 +377,10 @@ export default function OmzetDaily() {
                 <td className="whitespace-nowrap px-6 py-4">
                   {toRupiah(item.total)}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "dryer")?.total_stage ?? 0}</td>
-                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "iron")?.total_stage ?? 0}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "washer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "dryer")?.total_stage ?? 0}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "irons")?.total_stage ?? 0}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "other")?.total_stage ?? 0}</td>
-                {/* <td className="text-center lg:text-left font-medium sm:px-6 sm:py-4 dark:text-slate-100 relative">
-                  <button
-                    onClick={() => setOpenRow(openRow === index ? null : index)}
-                    type="button"
-                    className="dark:text-slate-100"
-                  >
-                    {openRow === index ? "Hide Detail" : "Show Detail"}
-                  </button>
-                </td> */}
               </tr>
 
               {openRow === index && (
@@ -456,7 +447,7 @@ export default function OmzetDaily() {
               Prev
             </button>
 
-            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage}/>
+            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage} />
 
             <ul className="lg:flex items-center hidden">
               {pages.map((p, i) => {
@@ -466,7 +457,7 @@ export default function OmzetDaily() {
                 if (p === "...") {
                   return (
                     <li key={`dots-${i}`}>
-                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 px-3 leading-tight
+                      <span className="flex h-8 items-center justify-center px-3 text-gray-500 leading-tight
                         border border-gray-300 dark:border-gray-700">
                         ...
                       </span>
@@ -491,8 +482,8 @@ export default function OmzetDaily() {
                       {page}
                     </button>
                   </li>
-              );
-            })}
+                );
+              })}
 
             </ul>
 

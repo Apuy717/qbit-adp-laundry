@@ -73,7 +73,7 @@ export default function ModalSelectOutlet(props: iProps) {
             areaName = i.outlet_area_grouping.outlet_area.name
           }
 
-          const city = i.city.split("--")
+          const city = i.city?.split("--") || []
           const checkArea = maping.findIndex(f => f.area_id === areaId)
           const outlet = { outlet_id: i.id, name: `${i.name} ${city.length >= 2 ? city[1] : city}` }
 

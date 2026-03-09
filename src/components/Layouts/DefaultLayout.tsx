@@ -6,9 +6,15 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const isMobileDevice = (): boolean => {
-  const userAgent = navigator.userAgent || navigator.vendor;
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const userAgent = window.navigator.userAgent || (window as any).vendor || "";
   // Check for mobile devices
-  return /android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(userAgent);
+  return /android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+    userAgent,
+  );
 };
 
 export default function DefaultLayout({
@@ -16,11 +22,11 @@ export default function DefaultLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobileDevice());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   useEffect(() => {
-    const isMobile = isMobileDevice()
-    if (isMobile) setSidebarOpen(false)
+    const isMobile = isMobileDevice();
+    setSidebarOpen(!isMobile);
   }, [])
 
   // Arjun

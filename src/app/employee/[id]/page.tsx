@@ -199,7 +199,7 @@ export default function UpdateEmployee() {
           ) as HTMLInputElement | null;
           if (input && input.getAttribute("type") === "checkbox")
             input.checked = true;
-          const district = i.outlet.district.split("--");
+          const district = i.outlet.district?.split("--") || [];
           // return `${i.outlet.id}//${i.outlet.name} - ${district.length >= 2 ? district[1] : i.outlet.district}`
           return {
             area_id: "",
@@ -233,7 +233,11 @@ export default function UpdateEmployee() {
     }
 
     async function GotRoles() {
-      const res = await GET<iResponse<TRole[]>>({ url: "/api/auth/roles" });
+      const res = await GetWithToken<iResponse<TRole[]>>({
+        router: router,
+        url: "/api/auth/roles",
+        token: `${auth.auth.access_token}`,
+      });
       if (res.statusCode === 200) {
         const mapingRoleToDropdown = res.data.map((i, k) => {
           if (k === 0) formik.setFieldValue("roles_id", i.id);

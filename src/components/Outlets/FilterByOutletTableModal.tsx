@@ -31,7 +31,7 @@ export const FilterByOutletTableModal = (props: iFilterByOutletTableModal) => {
 
       if (res?.statusCode === 200) {
         const outletMaping = res.data.map(i => {
-          const city = i.city.split("--")
+          const city = i.city?.split("--") || []
           return {
             value: i.id,
             label: `${i.name} ${city.length >= 2 ? city[1] : city}`

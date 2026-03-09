@@ -190,7 +190,11 @@ export default function CreateEmployee() {
     }
 
     async function GotRoles() {
-      const res = await GET<iResponse<TRole[]>>({ url: "/api/auth/roles" });
+      const res = await GetWithToken<iResponse<TRole[]>>({
+        router: router,
+        url: "/api/auth/roles",
+        token: `${auth.auth.access_token}`,
+      });
       if (res.statusCode === 200) {
         const mapingRoleToDropdown = res.data.map((i, k) => {
           if (k === 0) formik.setFieldValue("roles_id", i.id);
@@ -285,14 +289,9 @@ export default function CreateEmployee() {
     }
   }
 
-  function filterOutlet() {
-    if (searchOutlet.length >= 3)
-      return outlets.filter((f) =>
-        f.name.toLowerCase().includes(searchOutlet.toLowerCase()),
-      );
 
-    return outlets;
-  }
+  console.log(formik.errors);
+
 
   return (
     <>

@@ -27,6 +27,18 @@ export default function ProductV2Page() {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
 
+  const [sortField, setSortField] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
   const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(FilterByOutletContext);
   function FormatIDR(number: string) {
     const result = new Intl.NumberFormat("id-ID", {
@@ -122,15 +134,49 @@ export default function ProductV2Page() {
     }
   }
 
+
   function FilterData() {
+    let returnData = data;
     if (search.length >= 3) {
-      return data.filter(f => {
+      returnData = returnData.filter(f => {
         const productMatch = f.product.toLowerCase().includes(search.toLowerCase());
         const skuMatch = f.skus?.some(s => s.name.toLowerCase().includes(search.toLowerCase()));
         return productMatch || skuMatch;
       });
     }
-    return data;
+
+    if (sortField) {
+      returnData = returnData.map(p => {
+        const sortedSkus = [...p.skus].sort((a, b) => {
+          let valA: any = "";
+          let valB: any = "";
+
+          if (sortField === "code") {
+            valA = a.code || "";
+            valB = b.code || "";
+          } else if (sortField === "name") {
+            valA = a.name || "";
+            valB = b.name || "";
+          } else if (sortField === "price") {
+            valA = a.price || 0;
+            valB = b.price || 0;
+          } else if (sortField === "outlet") {
+            valA = a.outlet?.name || "All";
+            valB = b.outlet?.name || "All";
+          } else if (sortField === "created_by") {
+            valA = a.sku_creator?.fullname || "";
+            valB = b.sku_creator?.fullname || "";
+          }
+
+          if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+          if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        });
+        return { ...p, skus: sortedSkus };
+      });
+    }
+
+    return returnData;
   }
 
   return (
@@ -159,7 +205,13 @@ export default function ProductV2Page() {
           <div className="w-min">
             <PrintButton />
           </div>
-
+          <button
+            onClick={() => router.push('/v2/product/add-sku')}
+            className={`inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-3 
+              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 whitespace-nowrap`}
+          >
+            Add Sku
+          </button>
         </div>
       </div>
       <div id="printable">
@@ -196,12 +248,14 @@ export default function ProductV2Page() {
                       <thead className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                           <th className="p-2">#</th>
-                          <th className="p-2">Code</th>
-                          <th className="p-2">Name</th>
-                          <th className="p-2">Price</th>
-                          <th className="p-2">Outlet</th>
+                          <th className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => handleSort('code')}>Code {sortField === 'code' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                          <th className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => handleSort('name')}>Name {sortField === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                          <th className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => handleSort('price')}>Price {sortField === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                          <th className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => handleSort('outlet')}>Outlet {sortField === 'outlet' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                           <th className="p-2">Status</th>
                           <th className="p-2">Description</th>
+                          <th className="p-2 whitespace-nowrap cursor-pointer hover:bg-gray-200" onClick={() => handleSort('created_by')}>Created by {sortField === 'created_by' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
+                          <th className="p-2 whitespace-nowrap cursor-pointer hover:bg-gray-200" onClick={() => handleSort('updated_by')}>Update by {sortField === 'updated_by' && (sortOrder === 'asc' ? '↑' : '↓')}</th>
                           <th className="p-2">Action</th>
                         </tr>
                       </thead>
@@ -223,7 +277,6 @@ export default function ProductV2Page() {
                                 </td>
                               )}
                               <td className={`p-2`}>{sku.outlet === null ? "All" : sku.outlet.name}</td>
-                              { }
                               <td className={`p-2`}>
                                 {
                                   sku.is_deleted ?
@@ -232,6 +285,26 @@ export default function ProductV2Page() {
                                 }
                               </td>
                               <td className={`p-2`}>{sku.description.length >= 1 ? sku.description : "-"}</td>
+                              <td className={`p-2 whitespace-nowrap`}>{
+                                sku.sku_creator ? sku.sku_creator.fullname : "-"}
+                                <p className="text-xs text-gray-500">
+                                  {sku.sku_creator ? `${sku.sku_creator.dial_code} ${sku.sku_creator.phone_number}` : ""}
+                                </p>
+                              </td>
+                              <td className={`p-2 whitespace-nowrap`}>{
+                                sku.sku_updater ? sku.sku_updater.fullname : "-"}
+                                <p className="text-xs text-gray-500">
+                                  {sku.sku_updater ? `${sku.sku_updater.dial_code} ${sku.sku_updater.phone_number}` : ""}
+                                </p>
+                              </td>
+                              <td className="p-2 whitespace-nowrap">
+                                <button
+                                  onClick={() => router.push(`/v2/product/update-sku/${sku.id}`)}
+                                  className="bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded text-xs"
+                                >
+                                  Update
+                                </button>
+                              </td>
                             </tr>
                           )
                         })}
@@ -295,7 +368,9 @@ interface iProductSku {
   product: {
     id: string;
     name: string;
-  },
+    product_creator: iUser | null;
+    product_updater: iUser | null;
+  };
   outlet: {
     id: string;
     name: string;
@@ -306,12 +381,19 @@ interface iProductSku {
     outlet: {
       name: string;
     }
-  }[]
+  }[];
+  sku_creator: iUser | null;
+  sku_updater: iUser | null;
 }
-interface iResSku {
-  total: number,
-  data: GroupedLaundryData[]
+
+interface iUser {
+  id: string
+  fullname: string
+  email: string
+  dial_code: string
+  phone_number: string
 }
+
 interface GroupedLaundryData {
   product: string;
   total_items: number;

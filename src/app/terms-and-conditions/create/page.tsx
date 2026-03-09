@@ -15,14 +15,30 @@ import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { json } from "stream/consumers";
+import { CreateUpdateTAndCDTO } from "@/types/tnc";
+import type { Outlet } from "@/types/outlet";
 
-interface MyResponse {
+interface MyResponse<TData = unknown> {
   statusCode: number;
   msg: string;
-  data: any;
+  data: TData;
   err: string | string[];
 }
+
+type TAndCItemForm = {
+  label: string;
+  text: string;
+};
+
+type TAndCFormValues = {
+  outlet_id: string;
+  title: string;
+  address: string;
+  phone_number: string;
+  icon: string | null;
+  receipt_icon: string | null;
+  items: TAndCItemForm[];
+};
 
 export default function TermsAndConditions() {
   const auth = useSelector((s: RootState) => s.auth);
@@ -32,7 +48,7 @@ export default function TermsAndConditions() {
   useEffect(() => {
     const GotOutlets = async () => {
       let urlwithQuery = `/api/outlet`;
-      const res = await GetWithToken<MyResponse>({
+      const res = await GetWithToken<MyResponse<Outlet[]>>({
         router: router,
         url: urlwithQuery,
         token: `${auth.auth.access_token}`,
@@ -41,7 +57,7 @@ export default function TermsAndConditions() {
         label: "All",
         value: "all",
       };
-      const mapingOutlet = res.data.map((i: any) => {
+      const mapingOutlet = res.data.map((i) => {
         return {
           label: i.name,
           value: i.id,
@@ -56,10 +72,14 @@ export default function TermsAndConditions() {
     GotOutlets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const formik = useFormik({
+  const formik = useFormik<TAndCFormValues>({
     initialValues: {
       outlet_id: "all",
       title: "",
+      address: "",
+      phone_number: "",
+      icon: null,
+      receipt_icon: null,
       items: [
         {
           label: "",
@@ -68,28 +88,51 @@ export default function TermsAndConditions() {
       ],
     },
     validationSchema: Yup.object({
-      outlet_id: Yup.string().required(),
-      title: Yup.string().required(),
-      items: Yup.array().of(
-        Yup.object({
-          label: Yup.string(),
-          text: Yup.string(),
-        }),
-      ),
+      outlet_id: Yup.string().required("Outlet is required"),
+      title: Yup.string()
+        .required("Title is required")
+        .min(3, "Title must be at least 3 characters")
+        .max(100, "Title must be at most 100 characters"),
+      address: Yup.string().nullable(),
+      phone_number: Yup.string().nullable(),
+      icon: Yup.string().nullable(),
+      receipt_icon: Yup.string().nullable(),
+      items: Yup.array()
+        .of(
+          Yup.object({
+            label: Yup.string()
+              .required("Item title is required")
+              .min(3, "Item title must be at least 3 characters")
+              .max(100, "Item title must be at most 100 characters"),
+            text: Yup.string()
+              .required("Item content is required")
+              .min(3, "Item content must be at least 3 characters")
+              .max(5000, "Item content must be at most 5000 characters"),
+          }),
+        )
+        .min(1, "At least one item is required"),
     }),
     onSubmit: async (values) => {
-      const val = JSON.stringify(values);
-
       if (loading) return;
       setLoading(true);
-      const updatedValues = {
-        ...values,
+
+      const payload: CreateUpdateTAndCDTO = {
         outlet_id: values.outlet_id === "all" ? null : values.outlet_id,
+        title: values.title,
+        address: values.address || null,
+        phone_number: values.phone_number || null,
+        icon: values.icon || null,
+        receipt_icon: values.receipt_icon || null,
+        items: values.items.map((item) => ({
+          label: item.label,
+          text: item.text,
+        })),
       };
+
       const res = await PostWithToken<MyResponse>({
         router: router,
         url: "/api/t-and-c/create-update",
-        data: updatedValues,
+        data: payload,
         token: `${auth.auth.access_token}`,
       });
       if (res.statusCode === 422) {
@@ -121,6 +164,22 @@ export default function TermsAndConditions() {
     const items = [...formik.values.items];
     items.splice(index, 1);
     formik.setFieldValue("items", items);
+  };
+
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "icon" | "receipt_icon",
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      const base64Only = result.includes(",") ? result.split(",")[1] : result;
+      formik.setFieldValue(field, base64Only);
+    };
+    reader.readAsDataURL(file);
   };
   return (
     <div>
@@ -157,6 +216,76 @@ export default function TermsAndConditions() {
               : null
           }
         />
+        <Input
+          label={"Address"}
+          name={"address"}
+          id={"address"}
+          value={formik.values.address}
+          onChange={(v) => formik.setFieldValue("address", v)}
+          error={
+            formik.touched.address && formik.errors.address
+              ? (formik.errors.address as string)
+              : null
+          }
+        />
+        <Input
+          label={"Phone Number"}
+          name={"phone_number"}
+          id={"phone_number"}
+          value={formik.values.phone_number}
+          onChange={(v) => formik.setFieldValue("phone_number", v)}
+          error={
+            formik.touched.phone_number && formik.errors.phone_number
+              ? (formik.errors.phone_number as string)
+              : null
+          }
+        />
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black-2 dark:text-gray-300">
+              Icon (base64 image)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, "icon")}
+              className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-opacity-90 dark:text-gray-300"
+            />
+            {formik.values.icon && (
+              <div className="mt-2">
+                <p className="mb-1 text-xs text-gray-500">Icon preview:</p>
+                <img
+                  src={`data:image/*;base64,${formik.values.icon}`}
+                  alt="Icon preview"
+                  className="h-16 w-16 rounded object-contain border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black-2 dark:text-gray-300">
+              Receipt Icon (base64 image)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, "receipt_icon")}
+              className="block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-opacity-90 dark:text-gray-300"
+            />
+            {formik.values.receipt_icon && (
+              <div className="mt-2">
+                <p className="mb-1 text-xs text-gray-500">Receipt icon preview:</p>
+                <img
+                  src={`data:image/*;base64,${formik.values.receipt_icon}`}
+                  alt="Receipt icon preview"
+                  className="h-16 w-16 rounded object-contain border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+        </div>
         {formik.values.items.map((i, index) => (
           <div key={index}>
             <div className="h-full w-full space-y-6 rounded-lg p-4 outline outline-1 outline-slate-400">
@@ -185,9 +314,9 @@ export default function TermsAndConditions() {
                 }
                 error={
                   formik.touched.items?.[index]?.label &&
-                  typeof formik.errors.items?.[index] === "object" &&
-                  formik.errors.items[index]?.label
-                    ? formik.errors.items[index].label
+                    typeof formik.errors.items?.[index] === "object" &&
+                    (formik.errors.items[index] as any)?.label
+                    ? (formik.errors.items[index] as any).label
                     : null
                 }
               />
@@ -210,9 +339,9 @@ export default function TermsAndConditions() {
                 // }}
                 error={
                   formik.touched.items?.[index]?.text &&
-                  typeof formik.errors.items?.[index] === "object" &&
-                  formik.errors.items[index]?.text
-                    ? formik.errors.items[index].text
+                    typeof formik.errors.items?.[index] === "object" &&
+                    (formik.errors.items[index] as any)?.text
+                    ? (formik.errors.items[index] as any).text
                     : null
                 }
               />
@@ -241,7 +370,7 @@ export default function TermsAndConditions() {
       <div className="mt-6 h-full w-full space-y-6 rounded-md bg-white p-4 dark:bg-boxdark">
         <div className="w-full">
           <button
-            onClick={() => {}}
+            onClick={() => { }}
             className="w-auto rounded-md bg-gray-500 px-10 py-2 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
             Preview

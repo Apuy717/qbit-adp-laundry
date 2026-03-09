@@ -347,13 +347,16 @@ export default function Orders() {
             />
           </div>
 
-          <button
-            className={`${role.name === ERoles.OUTLET_ADMIN || role.name === ERoles.FINANCE && "hidden"} font-medium inline-flex w-full items-center justify-center rounded-md bg-black px-10 
-            py-3 text-center text-white hover:bg-opacity-90`}
-            onClick={() => router.push("/orders/create")}
-          >
-            Create Order
-          </button>
+          {(role.name === ERoles.PROVIDER ||
+            department === EDepartmentEmployee.HQ ||
+            department === EDepartmentEmployee.HO) && (
+              <button
+                className={"font-medium inline-flex w-full items-center justify-center rounded-md bg-black px-10 py-3 text-center text-white hover:bg-opacity-90"}
+                onClick={() => router.push("/orders/create")}
+              >
+                Create Order
+              </button>
+            )}
           <button
             className={`font-edium inline-flex w-full md:w-min items-center justify-center rounded-md bg-black px-10 
             py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
@@ -468,9 +471,9 @@ export default function Orders() {
                   <span className="font-light">
                     {" "}
                     (
-                    {i.outlet && i.outlet.city.split("--").length >= 2
+                    {i.outlet && i.outlet.city?.split("--").length >= 2
                       ? i.outlet.city.split("--")[1]
-                      : i.outlet?.city}
+                      : i.outlet?.city || ""}
                     )
                   </span>
                 </div>

@@ -119,7 +119,7 @@ export default function OutletPage() {
             areaName = i.outlet_area_grouping.outlet_area.name;
           }
 
-          const city = i.city.split("--");
+          const city = i.city?.split("--") || [];
           const checkArea = maping.findIndex((f) => f.area_id === areaId);
           const outlet = {
             outlet_id: i.id,
@@ -563,13 +563,13 @@ export default function OutletPage() {
                           (group) => group.outlet_id === option.value,
                         ) ||
                         formikGrouping.values.groupings[index].outlet_id ===
-                          option.value,
+                        option.value,
                     )}
                     error={
                       formikGrouping.touched.groupings?.[index]?.outlet_id &&
-                      typeof formikGrouping.errors.groupings?.[index] ===
+                        typeof formikGrouping.errors.groupings?.[index] ===
                         "object" &&
-                      formikGrouping.errors.groupings[index]?.outlet_id
+                        formikGrouping.errors.groupings[index]?.outlet_id
                         ? formikGrouping.errors.groupings[index]?.outlet_id
                         : null
                     }
@@ -591,9 +591,9 @@ export default function OutletPage() {
                     error={
                       formikGrouping.touched.groupings?.[index]
                         ?.outlet_area_id &&
-                      typeof formikGrouping.errors.groupings?.[index] ===
+                        typeof formikGrouping.errors.groupings?.[index] ===
                         "object" &&
-                      formikGrouping.errors.groupings[index]?.outlet_area_id
+                        formikGrouping.errors.groupings[index]?.outlet_area_id
                         ? formikGrouping.errors.groupings[index]?.outlet_area_id
                         : null
                     }
