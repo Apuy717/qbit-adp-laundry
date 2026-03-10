@@ -71,7 +71,7 @@ export default function AddSkuPage() {
             name: "",
             description: "",
             price: "",
-            type: "",
+            type: serviceType[0].value,
             outlet_stocks: [],
             machine_washer: false,
             washer_duration: 0,
@@ -85,12 +85,112 @@ export default function AddSkuPage() {
             machine_ids: [] as MachineId[],
         },
         validationSchema: Yup.object({
-            outlet_id: Yup.string().required(),
-            code: Yup.string().max(100, "Max 100 char!"),
-            name: Yup.string().max(100, "Max 100 char!").required(),
-            price: Yup.number().min(0).required(),
-            type: Yup.string().max(100, "Max 100 char!").required(),
-            product_id: Yup.string().required(),
+
+            outlet_id: Yup.string()
+                .required("Outlet is required"),
+
+            product_id: Yup.string()
+                .required("Select product"),
+
+            code: Yup.string()
+                .trim()
+                .max(100, "Max 100 characters"),
+
+            name: Yup.string()
+                .trim()
+                .max(100, "Max 100 characters")
+                .required("Name is required"),
+
+            description: Yup.string()
+                .nullable(),
+
+            price: Yup.number()
+                .typeError("Price must be a number")
+                .min(0, "Price cannot be negative")
+                .required("Price is required"),
+
+            type: Yup.string()
+                .oneOf(["services", "goods"])
+                .required("Type is required"),
+
+            outlet_stocks: Yup.array().when("type", {
+                is: "goods",
+                then: () =>
+                    Yup.array()
+                        .of(
+                            Yup.object({
+                                outlet_id: Yup.string()
+                                    .required("Outlet is required"),
+
+                                stock: Yup.number()
+                                    .typeError("Stock must be a number")
+                                    .min(0, "Stock cannot be negative")
+                                    .required("Stock is required"),
+
+                                unit: Yup.string()
+                                    .required("Unit is required"),
+                            })
+                        )
+                        .min(1, "At least 1 outlet stock is required"),
+                otherwise: () => Yup.array().notRequired(),
+            }),
+
+            machine_washer: Yup.boolean(),
+
+            washer_duration: Yup.number()
+                .nullable()
+                .when("machine_washer", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .typeError("Duration must be a number")
+                            .min(1, "Minimum duration is 1 minute")
+                            .required("Washer duration is required"),
+                }),
+
+            machine_dryer: Yup.boolean(),
+
+            dryer_duration: Yup.number()
+                .nullable()
+                .when("machine_dryer", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .typeError("Duration must be a number")
+                            .min(1, "Minimum duration is 1 minute")
+                            .required("Dryer duration is required"),
+                }),
+
+            machine_iron: Yup.boolean(),
+
+            iron_duration: Yup.number()
+                .nullable()
+                .when("machine_iron", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .typeError("Duration must be a number")
+                            .min(1, "Minimum duration is 1 minute")
+                            .required("Iron duration is required"),
+                }),
+
+            is_deleted: Yup.boolean(),
+
+            is_self_service: Yup.boolean(),
+
+            is_quantity_decimal: Yup.boolean(),
+
+            machine_ids: Yup.array().of(
+                Yup.object({
+                    machine_id: Yup.string()
+                        .required("Machine is required"),
+
+                    duration: Yup.number()
+                        .typeError("Duration must be a number")
+                        .min(0, "Duration cannot be negative")
+                        .required("Duration is required"),
+                })
+            ),
         }),
         onSubmit: async (values) => {
             if (values.type === "services") {
@@ -334,9 +434,7 @@ export default function AddSkuPage() {
                             }}
                             options={MapingProduct}
                             error={
-                                formik.touched.product_id &&
-                                    typeof formik.errors.product_id === "object" &&
-                                    formik.errors.product_id
+                                formik.touched.product_id && formik.errors.product_id
                                     ? formik.errors.product_id
                                     : null
                             }
@@ -349,7 +447,7 @@ export default function AddSkuPage() {
                         value={formik.values.code}
                         onChange={(v) => formik.setFieldValue(`code`, v)}
                         error={
-                            formik.touched.code && typeof formik.errors.code === "object" && formik.errors.code
+                            formik.touched.code && formik.errors.code
                                 ? formik.errors.code
                                 : null
                         }
@@ -361,7 +459,7 @@ export default function AddSkuPage() {
                         value={formik.values.name}
                         onChange={(v) => formik.setFieldValue(`name`, v)}
                         error={
-                            formik.touched.name && typeof formik.errors.name === "object" && formik.errors.name
+                            formik.touched.name && formik.errors.name
                                 ? formik.errors.name
                                 : null
                         }
@@ -375,7 +473,7 @@ export default function AddSkuPage() {
                         value={formik.values.price as string}
                         onChange={(v) => formik.setFieldValue(`price`, v)}
                         error={
-                            formik.touched.price && typeof formik.errors.price === "object" && formik.errors.price
+                            formik.touched.price && formik.errors.price
                                 ? formik.errors.price
                                 : null
                         }
@@ -389,7 +487,7 @@ export default function AddSkuPage() {
                         onChange={(v) => formik.setFieldValue(`type`, v)}
                         options={serviceType}
                         error={
-                            formik.touched.type && typeof formik.errors.type === "object" && formik.errors.type
+                            formik.touched.type && formik.errors.type
                                 ? formik.errors.type
                                 : null
                         }
@@ -489,7 +587,7 @@ export default function AddSkuPage() {
                         value={formik.values.description}
                         onChange={(v) => formik.setFieldValue(`description`, v)}
                         error={
-                            formik.touched.description && typeof formik.errors.description === "object" && formik.errors.description
+                            formik.touched.description && formik.errors.description
                                 ? formik.errors.description
                                 : null
                         }
@@ -563,7 +661,11 @@ export default function AddSkuPage() {
                             id={"washer_duration"}
                             value={`${formik.values.washer_duration ? formik.values.washer_duration : ""}`}
                             onChange={(v) => formik.setFieldValue(`washer_duration`, parseInt(v))}
-                            error={null}
+                            error={
+                                formik.touched.washer_duration && formik.errors.washer_duration
+                                    ? formik.errors.washer_duration
+                                    : null
+                            }
                         />
                         <InputToggle
                             value={formik.values.machine_dryer}
@@ -578,7 +680,11 @@ export default function AddSkuPage() {
                             id={"dryer_duration"}
                             value={formik.values.dryer_duration ? formik.values.dryer_duration as unknown as string : ``}
                             onChange={(v) => formik.setFieldValue(`dryer_duration`, parseInt(v))}
-                            error={null}
+                            error={
+                                formik.touched.dryer_duration && formik.errors.dryer_duration
+                                    ? formik.errors.dryer_duration
+                                    : null
+                            }
                         />
                         <InputToggle
                             value={formik.values.machine_iron}
@@ -593,7 +699,11 @@ export default function AddSkuPage() {
                             id={"iron_duration"}
                             value={formik.values.iron_duration ? formik.values.iron_duration as unknown as string : ""}
                             onChange={(v) => formik.setFieldValue(`iron_duration`, parseInt(v))}
-                            error={null}
+                            error={
+                                formik.touched.iron_duration && formik.errors.iron_duration
+                                    ? formik.errors.iron_duration
+                                    : null
+                            }
                         />
                     </div>
 
