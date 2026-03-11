@@ -297,12 +297,24 @@ export default function ProductV2Page() {
                                   {sku.sku_updater ? `${sku.sku_updater.dial_code} ${sku.sku_updater.phone_number}` : ""}
                                 </p>
                               </td>
-                              <td className="p-2 whitespace-nowrap">
+                              <td className="p-2 whitespace-nowrap space-x-2">
                                 <button
                                   onClick={() => router.push(`/v2/product/update-sku/${sku.id}`)}
                                   className="bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded text-xs"
                                 >
                                   Update
+                                </button>
+                                <button
+                                  onClick={() => router.push(`/v2/product/exclude-sku/${sku.id}`)}
+                                  className="bg-orange-600 hover:bg-orange-700 px-3 py-1 text-white rounded text-xs"
+                                >
+                                  Exclude
+                                </button>
+                                <button
+                                  onClick={() => router.push(`/v2/product/prices/${sku.id}`)}
+                                  className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 text-white rounded text-xs"
+                                >
+                                  Prices
                                 </button>
                               </td>
                             </tr>
