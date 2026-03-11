@@ -159,8 +159,7 @@ export default function UpdateSkuPage() {
                                 originalValue === "" || originalValue === null ? undefined : value
                             )
                             .typeError("Duration must be a number")
-                            .min(1, "Minimum duration is 1 minute")
-                            .required("Washer duration is required"),
+
                 }),
 
             machine_dryer: Yup.boolean(),
@@ -175,8 +174,6 @@ export default function UpdateSkuPage() {
                                 originalValue === "" || originalValue === null ? undefined : value
                             )
                             .typeError("Duration must be a number")
-                            .min(1, "Minimum duration is 1 minute")
-                            .required("Dryer duration is required"),
                 }),
 
             machine_iron: Yup.boolean(),
@@ -191,8 +188,6 @@ export default function UpdateSkuPage() {
                                 originalValue === "" || originalValue === null ? undefined : value
                             )
                             .typeError("Duration must be a number")
-                            .min(1, "Minimum duration is 1 minute")
-                            .required("Iron duration is required"),
                 }),
 
             is_deleted: Yup.boolean(),
@@ -803,58 +798,73 @@ export default function UpdateSkuPage() {
                             onClick={(v) => formik.setFieldValue(`machine_washer`, v)}
                             label={"Washer machine"}
                         />
-                        <Input
-                            className={formik.values.machine_washer ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_washer ? "Time in minutes" : ""}
-                            name={"washer_duration"}
-                            type="number"
-                            id={"washer_duration"}
-                            value={formik.values.washer_duration !== null && formik.values.washer_duration !== undefined ? String(formik.values.washer_duration) : ""}
-                            onChange={(v) => formik.setFieldValue(`washer_duration`, v === "" ? "" : parseInt(v, 10))}
-                            error={
-                                (formik.touched.washer_duration || formik.submitCount > 0) && formik.errors.washer_duration
-                                    ? formik.errors.washer_duration
-                                    : null
-                            }
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_washer ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_washer ? "Time in minutes" : ""}
+                                name={"washer_duration"}
+                                type="number"
+                                id={"washer_duration"}
+                                value={formik.values.washer_duration !== null && formik.values.washer_duration !== undefined ? String(formik.values.washer_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`washer_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.washer_duration || formik.submitCount > 0) && formik.errors.washer_duration
+                                        ? formik.errors.washer_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_washer && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                         <InputToggle
                             value={formik.values.machine_dryer}
                             onClick={(v) => formik.setFieldValue(`machine_dryer`, v)}
                             label={"Dryer Machine"}
                         />
-                        <Input
-                            className={formik.values.machine_dryer ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_dryer ? "Time in minutes" : ""}
-                            name={"dryer_duration"}
-                            type="number"
-                            id={"dryer_duration"}
-                            value={formik.values.dryer_duration !== null && formik.values.dryer_duration !== undefined ? String(formik.values.dryer_duration) : ""}
-                            onChange={(v) => formik.setFieldValue(`dryer_duration`, v === "" ? "" : parseInt(v, 10))}
-                            error={
-                                (formik.touched.dryer_duration || formik.submitCount > 0) && formik.errors.dryer_duration
-                                    ? formik.errors.dryer_duration
-                                    : null
-                            }
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_dryer ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_dryer ? "Time in minutes" : ""}
+                                name={"dryer_duration"}
+                                type="number"
+                                id={"dryer_duration"}
+                                value={formik.values.dryer_duration !== null && formik.values.dryer_duration !== undefined ? String(formik.values.dryer_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`dryer_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.dryer_duration || formik.submitCount > 0) && formik.errors.dryer_duration
+                                        ? formik.errors.dryer_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_dryer && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                         <InputToggle
                             value={formik.values.machine_iron}
                             onClick={(v) => formik.setFieldValue(`machine_iron`, v)}
                             label={"Iron Machine"}
                         />
-                        <Input
-                            className={formik.values.machine_iron ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_iron ? "Time in minutes" : ""}
-                            name={"iron_duration"}
-                            type="number"
-                            id={"iron_duration"}
-                            value={formik.values.iron_duration !== null && formik.values.iron_duration !== undefined ? String(formik.values.iron_duration) : ""}
-                            onChange={(v) => formik.setFieldValue(`iron_duration`, v === "" ? "" : parseInt(v, 10))}
-                            error={
-                                (formik.touched.iron_duration || formik.submitCount > 0) && formik.errors.iron_duration
-                                    ? formik.errors.iron_duration
-                                    : null
-                            }
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_iron ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_iron ? "Time in minutes" : ""}
+                                name={"iron_duration"}
+                                type="number"
+                                id={"iron_duration"}
+                                value={formik.values.iron_duration !== null && formik.values.iron_duration !== undefined ? String(formik.values.iron_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`iron_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.iron_duration || formik.submitCount > 0) && formik.errors.iron_duration
+                                        ? formik.errors.iron_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_iron && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className={formik.values.machine_dryer || formik.values.machine_washer
@@ -914,7 +924,7 @@ export default function UpdateSkuPage() {
             </div>
 
             <Modal isOpen={isViewSkuExclusive}>
-                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%] md:h-[700px]">
                     <div
                         className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
                         onClick={() => setIsViewSkuExclusive(false)}

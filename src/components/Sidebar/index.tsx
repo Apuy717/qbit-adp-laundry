@@ -35,6 +35,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const { role, department } = useSelector((s: RootState) => s.auth)
   const { setModal, modal, selectedOutlets } = useContext(FilterByOutletContext)
 
+  const handleMenuNavigation = () => {
+    if (typeof window === "undefined") return;
+
+    const isSmallToMediumScreen = window.innerWidth >= 640 && window.innerWidth < 1024;
+    if (isSmallToMediumScreen) {
+      setSidebarOpen(false);
+    }
+  };
+
   const menuGroups = [
     {
       name: "MENU",
@@ -371,6 +380,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             item={itemToPass}
                             pageName={pageName}
                             setPageName={setPageName}
+                            onMenuNavigation={handleMenuNavigation}
                           />
                         </div>
                       )
@@ -394,6 +404,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             item={itemToPass}
                             pageName={pageName}
                             setPageName={setPageName}
+                            onMenuNavigation={handleMenuNavigation}
                           />
                         </div>
                       )
