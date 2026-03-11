@@ -773,7 +773,7 @@ export default function AddSkuPage() {
             </div>
 
             <Modal isOpen={isViewSkuExclusive}>
-                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%] md:h-[700px]">
                     <div
                         className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
                         onClick={() => setIsViewSkuExclusive(false)}
