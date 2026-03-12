@@ -90,11 +90,126 @@ export default function UpdateSkuPage() {
             machine_ids: [] as MachineId[],
         },
         validationSchema: Yup.object({
-            code: Yup.string().max(100, "Max 100 char!"),
-            name: Yup.string().max(100, "Max 100 char!").required(),
-            price: Yup.number().min(0).required(),
-            type: Yup.string().max(100, "Max 100 char!").required(),
-            product_id: Yup.string().required(),
+
+            outlet_id: Yup.string()
+                .nullable()
+                .required("Outlet is required"),
+
+            product_id: Yup.string()
+                .required("Select product"),
+
+            code: Yup.string()
+                .trim()
+                .max(100, "Max 100 characters"),
+
+            name: Yup.string()
+                .trim()
+                .max(100, "Max 100 characters")
+                .required("Name is required"),
+
+            description: Yup.string()
+                .nullable(),
+
+            price: Yup.number()
+                .transform((value, originalValue) =>
+                    originalValue === "" || originalValue === null ? undefined : value
+                )
+                .typeError("Price must be a number")
+                .min(0, "Price cannot be negative")
+                .required("Price is required"),
+
+            type: Yup.string()
+                .oneOf(["services", "goods"])
+                .required("Type is required"),
+
+            outlet_stocks: Yup.array().when("type", {
+                is: "goods",
+                then: () =>
+                    Yup.array()
+                        .of(
+                            Yup.object({
+                                outlet_id: Yup.string()
+                                    .required("Outlet is required"),
+
+                                stock: Yup.number()
+                                    .transform((value, originalValue) =>
+                                        originalValue === "" || originalValue === null ? undefined : value
+                                    )
+                                    .typeError("Stock must be a number")
+                                    .min(0, "Stock cannot be negative")
+                                    .required("Stock is required"),
+
+                                unit: Yup.string()
+                                    .required("Unit is required"),
+                            })
+                        )
+                        .min(1, "At least 1 outlet stock is required"),
+                otherwise: () => Yup.array().notRequired(),
+            }),
+
+            machine_washer: Yup.boolean(),
+
+            washer_duration: Yup.number()
+                .nullable()
+                .when("machine_washer", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .transform((value, originalValue) =>
+                                originalValue === "" || originalValue === null ? undefined : value
+                            )
+                            .typeError("Duration must be a number")
+
+                }),
+
+            machine_dryer: Yup.boolean(),
+
+            dryer_duration: Yup.number()
+                .nullable()
+                .when("machine_dryer", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .transform((value, originalValue) =>
+                                originalValue === "" || originalValue === null ? undefined : value
+                            )
+                            .typeError("Duration must be a number")
+                }),
+
+            machine_iron: Yup.boolean(),
+
+            iron_duration: Yup.number()
+                .nullable()
+                .when("machine_iron", {
+                    is: true,
+                    then: () =>
+                        Yup.number()
+                            .transform((value, originalValue) =>
+                                originalValue === "" || originalValue === null ? undefined : value
+                            )
+                            .typeError("Duration must be a number")
+                }),
+
+            is_deleted: Yup.boolean(),
+
+            is_self_service: Yup.boolean(),
+
+            is_quantity_decimal: Yup.boolean(),
+
+            machine_ids: Yup.array().of(
+                Yup.object({
+                    machine_id: Yup.string()
+                        .required("Machine is required"),
+
+                    duration: Yup.number()
+                        .transform((value, originalValue) =>
+                            originalValue === "" || originalValue === null ? undefined : value
+                        )
+                        .typeError("Duration must be a number")
+                        .min(0, "Duration cannot be negative")
+                        .required("Duration is required"),
+                })
+            ),
         }),
         onSubmit: async (values) => {
             if (values.type === "services") {
@@ -155,8 +270,6 @@ export default function UpdateSkuPage() {
             setLoading(false);
         },
     });
-
-    console.log(formik.values);
 
     useEffect(() => {
         const GotOutlets = async () => {
@@ -466,9 +579,7 @@ export default function UpdateSkuPage() {
                             }}
                             options={MapingProduct}
                             error={
-                                formik.touched.product_id &&
-                                    typeof formik.errors.product_id === "object" &&
-                                    formik.errors.product_id
+                                (formik.touched.product_id || formik.submitCount > 0) && formik.errors.product_id
                                     ? formik.errors.product_id
                                     : null
                             }
@@ -481,7 +592,7 @@ export default function UpdateSkuPage() {
                         value={formik.values.code}
                         onChange={(v) => formik.setFieldValue(`code`, v)}
                         error={
-                            formik.touched.code && typeof formik.errors.code === "object" && formik.errors.code
+                            (formik.touched.code || formik.submitCount > 0) && formik.errors.code
                                 ? formik.errors.code
                                 : null
                         }
@@ -493,7 +604,7 @@ export default function UpdateSkuPage() {
                         value={formik.values.name}
                         onChange={(v) => formik.setFieldValue(`name`, v)}
                         error={
-                            formik.touched.name && typeof formik.errors.name === "object" && formik.errors.name
+                            (formik.touched.name || formik.submitCount > 0) && formik.errors.name
                                 ? formik.errors.name
                                 : null
                         }
@@ -507,7 +618,7 @@ export default function UpdateSkuPage() {
                         value={formik.values.price as string}
                         onChange={(v) => formik.setFieldValue(`price`, v)}
                         error={
-                            formik.touched.price && typeof formik.errors.price === "object" && formik.errors.price
+                            (formik.touched.price || formik.submitCount > 0) && formik.errors.price
                                 ? formik.errors.price
                                 : null
                         }
@@ -521,7 +632,7 @@ export default function UpdateSkuPage() {
                         onChange={(v) => formik.setFieldValue(`type`, v)}
                         options={serviceType}
                         error={
-                            formik.touched.type && typeof formik.errors.type === "object" && formik.errors.type
+                            (formik.touched.type || formik.submitCount > 0) && formik.errors.type
                                 ? formik.errors.type
                                 : null
                         }
@@ -559,7 +670,7 @@ export default function UpdateSkuPage() {
                                             onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].outlet_id`, v)}
                                             options={isAll ? outlets.filter(o => o.value !== 'all' && (o.value === os.outlet_id || !selectedOutls.includes(o.value))) : outlets.filter(o => o.value === formik.values.outlet_id)}
                                             error={
-                                                (formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id &&
+                                                ((formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id || formik.submitCount > 0) &&
                                                     typeof formik.errors.outlet_stocks === "object" &&
                                                     (formik.errors.outlet_stocks as any)?.[osIndex]?.outlet_id
                                                     ? (formik.errors.outlet_stocks as any)[osIndex].outlet_id
@@ -574,7 +685,7 @@ export default function UpdateSkuPage() {
                                             value={os.stock === 0 ? "0" : (os.stock || "")}
                                             onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].stock`, v === "" ? "" : parseInt(v))}
                                             error={
-                                                (formik.touched as any).outlet_stocks?.[osIndex]?.stock &&
+                                                ((formik.touched as any).outlet_stocks?.[osIndex]?.stock || formik.submitCount > 0) &&
                                                     typeof formik.errors.outlet_stocks === "object" &&
                                                     (formik.errors.outlet_stocks as any)?.[osIndex]?.stock
                                                     ? (formik.errors.outlet_stocks as any)[osIndex].stock
@@ -588,7 +699,7 @@ export default function UpdateSkuPage() {
                                             value={os.unit || ""}
                                             onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].unit`, v)}
                                             error={
-                                                (formik.touched as any).outlet_stocks?.[osIndex]?.unit &&
+                                                ((formik.touched as any).outlet_stocks?.[osIndex]?.unit || formik.submitCount > 0) &&
                                                     typeof formik.errors.outlet_stocks === "object" &&
                                                     (formik.errors.outlet_stocks as any)?.[osIndex]?.unit
                                                     ? (formik.errors.outlet_stocks as any)[osIndex].unit
@@ -621,7 +732,7 @@ export default function UpdateSkuPage() {
                         value={formik.values.description}
                         onChange={(v) => formik.setFieldValue(`description`, v)}
                         error={
-                            formik.touched.description && typeof formik.errors.description === "object" && formik.errors.description
+                            (formik.touched.description || formik.submitCount > 0) && formik.errors.description
                                 ? formik.errors.description
                                 : null
                         }
@@ -687,46 +798,73 @@ export default function UpdateSkuPage() {
                             onClick={(v) => formik.setFieldValue(`machine_washer`, v)}
                             label={"Washer machine"}
                         />
-                        <Input
-                            className={formik.values.machine_washer ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_washer ? "Time in minutes" : ""}
-                            name={"washer_duration"}
-                            type="number"
-                            id={"washer_duration"}
-                            value={`${formik.values.washer_duration ? formik.values.washer_duration : ""}`}
-                            onChange={(v) => formik.setFieldValue(`washer_duration`, parseInt(v))}
-                            error={null}
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_washer ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_washer ? "Time in minutes" : ""}
+                                name={"washer_duration"}
+                                type="number"
+                                id={"washer_duration"}
+                                value={formik.values.washer_duration !== null && formik.values.washer_duration !== undefined ? String(formik.values.washer_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`washer_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.washer_duration || formik.submitCount > 0) && formik.errors.washer_duration
+                                        ? formik.errors.washer_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_washer && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                         <InputToggle
                             value={formik.values.machine_dryer}
                             onClick={(v) => formik.setFieldValue(`machine_dryer`, v)}
                             label={"Dryer Machine"}
                         />
-                        <Input
-                            className={formik.values.machine_dryer ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_dryer ? "Time in minutes" : ""}
-                            name={"dryer_duration"}
-                            type="number"
-                            id={"dryer_duration"}
-                            value={formik.values.dryer_duration ? formik.values.dryer_duration as unknown as string : ``}
-                            onChange={(v) => formik.setFieldValue(`dryer_duration`, parseInt(v))}
-                            error={null}
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_dryer ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_dryer ? "Time in minutes" : ""}
+                                name={"dryer_duration"}
+                                type="number"
+                                id={"dryer_duration"}
+                                value={formik.values.dryer_duration !== null && formik.values.dryer_duration !== undefined ? String(formik.values.dryer_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`dryer_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.dryer_duration || formik.submitCount > 0) && formik.errors.dryer_duration
+                                        ? formik.errors.dryer_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_dryer && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                         <InputToggle
                             value={formik.values.machine_iron}
                             onClick={(v) => formik.setFieldValue(`machine_iron`, v)}
                             label={"Iron Machine"}
                         />
-                        <Input
-                            className={formik.values.machine_iron ? `` : `w-1 opacity-0`}
-                            label={formik.values.machine_iron ? "Time in minutes" : ""}
-                            name={"iron_duration"}
-                            type="number"
-                            id={"iron_duration"}
-                            value={formik.values.iron_duration ? formik.values.iron_duration as unknown as string : ""}
-                            onChange={(v) => formik.setFieldValue(`iron_duration`, parseInt(v))}
-                            error={null}
-                        />
+                        <div>
+                            <Input
+                                className={formik.values.machine_iron ? `` : `w-1 opacity-0`}
+                                label={formik.values.machine_iron ? "Time in minutes" : ""}
+                                name={"iron_duration"}
+                                type="number"
+                                id={"iron_duration"}
+                                value={formik.values.iron_duration !== null && formik.values.iron_duration !== undefined ? String(formik.values.iron_duration) : ""}
+                                onChange={(v) => formik.setFieldValue(`iron_duration`, v === "" ? "" : parseInt(v, 10))}
+                                error={
+                                    (formik.touched.iron_duration || formik.submitCount > 0) && formik.errors.iron_duration
+                                        ? formik.errors.iron_duration
+                                        : null
+                                }
+                            />
+                            {formik.values.machine_iron && (
+                                <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className={formik.values.machine_dryer || formik.values.machine_washer
@@ -786,7 +924,7 @@ export default function UpdateSkuPage() {
             </div>
 
             <Modal isOpen={isViewSkuExclusive}>
-                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%]">
+                <div className="relative h-[80%] w-[90%] rounded-md bg-white p-4 shadow dark:bg-boxdark md:w-[50%] md:h-[700px]">
                     <div
                         className="absolute -right-3 -top-3 z-50 cursor-pointer rounded-full border-2 border-white bg-red-500 p-1 shadow"
                         onClick={() => setIsViewSkuExclusive(false)}

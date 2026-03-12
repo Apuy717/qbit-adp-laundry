@@ -64,8 +64,8 @@ export const MqttProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             }));
 
-            console.log("✅ Connected ke broker MQTT");
-            console.log(status);
+            // console.log("✅ Connected ke broker MQTT");
+            // console.log(status);
         });
 
         setClient(mqttClient);
