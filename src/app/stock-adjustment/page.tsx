@@ -243,7 +243,7 @@ export default function StockAdjustment() {
             </div>
 
             <div
-                className={`${activeTab === "adjustment" && auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN && "hidden"} mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark`}
+                className={`mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark`}
             >
                 <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
                     <div className="lg:w-90">
@@ -266,7 +266,7 @@ export default function StockAdjustment() {
                     {activeTab === "adjustment" && (
                         <Link
                             href={"/stock-adjustment/create"}
-                            className={`${auth.role.name !== ERoles.PROVIDER && auth.role.name !== ERoles.SUPER_ADMIN && "hidden"} inline-flex items-center 
+                            className={`inline-flex items-center 
                 justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white hover:bg-opacity-90
                 dark:text-gray-400 lg:px-8 xl:px-10`}
                         >

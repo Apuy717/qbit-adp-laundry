@@ -89,6 +89,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             EDepartmentEmployee.AUDITOR,
             EDepartmentEmployee.HO,
             ERoles.SUPER_ADMIN,
+            EDepartmentEmployee.AM,
+            EDepartmentEmployee.SPV,
+            ERoles.OUTLET_ADMIN,
           ],
           children: [
             {
@@ -123,11 +126,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
                 ERoles.SUPER_ADMIN,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                ERoles.OUTLET_ADMIN,
               ],
             },
             {
               label: "Group by CV",
               route: "/group-by-cv",
+              role: [
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.HO,
+                ERoles.SUPER_ADMIN,
+              ],
             },
           ],
         },

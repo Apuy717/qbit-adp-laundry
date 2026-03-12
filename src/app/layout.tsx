@@ -38,7 +38,7 @@ export default function RootLayout({
         <title>ADP | Depth Clean</title>
         <link rel="icon" href="/images/bossq.ico" className="w-[12px] h-auto" />
       </head>
-      <body>
+      <body cz-shortcut-listen="true">
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <div className="dark:bg-boxdark-2 dark:text-bodydark">
