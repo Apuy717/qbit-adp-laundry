@@ -125,6 +125,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 ERoles.PROVIDER,
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
+                EDepartmentEmployee.AUDITOR,
                 ERoles.SUPER_ADMIN,
                 EDepartmentEmployee.AM,
                 EDepartmentEmployee.SPV,

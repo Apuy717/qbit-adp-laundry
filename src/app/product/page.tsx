@@ -17,7 +17,7 @@ import { TypeProduct } from "@/types/product";
 import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -48,9 +48,53 @@ type MachineId = {
 
 const CELLS = ["Name", "Total SKU", "Created at", "Status", "Created by", "Updated by", "Action"];
 
+interface ProductSearchBarProps {
+  onSearch: (keyword: string) => void;
+  onAddProduct: () => void;
+}
+
+function ProductSearchBar({ onSearch, onAddProduct }: ProductSearchBarProps) {
+  const [keyword, setKeyword] = useState("");
+
+  const submit = () => {
+    onSearch(keyword.trim());
+  };
+
+  return (
+    <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
+      <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
+        <div className="w-full md:w-96">
+          <Input
+            label={"Search"}
+            name={"search"}
+            id={"search"}
+            value={keyword}
+            onChange={(v) => setKeyword(v)}
+            onEnter={submit}
+            error={null}
+          />
+        </div>
+        <button
+          onClick={submit}
+          className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+        >
+          Search
+        </button>
+        <button
+          className={`font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
+            py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
+          onClick={onAddProduct}
+        >
+          Add Product
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Product() {
   const [filterByOutlet, setFilterByOutlet] = useState<string[]>([]);
-  const [search, setSearch] = useState<string>("");
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [products, setProducts] = useState<TypeProduct[]>([]);
@@ -107,8 +151,12 @@ export default function Product() {
 
   const [searchExclude, setSearchExclude] = useState<string>("")
 
-  const filteredOutlets = outletExclude.filter((i) =>
-    i.name.toLowerCase().includes(searchExclude.toLowerCase())
+  const filteredOutlets = useMemo(
+    () =>
+      outletExclude.filter((i) =>
+        i.name.toLowerCase().includes(searchExclude.toLowerCase())
+      ),
+    [outletExclude, searchExclude],
   );
 
   // State to track which rows are checked
@@ -384,34 +432,34 @@ export default function Product() {
     }
   }, [someChecked, allChecked]);
 
-  const handleSearch = async () => {
+  const handleSearch = (keyword: string) => {
     if (tabActive === TabActive.PRODUCT) {
-      if (search.length === 0) {
+      if (keyword.length === 0) {
         setCurrentPageProduct(1);
         setProducts([]);
         setLoadingSearch(true);
         setFixValueSearchProduct("");
         setRefresh((prev) => !prev);
       } else {
-        if (search.length >= 1 && fixValueSearchProduct !== search) {
+        if (keyword.length >= 1 && fixValueSearchProduct !== keyword) {
           setProducts([]);
           setLoadingSearch(true);
-          setFixValueSearchProduct(search);
+          setFixValueSearchProduct(keyword);
           setCurrentPageProduct(1);
         }
       }
     } else {
-      if (search.length === 0) {
+      if (keyword.length === 0) {
         setCurrentPageSku(1);
         setTotalSkus([]);
         setLoadingSearch(true);
         setFixValueSearchSku("");
         setRefresh((prev) => !prev);
       } else {
-        if (search.length >= 1 && fixValueSearchSku !== search) {
+        if (keyword.length >= 1 && fixValueSearchSku !== keyword) {
           setTotalSkus([]);
           setLoadingSearch(true);
-          setFixValueSearchSku(search);
+          setFixValueSearchSku(keyword);
         }
       }
     }
@@ -729,13 +777,15 @@ export default function Product() {
 
   const [searchExclusive, setSearchExclusive] = useState<string>("")
 
-  const filteredMachine = machineExclusive.filter((i) => {
+  const filteredMachine = useMemo(() => {
     const search = searchExclusive.toLowerCase();
-    return (
-      i.name.toLowerCase().includes(search) ||
-      i.outlet.name.toLowerCase().includes(search)
-    );
-  });
+    return machineExclusive.filter((i) => {
+      return (
+        i.name.toLowerCase().includes(search) ||
+        i.outlet.name.toLowerCase().includes(search)
+      );
+    });
+  }, [machineExclusive, searchExclusive]);
 
   // State to track which rows are checked
   const [checkedRowsMachine, setCheckedRowsMachine] = useState<{ id: string; duration: number }[]>([]);
@@ -801,45 +851,12 @@ export default function Product() {
     <>
       <Breadcrumb pageName="Product Group" />
 
-      <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
-        <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
-          {/* <InputDropdown
-            label={"Filter By Category"}
-            name={"filterByCategory"}
-            id={"filterByCategory"}
-            value={filterByCategory}
-            onChange={(e) => setFilterByCategory(e)}
-            error={null}
-            options={[{ label: "All", value: "all" }].concat(categorys)}
-          /> */}
-          <div className="w-full md:w-96">
-            <Input
-              label={"Search"}
-              name={"search"}
-              id={"search"}
-              value={search}
-              onChange={(v) => setSearch(v)}
-              error={null}
-            />
-          </div>
-          <button
-            onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
-              text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          >
-            Search
-          </button>
-          <button
-            className={`font-edium inline-flex items-center justify-center rounded-md bg-black px-10 
-            py-3 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-            onClick={() => {
-              router.push("/product/create");
-            }}
-          >
-            Add Product
-          </button>
-        </div>
-      </div>
+      <ProductSearchBar
+        onSearch={handleSearch}
+        onAddProduct={() => {
+          router.push("/product/create");
+        }}
+      />
 
       <div className="mb-4 w-full rounded-md bg-gray-50 px-4 pt-4 dark:bg-gray-800">
         <ul
