@@ -20,6 +20,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FiEdit } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { TbPlugConnectedX } from "react-icons/tb";
 import { useSelector } from "react-redux";
@@ -404,6 +405,14 @@ export default function PageMachine() {
             onClick={() => setModalForm(true)}
           >
             Add Machine
+          </button>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                            font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
           </button>
           <button
             className={`${role.name !== ERoles.PROVIDER && role.name !== ERoles.TECHNICIAN && "hidden"} ${isOnline ? "bg-green-500" : "bg-red-500"} font-edium inline-flex items-center justify-center rounded-md px-10 

@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { CiCircleAlert } from "react-icons/ci";
+import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -205,6 +206,14 @@ export default function ProductV2Page() {
           <div className="w-min">
             <PrintButton />
           </div>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                  font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
+          </button>
           <button
             onClick={() => router.push('/v2/product/add-sku')}
             className={`inline-flex items-center justify-center rounded-md bg-green-600 px-10 py-3 

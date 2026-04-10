@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FiEdit, FiEye, FiLock } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -62,7 +63,7 @@ export default function PageEmployee() {
             selectedOutlets.length >= 1
               ? selectedOutlets.map((o) => o.outlet_id)
               : credential.department !== EDepartmentEmployee.HQ &&
-                  credential.role.name !== ERoles.PROVIDER
+                credential.role.name !== ERoles.PROVIDER
                 ? defaultSelectedOutlet.map((o) => o.outlet_id)
                 : [],
         },
@@ -181,6 +182,14 @@ export default function PageEmployee() {
           >
             Search
           </button>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+            font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
+          </button>
           <Link
             href={"/employee/create"}
             className={`${credential.role.name !== ERoles.PROVIDER && credential.role.name !== ERoles.SUPER_ADMIN && "hidden"}  inline-flex w-full 
@@ -196,14 +205,14 @@ export default function PageEmployee() {
           credential.department === EDepartmentEmployee.OWNER
             ? ["Full Name", "Phone Number", "Email", "Department", "Outlet", "Status"]
             : [
-                "Full Name",
-                "Phone Number",
-                "Email",
-                "Role",
-                "Outlet",
-                "Status",
-                "Action",
-              ]
+              "Full Name",
+              "Phone Number",
+              "Email",
+              "Role",
+              "Outlet",
+              "Status",
+              "Action",
+            ]
         }
         onPaginate={(page) => setCurrentPage(page)}
         currentPage={currentPage}

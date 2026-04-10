@@ -12,6 +12,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -184,6 +185,14 @@ export default function Vouchers() {
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
+          </button>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                            font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
           </button>
           <button
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 

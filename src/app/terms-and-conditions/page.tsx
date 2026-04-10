@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEdit, FiEye } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 
 
@@ -62,6 +63,14 @@ export default function TermsAndConditions() {
           >
             Create T&C
           </Link>
+        <button
+          onClick={() => { }}
+          className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                          font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+        >
+          <IoMdDownload />
+          <span className="font-xs whitespace-nowrap">Download xls</span>
+        </button>
         </div>
       </div>
 
