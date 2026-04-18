@@ -249,7 +249,7 @@ export default function StockAdjustment() {
                 <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
                     <div className="lg:w-90">
                         <Input
-                            label={"Search SKU, Product, or Outlet"}
+                            label={"Search SKU, Product"}
                             name={"search"}
                             id={"search"}
                             value={search}
