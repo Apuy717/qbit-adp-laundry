@@ -3,6 +3,7 @@ docs
 .idea
 .dockerignore
 .git
+temp
 
 npm-debug.log
 *.md

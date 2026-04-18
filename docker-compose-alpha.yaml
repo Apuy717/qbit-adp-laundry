@@ -1,0 +1,9 @@
+name: qbit-adp-alpha
+services:
+  qbit-app:
+    image: ghcr.io/apuy717/qbit-adp-alpha:latest
+    container_name: qbit-adp-alpha
+    env_file: .env.alpha
+    ports:
+      - "${ADP_PORT}:4000"
+    restart: unless-stopped
