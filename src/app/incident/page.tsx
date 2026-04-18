@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -176,6 +177,14 @@ export default function IncidentPage() {
               font-medium text-white hover:bg-opacity-90 md:w-min lg:px-8 xl:px-10`}
           >
             {loadingSearch ? "Loading" : "Search"}
+          </button>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                            font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
           </button>
         </div>
       </div>

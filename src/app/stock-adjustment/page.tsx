@@ -11,6 +11,7 @@ import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 
 interface StockAdjustmentLog {
@@ -248,7 +249,7 @@ export default function StockAdjustment() {
                 <div className="flex w-full flex-col space-y-6 md:flex-row md:space-x-4 md:space-y-0">
                     <div className="lg:w-90">
                         <Input
-                            label={"Search SKU, Product, or Outlet"}
+                            label={"Search SKU, Product"}
                             name={"search"}
                             id={"search"}
                             value={search}
@@ -262,6 +263,14 @@ export default function StockAdjustment() {
                         className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 text-center font-medium text-white dark:text-gray-400 hover:bg-opacity-90 lg:px-8 xl:px-10`}
                     >
                         Search
+                    </button>
+                    <button
+                        onClick={() => { }}
+                        className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                  font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+                    >
+                        <IoMdDownload />
+                        <span className="font-xs whitespace-nowrap">Download xls</span>
                     </button>
                     {activeTab === "adjustment" && (
                         <Link
