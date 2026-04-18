@@ -1,0 +1,9 @@
+name: qbit-adp-aqs
+services:
+  qbit-app:
+    image: ghcr.io/apuy717/qbit-adp-aqs:latest
+    container_name: qbit-adp-aqs
+    env_file: .env.aqs
+    ports:
+      - "${ADP_PORT}:4000"
+    restart: unless-stopped

@@ -12,6 +12,9 @@ RUN npm install --frozen-lockfile
 # Copy the rest of the application code
 COPY . .
 
+ARG ENV_FILE=.env
+RUN if [ "${ENV_FILE}" != ".env" ]; then cp ${ENV_FILE} .env; fi
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=2048"
@@ -34,6 +37,7 @@ COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/next.config.mjs ./
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/public ./public
+COPY --from=builder /usr/src/app/.env ./.env
 
 # Start the application
 CMD ["npm", "start"]
