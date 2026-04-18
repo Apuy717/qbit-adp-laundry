@@ -722,6 +722,37 @@ export default function Product() {
     return "-";
   };
 
+  const isAllOutletSelected = (outletId: string | null | undefined) =>
+    outletId === "all" || outletId === "" || outletId === null || outletId === undefined;
+
+  const getOutletStockOptions = (outletId: string, outletStocks: any[], rowIndex: number) => {
+    if (!isAllOutletSelected(outletId)) {
+      return outlets.filter((o) => o.value === outletId);
+    }
+
+    const selectedOutletIds = (outletStocks || [])
+      .filter((_: any, index: number) => index !== rowIndex)
+      .map((stock: any) => stock.outlet_id)
+      .filter((id: string) => id && id !== "all");
+
+    return outlets.filter(
+      (o) => o.value !== "all" && !selectedOutletIds.includes(o.value),
+    );
+  };
+
+  const handleOutletStockChange = (rowIndex: number, value: string) => {
+    const duplicatedOutlet = (formik.values.outlet_stocks || []).some(
+      (stock: any, index: number) => index !== rowIndex && stock.outlet_id === value,
+    );
+
+    if (duplicatedOutlet) {
+      toast.warn("Outlet already selected!");
+      return;
+    }
+
+    formik.setFieldValue(`outlet_stocks[${rowIndex}].outlet_id`, value);
+  };
+
   const deleteProduct = async (id: any) => {
     const res = await PostWithToken<any>({
       router: router,
@@ -1665,8 +1696,7 @@ export default function Product() {
                   )}
                 </div>
                 {formik.values.outlet_stocks?.map((os: any, osIndex: number) => {
-                  const isAll = formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null;
-                  const selectedOutlets = (formik.values.outlet_stocks || []).map((o: any) => o.outlet_id).filter((id: string) => id && id !== 'all');
+                  const isAll = isAllOutletSelected(formik.values.outlet_id);
                   const osOutletId = isAll ? os.outlet_id : formik.values.outlet_id;
 
                   return (
@@ -1676,8 +1706,8 @@ export default function Product() {
                         name={`outlet_stocks[${osIndex}].outlet_id`}
                         id={`outlet_id_stock_${osIndex}`}
                         value={osOutletId}
-                        onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].outlet_id`, v)}
-                        options={isAll ? outlets.filter(o => o.value !== 'all' && (o.value === os.outlet_id || !selectedOutlets.includes(o.value))) : outlets.filter(o => o.value === formik.values.outlet_id)}
+                        onChange={(v) => handleOutletStockChange(osIndex, v)}
+                        options={getOutletStockOptions(formik.values.outlet_id, formik.values.outlet_stocks || [], osIndex)}
                         error={
                           (formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id &&
                             typeof formik.errors.outlet_stocks === "object" &&
@@ -2225,9 +2255,8 @@ export default function Product() {
                       )}
                     </div>
                     {formik.values.outlet_stocks?.map((os: any, osIndex: number) => {
-                      const isAll = formik.values.outlet_id === 'all' || formik.values.outlet_id === '' || formik.values.outlet_id === null;
-                      const selectedOutlets = (formik.values.outlet_stocks || []).map((o: any) => o.outlet_id).filter((id: string) => id && id !== 'all');
-                      const osOutletId = isAll ? (os.outlet_id === "" ? (outlets.length > 1 ? outlets[1].value : "") : os.outlet_id) : formik.values.outlet_id;
+                      const isAll = isAllOutletSelected(formik.values.outlet_id);
+                      const osOutletId = isAll ? os.outlet_id : formik.values.outlet_id;
 
                       return (
                         <div key={osIndex} className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4 mb-4 relative">
@@ -2237,8 +2266,8 @@ export default function Product() {
                             id={`outlet_id_stock_update_${osIndex}`}
                             className="w-full"
                             value={osOutletId}
-                            onChange={(v) => formik.setFieldValue(`outlet_stocks[${osIndex}].outlet_id`, v)}
-                            options={isAll ? outlets.filter(o => o.value !== 'all' && (o.value === os.outlet_id || !selectedOutlets.includes(o.value))) : outlets.filter(o => o.value === formik.values.outlet_id)}
+                            onChange={(v) => handleOutletStockChange(osIndex, v)}
+                            options={getOutletStockOptions(formik.values.outlet_id, formik.values.outlet_stocks || [], osIndex)}
                             error={
                               (formik.touched as any).outlet_stocks?.[osIndex]?.outlet_id &&
                                 typeof formik.errors.outlet_stocks === "object" &&
