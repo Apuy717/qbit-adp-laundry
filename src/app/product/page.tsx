@@ -1317,7 +1317,6 @@ export default function Product() {
               "Type",
               "Price",
               "Outlet",
-              "Stock",
               "Washer",
               "Dryer",
               "Iron",
@@ -1346,9 +1345,9 @@ export default function Product() {
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.outlet === null ? "ALL" : i.outlet.name}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4">
+                {/* <td className="whitespace-nowrap px-6 py-4">
                   {formatSkuStock(i)}
-                </td>
+                </td> */}
                 <td className="whitespace-nowrap px-6 py-4">
                   {i.machine_washer ? (
                     <div className="flex w-auto items-center rounded-xl bg-green-500 px-2 text-center ">
