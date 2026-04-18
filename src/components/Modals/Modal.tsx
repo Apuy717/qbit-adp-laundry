@@ -6,6 +6,10 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, children }) => {
+  if (!isOpen) {
+    return null;
+  }
+
   const modalClass = isOpen ? "fixed inset-0 overflow-y-auto z-[9999]" : "hidden";
   const modalContentClass = isOpen ? "flex items-center justify-center min-h-screen" : "hidden";
 
