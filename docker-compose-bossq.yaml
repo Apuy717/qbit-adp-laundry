@@ -1,0 +1,9 @@
+name: qbit-adp-bossq
+services:
+  qbit-app:
+    image: ghcr.io/apuy717/qbit-adp-bossq:latest
+    container_name: qbit-adp-bossq
+    env_file: .env.bossq
+    ports:
+      - "${ADP_PORT}:4400"
+    restart: unless-stopped
