@@ -1176,7 +1176,7 @@ export default function Product() {
                       {
                         const mapOutletStocks = (i.OutletStocks || i.outlet_stocks || []).map((os: any) => ({
                           outlet_id: os.outlet_id || "",
-                          stock: os.stock || "",
+                          stock: os.stock ?? "",
                           unit: os.unit || i.unit || ""
                         }));
                         formik.setFieldValue(
@@ -1463,7 +1463,7 @@ export default function Product() {
                         {
                           const mapOutletStocks = (i.OutletStocks || i.outlet_stocks || []).map((os: any) => ({
                             outlet_id: os.outlet_id || "",
-                            stock: os.stock || "",
+                            stock: os.stock ?? "",
                             unit: os.unit || i.unit || ""
                           }));
                           formik.setFieldValue(
