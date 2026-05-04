@@ -2408,7 +2408,7 @@ export default function Product() {
                   onClick={(v) => {
                     formik.setFieldValue(`machine_washer`, v);
                   }}
-                  label={"Washer machine"}
+                  label={"Nozzle"}
                 />
                 <Input
                   className={
@@ -2429,7 +2429,7 @@ export default function Product() {
                       : null
                   }
                 />
-                <InputToggle
+                {/* <InputToggle
                   value={formik.values.machine_dryer}
                   onClick={(v) => {
                     formik.setFieldValue(`machine_dryer`, v);
@@ -2484,7 +2484,7 @@ export default function Product() {
                       ? formik.errors.iron_duration
                       : null
                   }
-                />
+                /> */}
               </div>
 
               <div className={formik.values.machine_dryer ||
