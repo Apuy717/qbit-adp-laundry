@@ -163,10 +163,20 @@ export default function CreateProduct() {
       setLoading(true);
       const updatedValues = {
         ...values,
-        variants: values.variants.map((variant) => ({
-          ...variant,
-          outlet_id: variant.outlet_id === "all" ? null : variant.outlet_id,
-        })),
+        variants: values.variants.map((variant) => {
+          const normalizedVariant = {
+            ...variant,
+            outlet_id: variant.outlet_id === "all" ? null : variant.outlet_id,
+          };
+
+          if (variant.type !== "goods") {
+            const { outlet_stocks, ...variantWithoutOutletStocks } =
+              normalizedVariant;
+            return variantWithoutOutletStocks;
+          }
+
+          return normalizedVariant;
+        }),
       };
       const res = await PostWithToken<MyResponse>({
         router: router,
