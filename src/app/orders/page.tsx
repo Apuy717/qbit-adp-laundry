@@ -249,6 +249,31 @@ export default function Orders() {
     }
   }
 
+  async function bypassCompleted(id: string) {
+    try {
+      const result = await fetch(`/api/order/set-completed/${id}?overide_process=true`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.access_token}`,
+        },
+      });
+      const res = await result.json();
+      if (res.statusCode === 200) {
+        setRefresh(!refresh);
+        setDeleteModal(false);
+        setIsViewDetail(false);
+        toast.success("Bypass Completed Success");
+      } else {
+        setDeleteModal(false);
+        toast.error(res.err || "Bypass Completed Failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong: " + error);
+    }
+  }
+
   const handleSearch = async () => {
     if (search.length === 0) {
       setCurrentPage(1);
@@ -671,6 +696,23 @@ export default function Orders() {
                   <p>Status Order</p>
                   <p className="uppercase">{detail?.status}</p>
                 </div>
+
+                {detail.status !== EStatusOrder.COMPLETED &&
+                  detail.status !== EStatusOrder.CANCELED &&
+                  detail.items.some((item) =>
+                    item.stages.some((stage) => stage.status !== "finished"),
+                  ) && (
+                    <button
+                      onClick={() => {
+                        setAlert("you wanna bypass this order to completed?");
+                        setDeleteFunction(() => () => bypassCompleted(detail.id));
+                        setDeleteModal(true);
+                      }}
+                      className="mt-2 w-full rounded bg-primary py-2 text-white hover:bg-opacity-90 font-medium"
+                    >
+                      Bypass Completed
+                    </button>
+                  )}
               </div>
             </div>
             <div className="mt-4 px-6">
