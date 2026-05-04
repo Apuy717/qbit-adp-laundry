@@ -133,7 +133,7 @@ export default function ReleaseVersions() {
           setCreateModal(false)
         }
       } catch (error: any) {
-        
+
         toast.error(error)
       }
     },
@@ -192,7 +192,7 @@ export default function ReleaseVersions() {
           setCreateModal(false)
         }
       } catch (error: any) {
-        
+
         toast.error(error)
       }
     },
@@ -254,6 +254,14 @@ export default function ReleaseVersions() {
             }}
           >
             Add Version
+          </button>
+          <button
+            onClick={() => { }}
+            className={`inline-flex w-full items-center justify-center rounded-md bg-black px-10 space-x-2 py-3 text-center 
+                                  font-medium text-white hover:bg-opacity-90 lg:w-auto lg:px-8 xl:px-10`}
+          >
+            <IoMdDownload />
+            <span className="font-xs whitespace-nowrap">Download xls</span>
           </button>
         </div>
       </div>
@@ -424,7 +432,7 @@ export default function ReleaseVersions() {
                 onChange={(e) => {
                   const file = e.currentTarget.files?.[0] || null;
                   formikCreate.setFieldValue("apk", file);
-                  
+
 
                 }}
               />
