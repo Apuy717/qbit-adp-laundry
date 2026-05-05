@@ -54,6 +54,8 @@ export default function Orders() {
     FilterByOutletContext,
   );
   const [search, setSearch] = useState<string>("");
+  const [searchByProduct, setSearchByProduct] = useState<string>("");
+  const [fixValueSearchByProduct, setFixValueSearchByProduct] = useState<string>("");
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [alert, setAlert] = useState<string>("")
   const [deleteFunction, setDeleteFunction] = useState<() => void>(
@@ -73,7 +75,10 @@ export default function Orders() {
       setLoadingSearch(true);
       let urlwithQuery = `/api/order/filter?page=${currentPage}&limit=${10}`;
       if (fixValueSearch.length >= 1) {
-        urlwithQuery = `/api/order/filter?page=${currentPage}&limit=${10}&search=${fixValueSearch}`;
+        urlwithQuery += `&search=${fixValueSearch}`;
+      }
+      if (fixValueSearchByProduct.length >= 1) {
+        urlwithQuery += `&search_by_product=${fixValueSearchByProduct}`;
       }
 
       let paymentStts = {};
@@ -127,6 +132,7 @@ export default function Orders() {
   }, [
     currentPage,
     fixValueSearch,
+    fixValueSearchByProduct,
     refresh,
     auth.access_token,
     router,
@@ -173,9 +179,18 @@ export default function Orders() {
     const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())} ${pad(stdDate.getHours())}:${pad(stdDate.getMinutes())}:${pad(stdDate.getSeconds())}`;
     const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())} ${pad(eDate.getHours())}:${pad(eDate.getMinutes())}:${pad(eDate.getSeconds())}`;
 
+    let urlDownload = "/api/order/download";
+    const params = new URLSearchParams();
+    if (fixValueSearch.length >= 1) params.append("search", fixValueSearch);
+    if (fixValueSearchByProduct.length >= 1) params.append("search_by_product", fixValueSearchByProduct);
+
+    if (params.toString()) {
+      urlDownload += `?${params.toString()}`;
+    }
+
     const res = await PostWithToken<iResponse<{ filename: string }>>({
       router: router,
-      url: "/api/order/download",
+      url: urlDownload,
       token: `${auth.access_token}`,
       data: {
         outlet_ids:
@@ -185,7 +200,7 @@ export default function Orders() {
         started_at: _startedAt,
         ended_at: _endedAt,
         // ...paymentStts,
-        tabActiveQuery,
+        ...tabActiveQuery,
         ...orderStts,
       },
     });
@@ -275,19 +290,19 @@ export default function Orders() {
   }
 
   const handleSearch = async () => {
-    if (search.length === 0) {
+    if (search.length === 0 && searchByProduct.length === 0) {
       setCurrentPage(1);
       setItems([]);
       setLoadingSearch(true);
       setFixValueSearch("");
+      setFixValueSearchByProduct("");
       setRefresh((prev) => !prev);
     } else {
-      if (search.length >= 1 && fixValueSearch !== search) {
-        setItems([]);
-        setLoadingSearch(true);
-        setFixValueSearch(search);
-        setCurrentPage(1);
-      }
+      setItems([]);
+      setLoadingSearch(true);
+      setFixValueSearch(search);
+      setFixValueSearchByProduct(searchByProduct);
+      setCurrentPage(1);
     }
   };
 
@@ -324,6 +339,16 @@ export default function Orders() {
               id={"search"}
               value={search}
               onChange={(v) => setSearch(v)}
+              error={null}
+            />
+          </div>
+          <div className="w-full md:w-96">
+            <Input
+              label={"Search By Product"}
+              name={"search_by_product"}
+              id={"search_by_product"}
+              value={searchByProduct}
+              onChange={(v) => setSearchByProduct(v)}
               error={null}
             />
           </div>
