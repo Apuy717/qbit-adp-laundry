@@ -40,4 +40,5 @@ yarn.lock
 .env.beta
 .env.aqs
 .env.bossq
+.env.rocket-motowash
 temp
