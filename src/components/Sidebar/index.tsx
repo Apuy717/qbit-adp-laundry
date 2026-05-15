@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { useContext } from "react";
 import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
 import {
+  FaClipboardList,
   FaUsers
 } from "react-icons/fa";
 import { BsFuelPumpFill } from "react-icons/bs";
@@ -20,7 +21,7 @@ import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosApps, IoIosArrowDown } from "react-icons/io";
-import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
+import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdOutlineStoreMallDirectory, MdPayment } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
 import { TbIroningSteam } from "react-icons/tb";
 import { useSelector } from "react-redux";
@@ -80,6 +81,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ERoles.FINANCE
           ],
         },
+
         {
           icon: <HiOutlineBuildingStorefront size={22} />,
           label: "Outlet",
@@ -141,6 +143,39 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
                 ERoles.SUPER_ADMIN,
+              ],
+            },
+            {
+              icon: <FaClipboardList size={21} />,
+              label: "SOP",
+              route: "/sop",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
+              ],
+            },
+            {
+              icon: <MdOutlineStoreMallDirectory size={23} />,
+              label: "Operational",
+              route: "/operational",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
               ],
             },
           ],
@@ -224,6 +259,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         //     { label: "Performance", route: "/iron/performance" },
         //   ],
         // },
+
         {
           icon: <MdOutlineReportGmailerrorred size={24} />,
           label: "Incident",

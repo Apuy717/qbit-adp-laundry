@@ -347,9 +347,7 @@ export default function OmzetDaily() {
               "Outlet",
               "Transaction",
               "Amount",
-              "Washer",
-              "Dryer",
-              "Iron",
+              "Nozzle",
               "Other"
             ]
           }
@@ -378,8 +376,6 @@ export default function OmzetDaily() {
                   {toRupiah(item.total)}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "washer")?.total_stage ?? 0}</td>
-                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "dryer")?.total_stage ?? 0}</td>
-                <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "irons")?.total_stage ?? 0}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">{item.detail.find((d) => d.stage_name === "other")?.total_stage ?? 0}</td>
               </tr>
 

@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CiCircleAlert } from "react-icons/ci";
 import { FaLocationDot, FaLocationPin } from "react-icons/fa6";
-import { FiDelete, FiEdit, FiTrash } from "react-icons/fi";
+import { FiDelete, FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import { IoMdDownload } from "react-icons/io";
 import { IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
@@ -454,17 +454,33 @@ export default function OutletPage() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className=" group relative">
-                      <button
-                        onClick={() => {
-                          router.push(`/outlet/${o.outlet_id}`);
-                        }}
-                        className="flex items-center"
-                      >
-                        <FiEdit size={23} />
-                      </button>
-                      <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
-                        Edit Outlet
+                    <div className="flex items-center gap-3">
+                      <div className="group relative">
+                        <button
+                          onClick={() => {
+                            router.push(`/outlet/detail/${o.outlet_id}`);
+                          }}
+                          className="flex items-center"
+                        >
+                          <FiEye size={22} />
+                        </button>
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                          View Detail
+                        </div>
+                      </div>
+
+                      <div className="group relative">
+                        <button
+                          onClick={() => {
+                            router.push(`/outlet/${o.outlet_id}`);
+                          }}
+                          className="flex items-center"
+                        >
+                          <FiEdit size={23} />
+                        </button>
+                        <div className="absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-85 group-hover:block">
+                          Edit Outlet
+                        </div>
                       </div>
                     </div>
                   </td>
