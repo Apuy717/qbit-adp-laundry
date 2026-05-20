@@ -200,7 +200,7 @@ export default function CreateSopPage() {
             <p className="text-sm font-medium text-black dark:text-white">SOP Items</p>
 
             {formik.values.sop_items.map((item, idx) => (
-              <div key={item.id} className="rounded-md border border-stroke p-3 dark:border-strokedark">
+              <div key={idx} className="rounded-md border border-stroke p-3 dark:border-strokedark">
                 <div className="flex justify-between">
                   <div className="mb-2 text-xs text-gray-500">Item {idx + 1}</div>
                   <button
