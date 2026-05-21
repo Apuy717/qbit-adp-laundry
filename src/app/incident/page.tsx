@@ -168,6 +168,7 @@ export default function IncidentPage() {
               id={"search"}
               value={search}
               onChange={(v) => setSearch(v)}
+              onEnter={handleSearch}
               error={null}
             />
           </div>

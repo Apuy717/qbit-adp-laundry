@@ -178,6 +178,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 EDepartmentEmployee.OWNER,
               ],
             },
+            {
+              icon: <MdOutlineStoreMallDirectory size={23} />,
+              label: "Closing Stock",
+              route: "/closing-stock",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+              ],
+            },
           ],
         },
         {
