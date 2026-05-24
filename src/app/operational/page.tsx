@@ -9,21 +9,21 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { start } from "repl";
-
+import Link from "next/link";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type OutletSopItem = {
   id: string;
   outlet_name: string;
-  status: "open" | "closed";
+  status: string;
   schedule_open_time: string;
   schedule_close_time: string;
   real_open_time: string;
   real_close_time: string;
   reported_by: string;
   is_late_opening: number;
+  difference_closed_time: number;
   created_at: string | null;
 };
 
@@ -60,6 +60,23 @@ function hasSchedule(item: OutletSopItem): boolean {
     item.schedule_open_time !== "00:00:00" ||
     item.schedule_close_time !== "00:00:00"
   );
+}
+
+function formatMinutes(mins: number | string | null | undefined): string {
+  if (mins === undefined || mins === null || mins === "") return "-";
+  const numMins = Number(mins);
+  if (isNaN(numMins)) return "-";
+  if (numMins === 0) return "0m";
+
+  const isNegative = numMins < 0;
+  const absMins = Math.abs(numMins);
+
+  const h = Math.floor(absMins / 60);
+  const m = absMins % 60;
+
+  const sign = isNegative ? "-" : "";
+  if (h > 0) return `${sign}${h}h ${m}m`;
+  return `${sign}${m}m`;
 }
 
 // ─── Stat Card ───────────────────────────────────────────────────────────────
@@ -104,15 +121,27 @@ function StatCard({ title, value, color, icon }: StatCardProps) {
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
-function StatusBadge({ status }: { status: "open" | "closed" }) {
-  if (status === "open") {
+function StatusBadge({ status }: { status: string }) {
+  const normalizedStatus = status?.toLowerCase() || "";
+
+  if (normalizedStatus === "opened" || normalizedStatus === "open") {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
         <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-        Open
+        Opened
       </span>
     );
   }
+
+  if (normalizedStatus === "late_opening") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse" />
+        Late Opening
+      </span>
+    );
+  }
+
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -154,8 +183,10 @@ export default function OperationalPage() {
   const today = toLocalDateString(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(today);
   const [search, setSearch] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "closed">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "opened" | "late_opening" | "closed">("all");
   const [scheduleFilter, setScheduleFilter] = useState<"all" | "with-schedule" | "no-schedule">("all");
+  const [sortKey, setSortKey] = useState<string>("status");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<OperationalData | null>(null);
 
@@ -168,19 +199,16 @@ export default function OperationalPage() {
         date.substring(5, 7),
         date.substring(0, 4),
       ];
-      const formattedDate = `${day}-${month}-${year}`;
+      const formattedDate = `${year}-${month}-${day}`;
 
       const res = await PostWithToken<OperationalResponse>({
         router,
         url: `/api/report/monitoring`,
         token: `${auth.auth.access_token}`,
         data: {
-          outlet_ids:
-            selectedOutlets.length >= 1
-              ? selectedOutlets.map((o) => o.outlet_id)
-              : defaultSelectedOutlet.map((o) => o.outlet_id),
-          started_at: startDate,
-          ended_at: endDate,
+          started_at: `${formattedDate}T00:00:00`,
+          ended_at: `${formattedDate}T23:59:59`,
+          outlet_ids: [],
         },
       });
 
@@ -203,7 +231,7 @@ export default function OperationalPage() {
 
   const filteredItems = useMemo(() => {
     if (!data?.outlet_sop) return [];
-    let items = data.outlet_sop;
+    let items = [...data.outlet_sop];
 
     if (search.trim()) {
       const kw = search.toLowerCase();
@@ -211,7 +239,11 @@ export default function OperationalPage() {
     }
 
     if (statusFilter !== "all") {
-      items = items.filter((i) => i.status === statusFilter);
+      items = items.filter((i) => {
+        const s = i.status?.toLowerCase() || "";
+        if (statusFilter === "opened") return s === "opened" || s === "open";
+        return s === statusFilter;
+      });
     }
 
     if (scheduleFilter === "with-schedule") {
@@ -220,13 +252,55 @@ export default function OperationalPage() {
       items = items.filter((i) => !hasSchedule(i));
     }
 
+    items.sort((a, b) => {
+      let valA: any = a[sortKey as keyof OutletSopItem];
+      let valB: any = b[sortKey as keyof OutletSopItem];
+
+      if (sortKey === "status") {
+        const w: Record<string, number> = { opened: 1, open: 1, late_opening: 2, closed: 3 };
+        valA = w[valA?.toString().toLowerCase()] ?? 99;
+        valB = w[valB?.toString().toLowerCase()] ?? 99;
+      }
+
+      if (valA === valB) return 0;
+
+      if (valA === "-" || valA === "" || valA === null || valA === undefined) valA = sortOrder === "asc" ? "\uFFFF" : "";
+      if (valB === "-" || valB === "" || valB === null || valB === undefined) valB = sortOrder === "asc" ? "\uFFFF" : "";
+
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
     return items;
-  }, [data, search, statusFilter, scheduleFilter]);
+  }, [data, search, statusFilter, scheduleFilter, sortKey, sortOrder]);
 
   const openPercent =
     data && data.outlet_total > 0
       ? Math.round((data.outlet_opened / data.outlet_total) * 100)
       : 0;
+
+  const renderSortableHeader = (label: string, key: string) => (
+    <th
+      className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-meta-4 select-none"
+      onClick={() => {
+        if (sortKey === key) {
+          setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+          setSortKey(key);
+          setSortOrder("asc");
+        }
+      }}
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        <span className="flex flex-col text-[8px] opacity-50 ml-1 leading-none">
+          <span className={sortKey === key && sortOrder === "asc" ? "text-primary opacity-100" : ""}>▲</span>
+          <span className={sortKey === key && sortOrder === "desc" ? "text-primary opacity-100" : ""}>▼</span>
+        </span>
+      </div>
+    </th>
+  );
 
   return (
     <div>
@@ -353,14 +427,30 @@ export default function OperationalPage() {
             )}
           </h3>
           <div className="flex flex-wrap items-center gap-2">
-            {/* Status filter */}
+            {/* Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search outlet..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="rounded-md border border-stroke bg-transparent py-1.5 pl-8 pr-3 text-sm text-black outline-none transition focus:border-primary dark:border-strokedark dark:text-white"
+              />
+              <svg
+                className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+              </svg>
+            </div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
               className="rounded-md border border-stroke bg-transparent px-3 py-1.5 text-sm text-black outline-none transition focus:border-primary dark:border-strokedark dark:text-white"
             >
               <option value="all">All Status</option>
-              <option value="open">Open</option>
+              <option value="opened">Opened</option>
+              <option value="late_opening">Late Opening</option>
               <option value="closed">Closed</option>
             </select>
             {/* Schedule filter */}
@@ -403,40 +493,15 @@ export default function OperationalPage() {
                   <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
                     #
                   </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Outlet
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    <span className="flex items-center gap-1">
-                      <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Schedule Open
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    <span className="flex items-center gap-1">
-                      <svg className="h-3.5 w-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Schedule Close
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Actual Open
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Actual Close
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Reported By
-                  </th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-600 dark:text-gray-300">
-                    Late
-                  </th>
+                  {renderSortableHeader("Name", "outlet_name")}
+                  {renderSortableHeader("Status", "status")}
+                  {renderSortableHeader("Schedule Opening", "schedule_open_time")}
+                  {renderSortableHeader("Opened", "real_open_time")}
+                  {renderSortableHeader("Schedule Closed", "schedule_close_time")}
+                  {renderSortableHeader("Closed", "real_close_time")}
+                  {renderSortableHeader("Late Opening", "is_late_opening")}
+                  {renderSortableHeader("Reported By", "reported_by")}
+                  {renderSortableHeader("Difference Closed", "difference_closed_time")}
                 </tr>
               </thead>
               <tbody>
@@ -445,7 +510,7 @@ export default function OperationalPage() {
                   return (
                     <tr
                       key={item.id}
-                      className={`border-b border-stroke transition hover:bg-gray-50 dark:border-strokedark dark:hover:bg-meta-4 ${item.is_late_opening === 1
+                      className={`border-b border-stroke transition hover:bg-gray-50 dark:border-strokedark dark:hover:bg-meta-4 ${item.is_late_opening > 0 || item.status?.toLowerCase() === "late_opening"
                         ? "bg-yellow-50 dark:bg-yellow-900/10"
                         : ""
                         }`}
@@ -454,42 +519,24 @@ export default function OperationalPage() {
                         {idx + 1}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm font-medium text-black dark:text-white">
+                        <Link href={`/operational/${item.id}`} className="text-sm font-medium text-primary hover:underline dark:text-primary">
                           {item.outlet_name}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={item.status} />
                       </td>
-                      {/* Jadwal Buka - highlight */}
                       <td className="px-4 py-3">
                         {scheduled ? (
                           <span className="inline-flex items-center gap-1 rounded-md bg-green-50 px-2.5 py-1 text-sm font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
-                            </svg>
                             {formatTime(item.schedule_open_time)}
                           </span>
                         ) : (
                           <span className="text-sm text-gray-400 dark:text-gray-500 italic">Not set</span>
                         )}
                       </td>
-                      {/* Schedule Close - highlight */}
                       <td className="px-4 py-3">
-                        {scheduled ? (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2.5 py-1 text-sm font-semibold text-red-700 dark:bg-red-900/20 dark:text-red-400">
-                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
-                            </svg>
-                            {formatTime(item.schedule_close_time)}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-gray-400 dark:text-gray-500 italic">Not set</span>
-                        )}
-                      </td>
-                      {/* Buka Aktual */}
-                      <td className="px-4 py-3">
-                        {item.real_open_time !== "-" ? (
+                        {item.real_open_time && item.real_open_time !== "-" ? (
                           <span className="text-sm font-medium text-green-600 dark:text-green-400">
                             {item.real_open_time}
                           </span>
@@ -497,9 +544,17 @@ export default function OperationalPage() {
                           <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
                         )}
                       </td>
-                      {/* Tutup Aktual */}
                       <td className="px-4 py-3">
-                        {item.real_close_time !== "-" ? (
+                        {scheduled ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2.5 py-1 text-sm font-semibold text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                            {formatTime(item.schedule_close_time)}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-400 dark:text-gray-500 italic">Not set</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {item.real_close_time && item.real_close_time !== "-" ? (
                           <span className="text-sm font-medium text-red-600 dark:text-red-400">
                             {item.real_close_time}
                           </span>
@@ -507,24 +562,22 @@ export default function OperationalPage() {
                           <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
                         )}
                       </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-black dark:text-white">
+                          {formatMinutes(item.is_late_opening)}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-sm text-black dark:text-white">
-                        {item.reported_by !== "-" ? (
+                        {item.reported_by && item.reported_by !== "-" ? (
                           item.reported_by
                         ) : (
                           <span className="text-gray-400 dark:text-gray-500">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        {item.is_late_opening === 1 ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4l2 2m6-2a8 8 0 11-16 0 8 8 0 0116 0z" />
-                            </svg>
-                            Late
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
-                        )}
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-black dark:text-white">
+                          {formatMinutes(item.difference_closed_time)}
+                        </span>
                       </td>
                     </tr>
                   );
@@ -538,7 +591,9 @@ export default function OperationalPage() {
         {!loading && data && (
           <div className="border-t border-stroke px-5 py-3 dark:border-strokedark">
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Showing <span className="font-semibold text-black dark:text-white">{filteredItems.length}</span>
+              Showing <span className="font-semibold text-black dark:text-white">{filteredItems.length}</span> of{" "}
+              <span className="font-semibold text-black dark:text-white">{data.outlet_sop.length}</span> outlets for{" "}
+              <span className="font-semibold text-black dark:text-white">{selectedDate}</span>
             </p>
           </div>
         )}

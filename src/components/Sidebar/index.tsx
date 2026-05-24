@@ -11,19 +11,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext } from "react";
-import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
+import { BiSolidDiscount } from "react-icons/bi";
+import { BsFuelPumpFill } from "react-icons/bs";
 import {
   FaClipboardList,
   FaUsers
 } from "react-icons/fa";
-import { BsFuelPumpFill } from "react-icons/bs";
 import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosApps, IoIosArrowDown } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdOutlineStoreMallDirectory, MdPayment } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { TbIroningSteam } from "react-icons/tb";
 import { useSelector } from "react-redux";
 
 interface SidebarProps {
@@ -179,18 +178,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               ],
             },
             {
-              icon: <MdOutlineStoreMallDirectory size={23} />,
-              label: "Closing Stock",
-              route: "/closing-stock",
+              icon: <HiOutlineDocumentReport size={21} />,
+              label: "Outlet Monitoring Report",
+              route: "/outlet/monitoring-report",
               role: [
                 ERoles.SUPER_ADMIN,
                 ERoles.PROVIDER,
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
                 EDepartmentEmployee.AM,
                 EDepartmentEmployee.SPV,
                 EDepartmentEmployee.HO,
                 EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
               ],
             },
           ],
