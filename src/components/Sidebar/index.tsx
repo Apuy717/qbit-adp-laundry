@@ -195,6 +195,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 ERoles.FINANCE
               ],
             },
+            {
+              icon: <HiOutlineDocumentReport size={21} />,
+              label: "Closing Stock",
+              route: "/closing-stock",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
+              ],
+            },
           ],
         },
         {
