@@ -1,10 +1,12 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { PostWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -87,6 +89,7 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, color, icon }: StatCardProps) {
+
   const colorMap = {
     green: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
     red: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
@@ -150,6 +153,30 @@ function StatusBadge({ status }: { status: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function OperationalPage() {
+  let startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+  );
+  let endOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate() + 1,
+  );
+
+  endOfMonth.setHours(6, 59, 59, 0);
+  const offsetInMinutes = 7 * 60;
+  startOfMonth = new Date(startOfMonth.getTime() + offsetInMinutes * 60 * 1000);
+
+  const [startDate, setStartDate] = useState<Date | string>(
+    startOfMonth.toISOString().split(".")[0],
+  );
+  const [endDate, setEndDate] = useState<Date | string>(
+    endOfMonth.toISOString().split(".")[0],
+  );
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
   const router = useRouter();
   const auth = useSelector((s: RootState) => s.auth);
 
@@ -200,7 +227,7 @@ export default function OperationalPage() {
   useEffect(() => {
     fetchData(selectedDate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.auth.access_token, selectedDate]);
+  }, [auth.auth.access_token, selectedDate, selectedOutlets, defaultSelectedOutlet, modal, startDate, endDate]);
 
   const filteredItems = useMemo(() => {
     if (!data?.outlet_sop) return [];
@@ -289,31 +316,17 @@ export default function OperationalPage() {
             Daily outlet opening &amp; closing schedule
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-black dark:text-white whitespace-nowrap">
-            Date:
-          </label>
-          <input
-            type="date"
-            value={selectedDate}
-            max={today}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="rounded-md border border-stroke bg-transparent px-3 py-2 text-sm text-black outline-none transition focus:border-primary dark:border-strokedark dark:text-white"
+        <div className="flex flex-col items-center gap-4 md:flex-row">
+          <DatePickerOne
+            label={"Start"}
+            defaultDate={new Date(startDate)}
+            onChange={(val) => setStartDate(val)}
           />
-          <button
-            onClick={() => fetchData(selectedDate)}
-            disabled={loading}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-60"
-          >
-            {loading ? (
-              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
-            ) : (
-              "Refresh"
-            )}
-          </button>
+          <DatePickerOne
+            label={"End"}
+            defaultDate={new Date(endDate)}
+            onChange={(val) => setEndDate(val)}
+          />
         </div>
       </div>
 
