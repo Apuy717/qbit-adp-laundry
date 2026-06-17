@@ -184,7 +184,7 @@ export default function UpdateSopPage() {
                 }));
 
                 setInitialValues({
-                    outlet_id: selectedSop.outlet_id,
+                    outlet_id: selectedSop.outlet_id ?? "null",
                     sop_group_name: selectedSop.name,
                     sop_items: mappedItems.length >= 1 ? mappedItems : [defaultItem()],
                 });
