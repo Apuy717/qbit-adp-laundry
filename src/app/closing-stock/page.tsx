@@ -11,6 +11,9 @@ import { useRouter } from "next/navigation";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import Modal from "@/components/Modals/Modal";
+
 
 type ClosingStockItem = {
     id: string;
@@ -29,6 +32,7 @@ type ClosingStockItem = {
     real_stock: number;
     difference_stock: number;
     note: string | null;
+    approved: boolean | null;
     created_by: {
         name: string;
         phone_number: string;
@@ -53,6 +57,7 @@ const COLUMNS = [
     "Difference",
     "Note",
     "Created By",
+    "Actions",
 ];
 
 function toApiDateTime(date: Date, hours: number, minutes: number, seconds: number) {
@@ -129,6 +134,11 @@ export default function ClosingStockPage() {
     const [totalItem, setTotalItem] = useState<number>(0);
     const [search, setSearch] = useState<string>("");
     const [fixValueSearch, setFixValueSearch] = useState<string>("");
+    const [refresh, setRefresh] = useState<boolean>(false);
+    const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
+    const [confirmId, setConfirmId] = useState<string | null>(null);
+    const [confirmType, setConfirmType] = useState<"approve" | "reject" | null>(null);
 
     const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
         FilterByOutletContext,
@@ -184,7 +194,47 @@ export default function ClosingStockPage() {
         router,
         selectedOutlets,
         startDate,
+        refresh,
     ]);
+
+    const handleAdjustment = async (closingStockId: string, actionType: "approve" | "reject") => {
+        if (!auth.auth.access_token) return;
+
+        setActionLoadingId(closingStockId);
+        try {
+            const url = actionType === "approve"
+                ? "/api/stock/adjustment-from-closing/"
+                : "/api/stock/reject-from-closing";
+
+            const res = await PostWithToken<{ statusCode: number; msg: string }>({
+                router,
+                url,
+                data: {
+                    closing_stock_id: closingStockId,
+                },
+                token: `${auth.auth.access_token}`,
+            });
+
+            if (res?.statusCode === 200) {
+                toast.success(`${actionType === "approve" ? "Adjustment" : "Rejection"} processed successfully!`);
+                setRefresh((prev) => !prev);
+            } else {
+                toast.error(res?.msg || `Failed to process stock ${actionType}`);
+            }
+        } catch {
+            toast.error(`An error occurred while processing stock ${actionType}`);
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
+    const handleConfirm = async () => {
+        if (!confirmId || !confirmType) return;
+        setConfirmOpen(false);
+        await handleAdjustment(confirmId, confirmType);
+        setConfirmId(null);
+        setConfirmType(null);
+    };
 
     const handleSearch = async () => {
         if (search.length === 0) {
@@ -312,6 +362,46 @@ export default function ClosingStockPage() {
                                         {item.created_by.phone_number || "-"}
                                     </p>
                                 </td>
+                                <td className="whitespace-nowrap px-6 py-4">
+                                    {item.approved === true && (
+                                        <span className="inline-flex items-center rounded-md bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-900/20 dark:text-green-400 dark:ring-green-500/20">
+                                            Approved
+                                        </span>
+                                    )}
+                                    {item.approved === null && (
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                className="flex items-center justify-center rounded bg-green-500 p-1.5 hover:bg-green-600 text-white disabled:opacity-50 transition-colors"
+                                                title="Approve"
+                                                disabled={actionLoadingId !== null}
+                                                onClick={() => {
+                                                    setConfirmId(item.id);
+                                                    setConfirmType("approve");
+                                                    setConfirmOpen(true);
+                                                }}
+                                            >
+                                                <IoCheckmark size={18} />
+                                            </button>
+                                            <button
+                                                className="flex items-center justify-center rounded bg-red-500 p-1.5 hover:bg-red-600 text-white disabled:opacity-50 transition-colors"
+                                                title="Reject"
+                                                disabled={actionLoadingId !== null}
+                                                onClick={() => {
+                                                    setConfirmId(item.id);
+                                                    setConfirmType("reject");
+                                                    setConfirmOpen(true);
+                                                }}
+                                            >
+                                                <IoClose size={18} />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {item.approved === false && (
+                                        <span className="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-500/20">
+                                            Rejected
+                                        </span>
+                                    )}
+                                </td>
                             </tr>
                         ))
                     ) : (
@@ -326,6 +416,39 @@ export default function ClosingStockPage() {
                     )}
                 </Table>
             )}
+
+            <Modal isOpen={confirmOpen}>
+                <div className="relative w-[90%] max-w-md rounded-md bg-white p-6 shadow-default dark:bg-boxdark">
+                    <div className="mb-6 text-center">
+                        <h3 className="text-xl font-bold text-black dark:text-white mb-2">
+                            Confirm Action
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Are you sure you want to {confirmType === "approve" ? "approve" : "reject"} this stock adjustment?
+                        </p>
+                    </div>
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            onClick={() => {
+                                setConfirmOpen(false);
+                                setConfirmId(null);
+                                setConfirmType(null);
+                            }}
+                            className="rounded border border-stroke px-6 py-2 text-center font-medium text-black hover:bg-gray-100 dark:border-strokedark dark:text-white dark:hover:bg-gray-700"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleConfirm}
+                            className={`rounded px-6 py-2 text-center font-medium text-white hover:bg-opacity-90 ${
+                                confirmType === "approve" ? "bg-green-500" : "bg-red-500"
+                            }`}
+                        >
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 }

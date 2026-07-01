@@ -5,7 +5,6 @@ import { Input } from "@/components/Inputs/InputComponent";
 import Table from "@/components/Tables/Table";
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
 import { GetWithToken, PostWithToken, iResponse } from "@/libs/FetchData";
-import { ERoles } from "@/stores/authReducer";
 import { RootState } from "@/stores/store";
 import moment from "moment";
 import Link from "next/link";
@@ -21,6 +20,7 @@ interface StockAdjustmentLog {
     quantity: number;
     old_stock: number;
     current_stock: number;
+    note: string | null;
     created_at: string;
     product_sku: {
         id: string;
@@ -76,6 +76,7 @@ const CELLS_ADJUSTMENT = [
     "Old Stock",
     "Current Stock",
     "Created By",
+    "Note",
     "Date",
 ];
 
@@ -324,6 +325,9 @@ export default function StockAdjustment() {
                             </td>
                             <td className="px-6 py-4">
                                 <p className="font-medium text-gray-800 dark:text-gray-300">{log.created_by.fullname}</p>
+                            </td>
+                            <td className="px-6 py-4">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{log.note || "-"}</p>
                             </td>
                             <td className="px-6 py-4">
                                 <p className="font-medium text-gray-800 dark:text-gray-300"> {moment(log.created_at).format("DD MMM YYYY, HH:mm")}</p>

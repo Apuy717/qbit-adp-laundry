@@ -344,7 +344,19 @@ export default function OmzetPerProduct() {
                     </td>
 
                     <td className="whitespace-nowrap px-6 py-4">
-                      {item.product_name}
+                      <span
+                        className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline font-semibold dark:text-blue-400 dark:hover:text-blue-300"
+                        onClick={() => {
+                          const pad = (n: any) => n.toString().padStart(2, "0");
+                          const stdDate = new Date(startDate);
+                          const eDate = new Date(endDate);
+                          const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())}`;
+                          const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())}`;
+                          router.push(`/report/omzet-per-product/${item.product_sku_id}?started_at=${_startedAt}&ended_at=${_endedAt}`);
+                        }}
+                      >
+                        {item.product_name}
+                      </span>
                     </td>
 
                     <td className="whitespace-nowrap px-6 py-4">

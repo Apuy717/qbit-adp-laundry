@@ -273,7 +273,22 @@ export default function ProductV2Page() {
                           return (
                             <tr key={key} className={`border-b border-gray-200 dark:border-gray-700`}>
                               <td className="p-4">{key + 1}</td>
-                              <td className="p-2">{sku.code}</td>
+                              <td className="p-2">
+                                <span
+                                  className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+                                  onClick={() => {
+                                    const pad = (n: any) => n.toString().padStart(2, "0");
+                                    const now = new Date();
+                                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                                    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                                    const startedStr = `${startOfMonth.getFullYear()}-${pad(startOfMonth.getMonth() + 1)}-${pad(startOfMonth.getDate())}`;
+                                    const endedStr = `${endOfMonth.getFullYear()}-${pad(endOfMonth.getMonth() + 1)}-${pad(endOfMonth.getDate())}`;
+                                    router.push(`/report/omzet-per-product/${sku.id}?started_at=${startedStr}&ended_at=${endedStr}`);
+                                  }}
+                                >
+                                  {sku.code}
+                                </span>
+                              </td>
                               <td className="p-2">{sku.name}</td>
                               {sku.outlet_price_skus.length >= 1 ? sku.outlet_price_skus.map((price, keyPrice) => (
                                 <td key={keyPrice} className="p-2 flex flex-col space-y-1 relative">
