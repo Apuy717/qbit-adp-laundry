@@ -1,0 +1,9 @@
+name: qbit-adp-rocket-motowash
+services:
+  qbit-app:
+    image:  git.rubick.qyubit.io/qyubit/qyubit/autowash-adp-stg:latest
+    container_name: qbit-adp-rocket-motowash
+    env_file: .env.rocket-motowash
+    ports:
+      - "${ADP_PORT}:4000"
+    restart: unless-stopped
