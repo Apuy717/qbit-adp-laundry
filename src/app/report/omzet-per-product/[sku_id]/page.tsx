@@ -3,7 +3,7 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DatePickerOne from "@/components/FormElements/DatePicker/DatePickerOne";
 import { Input } from "@/components/Inputs/InputComponent";
-import { GetWithToken, iResponse } from "@/libs/FetchData";
+import { GetWithToken, PostWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -13,6 +13,8 @@ import { toast } from "react-toastify";
 import { SkeletonTableRow } from "../../components/skeleton/SkeletonTableRow";
 import { toRupiah } from "../../utils/toRupiah";
 import { FaArrowLeft } from "react-icons/fa";
+import { FilterByOutletContext } from "@/contexts/selectOutletContex";
+import { useContext } from "react";
 
 interface CustomerType {
   id: string;
@@ -61,6 +63,9 @@ function SkuSalesPageContent() {
   const skuId = params.sku_id as string;
 
   const auth = useSelector((s: RootState) => s.auth);
+  const { selectedOutlets, defaultSelectedOutlet, modal } = useContext(
+    FilterByOutletContext,
+  );
 
   const startedAtParam = searchParams.get("started_at");
   const endedAtParam = searchParams.get("ended_at");
@@ -109,13 +114,24 @@ function SkuSalesPageContent() {
       const startedStr = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())}`;
       const endedStr = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())}`;
 
-      let url = `/api/v2/order/product-sku/${skuId}?started_at=${startedStr}&ended_at=${endedStr}&page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(fixValueSearch)}`;
+      let url = `/api/v2/order/product-sku/${skuId}`;
 
       try {
-        const res = await GetWithToken<iResponse<OrderSalesType[]>>({
+        const res = await PostWithToken<iResponse<OrderSalesType[]>>({
           router,
           url,
           token: `${auth.auth.access_token}`,
+          data: {
+            outlet_ids:
+              selectedOutlets.length >= 1
+                ? selectedOutlets.map((o: any) => o.outlet_id)
+                : defaultSelectedOutlet.map((o: any) => o.outlet_id),
+            started_at: startedStr,
+            ended_at: endedStr,
+            page: currentPage,
+            limit: itemsPerPage,
+            search: fixValueSearch
+          },
         });
 
         if (res?.statusCode === 200) {
@@ -129,8 +145,11 @@ function SkuSalesPageContent() {
       }
     }
 
-    fetchSkuSales();
-  }, [skuId, currentPage, fixValueSearch, startDate, endDate, auth.auth.access_token, router]);
+    if (!modal) {
+      fetchSkuSales();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skuId, currentPage, fixValueSearch, startDate, endDate, auth.auth.access_token, router, selectedOutlets, defaultSelectedOutlet, modal]);
 
   const handleSearch = () => {
     setCurrentPage(1);
@@ -237,14 +256,26 @@ function SkuSalesPageContent() {
     const startedStr = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())}`;
     const endedStr = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())}`;
 
-    const url = `/api/v2/order/product-sku/${skuId}/download?started_at=${startedStr}&ended_at=${endedStr}&page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(fixValueSearch)}`;
+    const url = `/api/v2/order/product-sku/${skuId}/download`;
 
     try {
       const response = await fetch(url, {
-        method: "GET",
+        method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.auth.access_token}`,
         },
+        body: JSON.stringify({
+          outlet_ids:
+            selectedOutlets.length >= 1
+              ? selectedOutlets.map((o) => o.outlet_id)
+              : defaultSelectedOutlet.map((o) => o.outlet_id),
+          started_at: startedStr,
+          ended_at: endedStr,
+          page: currentPage,
+          limit: itemsPerPage,
+          search: fixValueSearch
+        }),
       });
 
       if (response.status === 401) {

@@ -105,7 +105,7 @@ export default function OmzetPerProduct() {
         if (res.total) setTotalItem(res.total);
         setPerProductData(res.data);
 
-        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.amount) , 0);
+        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.amount), 0);
         setTotalAmount(countAmount);
 
         setIsLoading(false);
@@ -167,7 +167,7 @@ export default function OmzetPerProduct() {
     pages.push(totalPages);
 
     return pages;
-}
+  }
 
   const pages = getPaginationRange(currentPage, howManyPages);
 
@@ -420,7 +420,7 @@ export default function OmzetPerProduct() {
               Prev
             </button>
 
-            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage}/>
+            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage} />
 
             <ul className="lg:flex items-center hidden">
               {pages.map((p, i) => {
@@ -455,8 +455,8 @@ export default function OmzetPerProduct() {
                       {page}
                     </button>
                   </li>
-              );
-            })}
+                );
+              })}
 
             </ul>
 
