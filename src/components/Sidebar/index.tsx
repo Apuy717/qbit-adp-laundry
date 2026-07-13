@@ -11,17 +11,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext } from "react";
-import { BiSolidDiscount, BiSolidWasher } from "react-icons/bi";
+import { BiSolidDiscount } from "react-icons/bi";
+import { BsFuelPumpFill } from "react-icons/bs";
 import {
+  FaClipboardList,
   FaUsers
 } from "react-icons/fa";
 import { GrDocumentText } from "react-icons/gr";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { HiOutlineBuildingStorefront } from "react-icons/hi2";
 import { IoIosApps, IoIosArrowDown } from "react-icons/io";
-import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdPayment } from "react-icons/md";
+import { MdOutlineDashboard, MdOutlineReportGmailerrorred, MdOutlineStoreMallDirectory, MdPayment } from "react-icons/md";
 import { RiMoneyCnyCircleLine } from "react-icons/ri";
-import { TbIroningSteam } from "react-icons/tb";
 import { useSelector } from "react-redux";
 
 interface SidebarProps {
@@ -79,6 +80,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ERoles.FINANCE
           ],
         },
+
         {
           icon: <HiOutlineBuildingStorefront size={22} />,
           label: "Outlet",
@@ -140,6 +142,75 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 EDepartmentEmployee.HQ,
                 EDepartmentEmployee.HO,
                 ERoles.SUPER_ADMIN,
+              ],
+            },
+            {
+              icon: <FaClipboardList size={21} />,
+              label: "SOP",
+              route: "/sop",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
+              ],
+            },
+            {
+              icon: <MdOutlineStoreMallDirectory size={23} />,
+              label: "Operational",
+              route: "/operational",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+              ],
+            },
+            {
+              icon: <HiOutlineDocumentReport size={21} />,
+              label: "Outlet Monitoring Report",
+              route: "/outlet/monitoring-report",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
+              ],
+            },
+            {
+              icon: <HiOutlineDocumentReport size={21} />,
+              label: "Closing Stock",
+              route: "/closing-stock",
+              role: [
+                ERoles.SUPER_ADMIN,
+                ERoles.PROVIDER,
+                EDepartmentEmployee.HQ,
+                EDepartmentEmployee.AUDITOR,
+                EDepartmentEmployee.FINANCE,
+                EDepartmentEmployee.AM,
+                EDepartmentEmployee.SPV,
+                EDepartmentEmployee.HO,
+                EDepartmentEmployee.OWNER,
+                ERoles.OUTLET_ADMIN,
+                ERoles.FINANCE
               ],
             },
           ],
@@ -207,22 +278,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               { label: "Per Product", route: "/report/omzet-per-product" },
             ],
         },
-        {
-          icon: <TbIroningSteam size={24} />,
-          label: "Iron",
-          route: "#",
-          role: [
-            ERoles.SUPER_ADMIN,
-            ERoles.PROVIDER,
-            EDepartmentEmployee.HQ,
-            EDepartmentEmployee.HO,
-            ERoles.OUTLET_ADMIN,
-          ],
-          children: [
-            { label: "Log", route: "/iron" },
-            { label: "Performance", route: "/iron/performance" },
-          ],
-        },
+        // {
+        //   icon: <TbIroningSteam size={24} />,
+        //   label: "Iron",
+        //   route: "#",
+        //   role: [
+        //     ERoles.SUPER_ADMIN,
+        //     ERoles.PROVIDER,
+        //     EDepartmentEmployee.HQ,
+        //     EDepartmentEmployee.HO,
+        //     ERoles.OUTLET_ADMIN,
+        //   ],
+        //   children: [
+        //     { label: "Log", route: "/iron" },
+        //     { label: "Performance", route: "/iron/performance" },
+        //   ],
+        // },
+
         {
           icon: <MdOutlineReportGmailerrorred size={24} />,
           label: "Incident",
@@ -261,7 +333,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           ],
         },
         {
-          icon: <BiSolidWasher size={24} />,
+          icon: <BsFuelPumpFill size={24} />,
           label: "Machines",
           route: "#",
           role: [
@@ -273,7 +345,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           ],
           children: [
             { label: "Machine", route: "/machine" },
-            { label: "Empty Wash", route: "/empty-wash" },
+            // { label: "Empty Wash", route: "/empty-wash" },
             { label: "Maintenance", route: "/machine-service" },
             { label: "Log Machine", route: "/log-machine" }
           ],

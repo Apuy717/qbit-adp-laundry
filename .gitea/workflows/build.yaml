@@ -1,0 +1,77 @@
+name: Build and Push Docker Image to Registry
+run-name: ${{ gitea.actor }}'s Build and Push Docker Image Workflow 
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  Push-to-Gitea-Packages:
+    runs-on: qbit-1
+    container: catthehacker/ubuntu:runner-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Notify Discord - Build Started
+        run: |
+          curl -X POST "https://discord.com/api/webhooks/1328611411160596550/Di_2VcEBsWR3_C0InloFwcVy-KGzsvsuXGHkAFaFTKbOO_2k1ifbV4rpObJsrLOozTi4" \
+          -H "Content-Type: application/json" \
+          -d '{"content":"🏗️ Starting build for ${{ gitea.repository }} by ${{ gitea.actor }}"}'
+      
+      - name: Set up Docker image metadata for Gitea
+        id: meta
+        run: |
+          IMAGE_NAME="git.rubick.qyubit.io/${{ gitea.repository }}"
+          IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
+          echo "image=${IMAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "tag=${IMAGE_NAME}:${{ gitea.sha }}" >> $GITHUB_OUTPUT
+          echo "latest=${IMAGE_NAME}:latest" >> $GITHUB_OUTPUT
+      
+      - name: Fix Docker socket permissions
+        run: |
+          sudo chmod 666 /var/run/docker.sock
+      
+      - name: Login to Gitea Container Registry
+        run: |
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login git.rubick.qyubit.io -u ${{ gitea.actor }} --password-stdin
+
+      - name: Create .env file from secrets
+        run: |
+          echo "${{ secrets.ENV_FILE_STG }}" > .env
+      
+      - name: Build Docker image for Gitea Packages
+        run: |
+          docker build -t ${{ steps.meta.outputs.tag }} -t ${{ steps.meta.outputs.latest }} .
+      
+      - name: Push to Gitea Packages
+        run: |
+          docker push ${{ steps.meta.outputs.tag }}
+          docker push ${{ steps.meta.outputs.latest }}
+      
+      - name: Notify Discord - Build Finished
+        run: |
+          curl -X POST "https://discord.com/api/webhooks/1328611411160596550/Di_2VcEBsWR3_C0InloFwcVy-KGzsvsuXGHkAFaFTKbOO_2k1ifbV4rpObJsrLOozTi4" \
+          -H "Content-Type: application/json" \
+          -d '{"content":"💿 Finished build for ${{ gitea.repository }} by ${{ gitea.actor }}"} '
+      
+      - name: Cleanup
+        run: |
+          docker logout git.rubick.qyubit.io || true
+  Trigger-n8n-Workflow:
+    runs-on: qbit-1
+    needs: Push-to-Gitea-Packages
+    container: catthehacker/ubuntu:runner-latest
+    steps:
+      - name: Notify Discord - Triggering Deployment Workflow
+        run: |
+          curl -X POST "https://discord.com/api/webhooks/1328611411160596550/Di_2VcEBsWR3_C0InloFwcVy-KGzsvsuXGHkAFaFTKbOO_2k1ifbV4rpObJsrLOozTi4" \
+          -H "Content-Type: application/json" \
+          -d '{"content":"Triggering deployment workflow for ${{ gitea.repository }} by ${{ gitea.actor }}"}'
+      - name: Trigger n8n Workflow
+        run: |
+          curl -X POST "https://n8n.rubick.qyubit.io/webhook/on-gitea-build-succeed" \
+          -H "Content-Type: application/json" \
+          -d '{"image":"'"${{ needs.Push-to-Gitea-Packages.outputs.image_tag }}"'", "repository":"'"${{ gitea.repository }}"'"}'

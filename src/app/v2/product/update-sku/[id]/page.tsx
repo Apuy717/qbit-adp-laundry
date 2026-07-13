@@ -796,7 +796,7 @@ export default function UpdateSkuPage() {
                         <InputToggle
                             value={formik.values.machine_washer}
                             onClick={(v) => formik.setFieldValue(`machine_washer`, v)}
-                            label={"Washer machine"}
+                            label={"Nozzle"}
                         />
                         <div>
                             <Input
@@ -817,7 +817,7 @@ export default function UpdateSkuPage() {
                                 <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
                             )}
                         </div>
-                        <InputToggle
+                        {/* <InputToggle
                             value={formik.values.machine_dryer}
                             onClick={(v) => formik.setFieldValue(`machine_dryer`, v)}
                             label={"Dryer Machine"}
@@ -864,7 +864,7 @@ export default function UpdateSkuPage() {
                             {formik.values.machine_iron && (
                                 <p className="mt-2 text-sm text-gray-500 italic">Jika durasi tidak diisi atau 0, maka akan menggunakan durasi dari mesin</p>
                             )}
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className={formik.values.machine_dryer || formik.values.machine_washer

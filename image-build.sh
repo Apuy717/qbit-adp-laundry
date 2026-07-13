@@ -25,3 +25,10 @@ docker buildx build \
   --platform linux/amd64,linux/arm64 \
   -t ghcr.io/apuy717/qbit-adp-aqs:latest \
   --push .
+
+# running for rocket-motowash laundry
+docker buildx build \
+  --build-arg ENV_FILE=.env.rocket-motowash \
+  --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/apuy717/qbit-adp-rocket-motowash:latest \
+  --push .

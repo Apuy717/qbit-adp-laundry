@@ -1071,9 +1071,7 @@ export default function Product() {
             "Price",
             "Outlet",
             "Stock",
-            "Washer",
-            "Dryer",
-            "Iron",
+            "Nozzle",
             "Description",
             "Created by",
             "Updated by",
@@ -1107,24 +1105,7 @@ export default function Product() {
                   <p className="font-bold uppercase text-red">none</p>
                 )}
               </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                {i.machine_dryer ? (
-                  <p className="font-bold uppercase text-green-500">
-                    {`${i.dryer_duration}`} Mnt
-                  </p>
-                ) : (
-                  <p className="font-bold uppercase text-red">none</p>
-                )}
-              </td>
-              <td className="whitespace-nowrap px-6 py-4">
-                {i.machine_iron ? (
-                  <p className="font-bold uppercase text-green-500">
-                    {`${i.iron_duration}`} Mnt
-                  </p>
-                ) : (
-                  <p className="font-bold uppercase text-red">none</p>
-                )}
-              </td>
+              
               <td className="px-6 py-4">{i.description}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {i.sku_creator ? i.sku_creator.fullname : "N/A"}
@@ -1348,9 +1329,7 @@ export default function Product() {
               "Type",
               "Price",
               "Outlet",
-              "Washer",
-              "Dryer",
-              "Iron",
+              "Nozzle",
               "Description",
               "Created by",
               "Updated by",
@@ -1383,28 +1362,6 @@ export default function Product() {
                   {i.machine_washer ? (
                     <div className="flex w-auto items-center rounded-xl bg-green-500 px-2 text-center ">
                       <p className="text-white">{`${i.washer_duration}`} Mnt</p>
-                    </div>
-                  ) : (
-                    <div className="w-auto rounded-xl bg-red-500 px-2 text-center">
-                      <p className="text-white">No</p>
-                    </div>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  {i.machine_dryer ? (
-                    <div className="flex w-auto items-center rounded-xl bg-green-500 px-2 text-center ">
-                      <p className="text-white">{`${i.dryer_duration}`} Mnt</p>
-                    </div>
-                  ) : (
-                    <div className="w-auto rounded-xl bg-red-500 px-2 text-center">
-                      <p className="text-white">No</p>
-                    </div>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4">
-                  {i.machine_iron ? (
-                    <div className="flex w-auto items-center rounded-xl bg-green-500 px-2 text-center ">
-                      <p className="text-white">{`${i.iron_duration}`} Mnt</p>
                     </div>
                   ) : (
                     <div className="w-auto rounded-xl bg-red-500 px-2 text-center">
@@ -2408,7 +2365,7 @@ export default function Product() {
                   onClick={(v) => {
                     formik.setFieldValue(`machine_washer`, v);
                   }}
-                  label={"Washer machine"}
+                  label={"Nozzle"}
                 />
                 <Input
                   className={
@@ -2429,7 +2386,7 @@ export default function Product() {
                       : null
                   }
                 />
-                <InputToggle
+                {/* <InputToggle
                   value={formik.values.machine_dryer}
                   onClick={(v) => {
                     formik.setFieldValue(`machine_dryer`, v);
@@ -2484,7 +2441,7 @@ export default function Product() {
                       ? formik.errors.iron_duration
                       : null
                   }
-                />
+                /> */}
               </div>
 
               <div className={formik.values.machine_dryer ||
