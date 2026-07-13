@@ -54,6 +54,10 @@ interface OrderSalesType {
   updated_at: string;
   customer: CustomerType;
   items: OrderItemType[];
+  outlet?: {
+    id: string;
+    name: string;
+  };
 }
 
 function SkuSalesPageContent() {
@@ -475,6 +479,7 @@ function SkuSalesPageContent() {
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider w-12">#</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Outlet</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Invoice ID</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Customer</th>
                   <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider">Price</th>
@@ -498,6 +503,9 @@ function SkuSalesPageContent() {
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">
                           {formatDateTime(order.created_at)}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 font-medium text-slate-700 dark:text-slate-300">
+                          {order.outlet?.name || "-"}
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 uppercase font-semibold text-slate-800 dark:text-slate-200">
                           {order.invoice_id}
@@ -537,11 +545,11 @@ function SkuSalesPageContent() {
                   })
                 ) : isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <SkeletonTableRow key={i} howMuch={8} />
+                    <SkeletonTableRow key={i} howMuch={9} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="text-center py-10 text-gray-500 dark:text-gray-400 dark:bg-slate-850">
+                    <td colSpan={9} className="text-center py-10 text-gray-500 dark:text-gray-400 dark:bg-slate-850">
                       No sales records found for the selected filters.
                     </td>
                   </tr>
