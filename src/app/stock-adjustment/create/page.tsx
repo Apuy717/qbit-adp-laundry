@@ -27,6 +27,8 @@ export default function CreateStockAdjustment() {
     const [outlets, setOutlets] = useState<iDropdown[]>([]);
     const [outletLoading, setOutletLoading] = useState<boolean>(false);
     const [skus, setSkus] = useState<iDropdown[]>([]);
+    const [rawSkus, setRawSkus] = useState<any[]>([]);
+    const [selectedSkuStocks, setSelectedSkuStocks] = useState<any[]>([]);
 
     // States for searching
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -80,12 +82,14 @@ export default function CreateStockAdjustment() {
             });
 
             if (res?.statusCode === 200 && Array.isArray(res.data)) {
+                setRawSkus(res.data);
                 const mappingSkus = res.data.map((i: any) => ({
                     label: `${i.code} - ${i.name}`,
                     value: i.id,
                 }));
                 setSkus(mappingSkus);
             } else {
+                setRawSkus([]);
                 setSkus([]);
             }
         } catch (error) {
@@ -112,12 +116,14 @@ export default function CreateStockAdjustment() {
             sku_id: "",
             outlet_id: "",
             quantity: 1,
+            note: "",
         },
         validationSchema: Yup.object({
             type: Yup.string().required("Adjustment type is required"),
             sku_id: Yup.string().required("SKU is required"),
             outlet_id: Yup.string().required("Outlet is required"),
             quantity: Yup.number().min(1, "Minimum quantity is 1").required("Quantity is required"),
+            note: Yup.string().optional(),
         }),
         onSubmit: async (values) => {
             if (loading) return;
@@ -143,6 +149,9 @@ export default function CreateStockAdjustment() {
         },
     });
 
+    const selectedOutletStock = selectedSkuStocks.find((o) => o.outlet_id === formik.values.outlet_id);
+    const currentStockText = selectedOutletStock ? `${selectedOutletStock.stock} ${selectedOutletStock.unit}` : "0";
+
     return (
         <div className="p-4 min-h-screen">
             <Breadcrumb pageName="Create Stock Adjustment" />
@@ -162,6 +171,13 @@ export default function CreateStockAdjustment() {
                                 formik.setFieldValue("outlet_id", "");
                                 setOutlets([]);
                                 fetchOutletsBySkuId(v);
+
+                                const selected = rawSkus.find((s) => s.id === v);
+                                if (selected) {
+                                    setSelectedSkuStocks(selected.outlet_stocks || []);
+                                } else {
+                                    setSelectedSkuStocks([]);
+                                }
                             }}
                             onSearchChange={handleSkuSearchChange}
                             searchPlaceholder={"Search SKU by name/code..."}
@@ -173,19 +189,26 @@ export default function CreateStockAdjustment() {
                             }
                         />
 
-                        <InputDropdownSearch
-                            label={outletLoading ? "Outlet* (Loading...)" : "Outlet*"}
-                            name="outlet_id"
-                            id="outlet_id"
-                            value={formik.values.outlet_id}
-                            onChange={(v) => formik.setFieldValue("outlet_id", v)}
-                            options={outlets.length > 0 ? outlets : (formik.values.sku_id && !outletLoading ? [{ label: "No outlets with stock", value: "" }] : [])}
-                            error={
-                                formik.touched.outlet_id && formik.errors.outlet_id
-                                    ? formik.errors.outlet_id
-                                    : null
-                            }
-                        />
+                        <div className="relative">
+                            <InputDropdownSearch
+                                label={outletLoading ? "Outlet* (Loading...)" : "Outlet*"}
+                                name="outlet_id"
+                                id="outlet_id"
+                                value={formik.values.outlet_id}
+                                onChange={(v) => formik.setFieldValue("outlet_id", v)}
+                                options={outlets.length > 0 ? outlets : (formik.values.sku_id && !outletLoading ? [{ label: "No outlets with stock", value: "" }] : [])}
+                                error={
+                                    formik.touched.outlet_id && formik.errors.outlet_id
+                                        ? formik.errors.outlet_id
+                                        : null
+                                }
+                            />
+                            {formik.values.sku_id && formik.values.outlet_id && (
+                                <div className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    Current Stock: <span className="text-primary font-bold">{currentStockText}</span>
+                                </div>
+                            )}
+                        </div>
 
                         <InputDropdown
                             label="Adjustment Type*"
@@ -211,6 +234,19 @@ export default function CreateStockAdjustment() {
                             error={
                                 formik.touched.quantity && formik.errors.quantity
                                     ? formik.errors.quantity
+                                    : null
+                            }
+                        />
+
+                        <Input
+                            label="Note"
+                            name="note"
+                            id="note"
+                            value={formik.values.note}
+                            onChange={(v) => formik.setFieldValue("note", v)}
+                            error={
+                                formik.touched.note && formik.errors.note
+                                    ? formik.errors.note
                                     : null
                             }
                         />

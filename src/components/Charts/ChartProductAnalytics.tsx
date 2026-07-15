@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterByOutletContext } from "@/contexts/selectOutletContex";
-import { GetWithToken, iResponse } from "@/libs/FetchData";
+import { PostWithToken, iResponse } from "@/libs/FetchData";
 import { RootState } from "@/stores/store";
 import { GraphProductAnalytic } from "@/types/graph";
 import { ApexOptions } from "apexcharts";
@@ -123,10 +123,13 @@ export default function ChartProductAnalytics(props: iProps) {
   useEffect(() => {
     async function GotTopPerformanceOutlet() {
       setLoading(true);
-      const res = await GetWithToken<iResponse<GraphProductAnalytic[]>>({
+      const res = await PostWithToken<iResponse<GraphProductAnalytic[]>>({
         url: `/api/order/order-product-analytics?started_at=${props.startedAt}&ended_at=${props.endedAt}`,
         router: router,
-        token: `${auth.access_token}`
+        token: `${auth.access_token}`,
+        data: {
+          outlet_ids: selectedOutlets.length <= 0 ? defaultSelectedOutlet.map((o) => o.outlet_id) : selectedOutlets.map((o) => o.outlet_id),
+        },
       })
 
       if (res?.statusCode === 200) {

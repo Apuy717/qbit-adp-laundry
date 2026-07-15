@@ -11,7 +11,6 @@ import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
 import { toRupiah } from "../utils/toRupiah";
-// import { transactions } from "../data-dummy/transactions";
 
 type PerProductType = {
   [x: string]: any;
@@ -105,7 +104,7 @@ export default function OmzetPerProduct() {
         if (res.total) setTotalItem(res.total);
         setPerProductData(res.data);
 
-        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.amount) , 0);
+        const countAmount = res.data.reduce((acc, curr) => acc += Number(curr.amount), 0);
         setTotalAmount(countAmount);
 
         setIsLoading(false);
@@ -167,7 +166,7 @@ export default function OmzetPerProduct() {
     pages.push(totalPages);
 
     return pages;
-}
+  }
 
   const pages = getPaginationRange(currentPage, howManyPages);
 
@@ -344,7 +343,19 @@ export default function OmzetPerProduct() {
                     </td>
 
                     <td className="whitespace-nowrap px-6 py-4">
-                      {item.product_name}
+                      <span
+                        className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline font-semibold dark:text-blue-400 dark:hover:text-blue-300"
+                        onClick={() => {
+                          const pad = (n: any) => n.toString().padStart(2, "0");
+                          const stdDate = new Date(startDate);
+                          const eDate = new Date(endDate);
+                          const _startedAt = `${stdDate.getFullYear()}-${pad(stdDate.getMonth() + 1)}-${pad(stdDate.getDate())}`;
+                          const _endedAt = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}-${pad(eDate.getDate())}`;
+                          router.push(`/report/omzet-per-product/${item.product_sku_id}?started_at=${_startedAt}&ended_at=${_endedAt}`);
+                        }}
+                      >
+                        {item.product_name}
+                      </span>
                     </td>
 
                     <td className="whitespace-nowrap px-6 py-4">
@@ -408,7 +419,7 @@ export default function OmzetPerProduct() {
               Prev
             </button>
 
-            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage}/>
+            <MobilePagination currentPage={currentPage} totalPages={howManyPages} onPageChange={setCurrentPage} />
 
             <ul className="lg:flex items-center hidden">
               {pages.map((p, i) => {
@@ -443,8 +454,8 @@ export default function OmzetPerProduct() {
                       {page}
                     </button>
                   </li>
-              );
-            })}
+                );
+              })}
 
             </ul>
 
