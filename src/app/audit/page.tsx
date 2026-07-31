@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { BiSolidDryer, BiSolidWasher } from "react-icons/bi";
+import { BsFuelPumpFill } from "react-icons/bs";
 import { useSelector } from "react-redux";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -391,14 +392,14 @@ export default function Page() {
       {
         tabActive === TabActive.ALL && (
           <div id="printable">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5 mb-5">
+            <div className="grid grid-cols-1 gap-4 mb-5">
               <div className="bg-white dark:bg-boxdark w-full p-4">
                 <div className="flex flex-row items-center justify-between">
                   <div className="flex flex-row items-center">
                     <div>
-                      <BiSolidWasher size={50} className="text-blue-400 rounded-full" />
+                      <BsFuelPumpFill size={50} className="text-blue-400" />
                     </div>
-                    <p className="ml-2 mb-2 font-bold">Washer</p>
+                    <p className="ml-2 mb-2 font-bold">Nozzle</p>
                   </div>
                   <div className="flex flex-row space-x-4">
                     <div className="flex flex-col text-sm border-r pr-2">
@@ -426,45 +427,6 @@ export default function Page() {
                   </div>
                   <div className="flex flex-col text-sm text-yellow-500">
                     <p className="font-bold">{summary.washer.unprocessInSomeDay}</p>
-                    <p>Unprocess in some day</p>
-                  </div>
-                </div>
-              </div>
-              {/* summary */}
-              <div className="bg-white dark:bg-boxdark w-full p-4">
-                <div className="flex flex-row items-center justify-between">
-                  <div className="flex flex-row items-center">
-                    <div>
-                      <BiSolidDryer size={50} className="text-orange-400 rounded-full" />
-                    </div>
-                    <p className="ml-2 mb-2 font-bold">Dryer</p>
-                  </div>
-                  <div className="flex flex-row items-center space-x-4">
-                    <div className="flex flex-col text-sm border-r pr-2">
-                      <p className="font-bold">{summary.dryer.iotLog}</p>
-                      <p>Log IOT</p>
-                    </div>
-                    <div className="flex flex-col text-sm border-r pr-2">
-                      <p className="font-bold">{summary.dryer.reqExtra}</p>
-                      <p>Req Extra</p>
-                    </div>
-                    <div className="flex flex-col text-sm text-red-500">
-                      <p className="font-bold">{summary.dryer.unprocessReal}</p>
-                      <p>Unprocess</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-row items-center space-x-2 p-2 mt-2 border-t">
-                  <div className="flex-1 flex flex-col text-sm border-r">
-                    <p className="font-bold">{summary.dryer.task}</p>
-                    <p>Task form order</p>
-                  </div>
-                  <div className="flex-1 flex flex-col text-sm border-r text-green-500">
-                    <p className="flex-1 font-bold">{summary.dryer.process}</p>
-                    <p>Process</p>
-                  </div>
-                  <div className="flex flex-col text-sm text-yellow-500">
-                    <p className="font-bold">{summary.dryer.unprocessInSomeDay}</p>
                     <p>Unprocess in some day</p>
                   </div>
                 </div>
@@ -588,7 +550,7 @@ export default function Page() {
                 <div className="grid grid-cols-1 gap-5">
                   <div id="chart" className="bg-white dark:bg-black h-full">
                     <div className="font-semibold m-4">
-                      <p>Washer</p>
+                      <p>Nozzle</p>
                     </div>
                     <ReactApexChart options={{
                       ...options,
@@ -602,24 +564,6 @@ export default function Page() {
                       }
                     }}
                       series={i.outlet.washers.sort((a, b) => a.name.localeCompare(b.name))}
-                      type="line" height={350} />
-                  </div>
-                  <div id="chart" className="bg-white dark:bg-black">
-                    <div className="font-semibold m-2">
-                      <p>Dryer</p>
-                    </div>
-                    <ReactApexChart options={{
-                      ...options,
-                      xaxis: {
-                        ...options.xaxis,
-                        categories: i.outlet.dryerCategories
-                      },
-                      yaxis: {
-                        ...options.yaxis,
-                        max: i.outlet.maxDryer
-                      }
-                    }}
-                      series={i.outlet.dryers.sort((a, b) => a.name.localeCompare(b.name))}
                       type="line" height={350} />
                   </div>
                 </div>

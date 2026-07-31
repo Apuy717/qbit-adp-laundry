@@ -1,0 +1,9 @@
+name: qbit-adp-rocket-motowash
+services:
+  qbit-app:
+    image: ghcr.io/apuy717/qbit-adp-rocket-motowash:latest
+    container_name: qbit-adp-rocket-motowash
+    env_file: .env.rocket-motowash
+    ports:
+      - "${ADP_PORT}:4000"
+    restart: unless-stopped

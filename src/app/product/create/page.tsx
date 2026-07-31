@@ -777,7 +777,7 @@ export default function CreateProduct() {
                       v,
                     );
                   }}
-                  label={"Washer Machine"}
+                  label={"Nozzle"}
                 />
                 <Input
                   className={
@@ -807,7 +807,7 @@ export default function CreateProduct() {
                       : null
                   }
                 />
-                <InputToggle
+                {/* <InputToggle
                   value={formik.values.variants[index].machine_dryer}
                   onClick={(v) => {
                     formik.setFieldValue(`variants[${index}].machine_dryer`, v);
@@ -884,7 +884,7 @@ export default function CreateProduct() {
                       ? formik.errors.variants[index].iron_duration
                       : null
                   }
-                />
+                /> */}
               </div>
 
               {/* Machine Section */}

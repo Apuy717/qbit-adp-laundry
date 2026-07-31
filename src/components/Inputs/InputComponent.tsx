@@ -43,7 +43,7 @@ export const InputDropdown: FC<iInput> = (props) => {
       <label
         onClick={() => setIsFocus(true)}
         htmlFor={props.id}
-        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || props.value.length >= 1 ? `-top-3` : `top-3`
+        className={`text-md absolute bg-white transition-all duration-500 dark:dark:bg-boxdark  ${isFocus || (props.value ?? "").length >= 1 ? `-top-3` : `top-3`
           }  left-4 text-gray-500`}
       >
         {props.label}

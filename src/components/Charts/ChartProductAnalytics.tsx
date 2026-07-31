@@ -128,7 +128,7 @@ export default function ChartProductAnalytics(props: iProps) {
         router: router,
         token: `${auth.access_token}`,
         data: {
-          outlet_ids: selectedOutlets.length <= 0 ? defaultSelectedOutlet.map((o) => o.outlet_id) : selectedOutlets.map((o) => o.outlet_id),
+          outlet_ids: selectedOutlets.map((o) => o.outlet_id),
         },
       })
 
