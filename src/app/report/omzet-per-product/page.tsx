@@ -11,7 +11,6 @@ import { IoMdDownload } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { SkeletonTableRow } from "../components/skeleton/SkeletonTableRow";
 import { toRupiah } from "../utils/toRupiah";
-// import { transactions } from "../data-dummy/transactions";
 
 type PerProductType = {
   [x: string]: any;

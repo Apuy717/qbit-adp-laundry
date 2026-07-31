@@ -250,7 +250,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             ] :
             [
               { label: "Sales", route: "/orders" },
-              { label: "Audit", route: "/audit" },
+              {
+                label: "Audit", route: "/audit",
+                role: [
+                  ERoles.SUPER_ADMIN,
+                  ERoles.PROVIDER,
+                  EDepartmentEmployee.HQ,
+                  EDepartmentEmployee.AUDITOR,
+                  EDepartmentEmployee.FINANCE,
+                  EDepartmentEmployee.AM,
+                  EDepartmentEmployee.SPV,
+                  EDepartmentEmployee.HO,
+                  ERoles.OUTLET_ADMIN,
+                  ERoles.FINANCE
+                ],
+              },
               { label: "Master Expense", route: "/purchase-request/item" },
               { label: "Expense", route: "/purchase-request/trx" },
             ],
