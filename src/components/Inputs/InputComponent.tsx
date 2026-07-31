@@ -75,14 +75,18 @@ export const InputDropdown: FC<iInput> = (props) => {
 
 export const Input: FC<iInput> = (props) => {
   const [isFocus, setIsFocus] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const isPassword = props.type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : (props.type ? props.type : "text");
+
   return (
     <div className={`${props.className} relative flex-1`}>
       <input
         id={props.id}
-        type={props.type ? props.type : "text"}
+        type={inputType}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-[1.5px] bg-white p-3 text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark"
+        className={`focus:border-apps-primary w-full rounded-md border-[1.5px] bg-white p-3 text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark ${isPassword ? "pr-11" : ""}`}
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}
@@ -95,6 +99,27 @@ export const Input: FC<iInput> = (props) => {
           }
         }}
       />
+
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          tabIndex={-1}
+        >
+          {showPassword ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          )}
+        </button>
+      )}
 
       <label
         htmlFor={props.id}
