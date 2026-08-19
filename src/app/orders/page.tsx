@@ -332,6 +332,7 @@ export default function Orders() {
             error={null}
             options={[{ label: "All", value: "all" }].concat(categorys)}
           /> */}
+          <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex flex-wrap items-end gap-4 w-full">
           <div className="w-full md:w-96">
             <Input
               label={"Search"}
@@ -353,12 +354,13 @@ export default function Orders() {
             />
           </div>
           <button
-            onClick={handleSearch}
+            type="submit"
             className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
           >
             Search
           </button>
+          </form>
         </div>
       </div>
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
@@ -594,14 +596,12 @@ export default function Orders() {
                         setDeleteFunction(() => () => cancelOrder(i.id));
                         setDeleteModal(true);
                       }}
-                      className={
-                        i.status === EStatusOrder.COMPLETED ||
-                          role.name !== ERoles.PROVIDER &&
-                          !(department === EDepartmentEmployee.HQ ||
-                            department === EDepartmentEmployee.AUDITOR ||
-                            department === EDepartmentEmployee.HO)
-                          ? `hidden`
-                          : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
+                      className={role.name !== ERoles.PROVIDER &&
+                        !(department === EDepartmentEmployee.HQ ||
+                          department === EDepartmentEmployee.AUDITOR ||
+                          department === EDepartmentEmployee.HO)
+                        ? `hidden`
+                        : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
                       }
                     >
                       <MdCancel size={22} />
