@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext } from "react";
 import { BiSolidDiscount } from "react-icons/bi";
+import { TbIroningSteam } from "react-icons/tb";
 import { BsFuelPumpFill } from "react-icons/bs";
 import {
   FaClipboardList,
@@ -144,75 +145,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 ERoles.SUPER_ADMIN,
               ],
             },
-            {
-              icon: <FaClipboardList size={21} />,
-              label: "SOP",
-              route: "/sop",
-              role: [
-                ERoles.SUPER_ADMIN,
-                ERoles.PROVIDER,
-                EDepartmentEmployee.HQ,
-                EDepartmentEmployee.AUDITOR,
-                EDepartmentEmployee.FINANCE,
-                EDepartmentEmployee.AM,
-                EDepartmentEmployee.SPV,
-                EDepartmentEmployee.HO,
-                EDepartmentEmployee.OWNER,
-                ERoles.OUTLET_ADMIN,
-                ERoles.FINANCE
-              ],
-            },
-            {
-              icon: <MdOutlineStoreMallDirectory size={23} />,
-              label: "Operational",
-              route: "/operational",
-              role: [
-                ERoles.SUPER_ADMIN,
-                ERoles.PROVIDER,
-                EDepartmentEmployee.HQ,
-                EDepartmentEmployee.AUDITOR,
-                EDepartmentEmployee.AM,
-                EDepartmentEmployee.SPV,
-                EDepartmentEmployee.HO,
-                EDepartmentEmployee.OWNER,
-              ],
-            },
-            {
-              icon: <HiOutlineDocumentReport size={21} />,
-              label: "Outlet Monitoring Report",
-              route: "/outlet/monitoring-report",
-              role: [
-                ERoles.SUPER_ADMIN,
-                ERoles.PROVIDER,
-                EDepartmentEmployee.HQ,
-                EDepartmentEmployee.AUDITOR,
-                EDepartmentEmployee.FINANCE,
-                EDepartmentEmployee.AM,
-                EDepartmentEmployee.SPV,
-                EDepartmentEmployee.HO,
-                EDepartmentEmployee.OWNER,
-                ERoles.OUTLET_ADMIN,
-                ERoles.FINANCE
-              ],
-            },
-            {
-              icon: <HiOutlineDocumentReport size={21} />,
-              label: "Closing Stock",
-              route: "/closing-stock",
-              role: [
-                ERoles.SUPER_ADMIN,
-                ERoles.PROVIDER,
-                EDepartmentEmployee.HQ,
-                EDepartmentEmployee.AUDITOR,
-                EDepartmentEmployee.FINANCE,
-                EDepartmentEmployee.AM,
-                EDepartmentEmployee.SPV,
-                EDepartmentEmployee.HO,
-                EDepartmentEmployee.OWNER,
-                ERoles.OUTLET_ADMIN,
-                ERoles.FINANCE
-              ],
-            },
           ],
         },
         {
@@ -292,22 +224,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               { label: "Per Product", route: "/report/omzet-per-product" },
             ],
         },
-        // {
-        //   icon: <TbIroningSteam size={24} />,
-        //   label: "Iron",
-        //   route: "#",
-        //   role: [
-        //     ERoles.SUPER_ADMIN,
-        //     ERoles.PROVIDER,
-        //     EDepartmentEmployee.HQ,
-        //     EDepartmentEmployee.HO,
-        //     ERoles.OUTLET_ADMIN,
-        //   ],
-        //   children: [
-        //     { label: "Log", route: "/iron" },
-        //     { label: "Performance", route: "/iron/performance" },
-        //   ],
-        // },
+        {
+          icon: <TbIroningSteam size={24} />,
+          label: "Iron",
+          route: "#",
+          role: [
+            ERoles.SUPER_ADMIN,
+            ERoles.PROVIDER,
+            EDepartmentEmployee.HQ,
+            EDepartmentEmployee.HO,
+            ERoles.OUTLET_ADMIN,
+          ],
+          children: [
+            { label: "Log", route: "/iron" },
+            { label: "Performance", route: "/iron/performance" },
+          ],
+        },
 
         {
           icon: <MdOutlineReportGmailerrorred size={24} />,

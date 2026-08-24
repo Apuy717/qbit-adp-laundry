@@ -149,6 +149,14 @@ export default function PublicReceiptPage() {
           cache: "no-store",
         });
 
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          setError(
+            `Server tidak tersedia (HTTP ${response.status}). Silakan coba beberapa saat lagi.`
+          );
+          return;
+        }
+
         const result = await response.json();
 
         if (response.ok && result.statusCode === 200 && result.data) {
