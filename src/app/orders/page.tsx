@@ -590,30 +590,6 @@ export default function Orders() {
                     Set Paid
                   </div>
                 </div>
-                {i.status !== EStatusOrder.CANCELED && i.status !== EStatusOrder.COMPLETED ?
-                  <div className="group relative">
-                    <button
-                      onClick={() => {
-                        setAlert("you wanna cancel this order?")
-                        setDeleteFunction(() => () => cancelOrder(i.id));
-                        setDeleteModal(true);
-                      }}
-                      className={
-                        role.name !== ERoles.PROVIDER &&
-                          !(department === EDepartmentEmployee.HQ ||
-                            department === EDepartmentEmployee.AUDITOR ||
-                            department === EDepartmentEmployee.HO)
-                          ? `hidden`
-                          : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
-                      }
-                    >
-                      <MdCancel size={22} />
-                    </button>
-                    <div className="whitespace-nowrap absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-80 group-hover:block">
-                      Cancel Order
-                    </div>
-                  </div>
-                  : null}
               </td>
             </tr>
           ))}
@@ -725,36 +701,17 @@ export default function Orders() {
                   <p className="uppercase">{detail?.status}</p>
                 </div>
 
-                {detail.status !== EStatusOrder.COMPLETED &&
-                  detail.status !== EStatusOrder.CANCELED &&
-                  detail.items.some((item) =>
-                    item.stages.some((stage) => stage.status !== "finished"),
-                  ) && (
-                    <button
-                      onClick={() => {
-                        setAlert("you wanna bypass this order to completed?");
-                        setDeleteFunction(() => () => bypassCompleted(detail.id));
-                        setDeleteModal(true);
-                      }}
-                      className="mt-2 w-full rounded bg-primary py-2 text-white hover:bg-opacity-90 font-medium"
-                    >
-                      Bypass Completed
-                    </button>
-                  )}
-                {detail.status === EStatusOrder.COMPLETED &&
-                  detail.items.some((item) =>
-                    item.stages.some((stage) => stage.status == "finished"),
-                  ) && (
-                    <button
-                      onClick={() => {
-                        setAlert("you wanna cancel this order?");
-                        setDeleteFunction(() => () => cancelOrder(detail.id));
-                        setDeleteModal(true);
-                      }}
-                      className="mt-2 w-full rounded bg-red-700 py-2 text-white hover:bg-opacity-90 font-medium"
-                    >
-                      Cancel Order
-                    </button>
+                {(detail.status === EStatusOrder.COMPLETED || detail.status === EStatusOrder.PROCESS) &&
+                  (<button
+                    onClick={() => {
+                      setAlert("you wanna cancel this order?");
+                      setDeleteFunction(() => () => cancelOrder(detail.id));
+                      setDeleteModal(true);
+                    }}
+                    className="mt-2 w-full rounded bg-red-700 py-2 text-white hover:bg-opacity-90 font-medium"
+                  >
+                    Cancel Order
+                  </button>
                   )}
               </div>
             </div>
