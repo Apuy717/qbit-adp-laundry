@@ -701,6 +701,19 @@ export default function Orders() {
                   <p className="uppercase">{detail?.status}</p>
                 </div>
 
+                {detail.status === EStatusOrder.PROCESS && (
+                  <button
+                    onClick={() => {
+                      setAlert("Bypass this order to completed?");
+                      setDeleteFunction(() => () => bypassCompleted(detail.id));
+                      setDeleteModal(true);
+                    }}
+                    className="mt-2 w-full rounded bg-green-600 py-2 text-white hover:bg-opacity-90 font-medium"
+                  >
+                    Bypass to Complete
+                  </button>
+                )}
+
                 {(detail.status === EStatusOrder.COMPLETED || detail.status === EStatusOrder.PROCESS) &&
                   (<button
                     onClick={() => {
