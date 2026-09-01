@@ -36,6 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>ADP | Depth Clean</title>
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="icon" href="/images/bossq.ico" className="w-[12px] h-auto" />
       </head>
       <body cz-shortcut-listen="true">
