@@ -253,7 +253,9 @@ export default function Orders() {
         setRefresh(!refresh);
         setDeleteModal(false)
         toast.success("Cancel Order Success");
-        setRefresh(!refresh);
+        setDetail((prev) =>
+          prev ? { ...prev, status: EStatusOrder.CANCELED } : prev,
+        );
       } else {
         setDeleteModal(false)
         toast.error(res.err);
@@ -332,33 +334,35 @@ export default function Orders() {
             error={null}
             options={[{ label: "All", value: "all" }].concat(categorys)}
           /> */}
-          <div className="w-full md:w-96">
-            <Input
-              label={"Search"}
-              name={"search"}
-              id={"search"}
-              value={search}
-              onChange={(v) => setSearch(v)}
-              error={null}
-            />
-          </div>
-          <div className="w-full md:w-96">
-            <Input
-              label={"Search By Product"}
-              name={"search_by_product"}
-              id={"search_by_product"}
-              value={searchByProduct}
-              onChange={(v) => setSearchByProduct(v)}
-              error={null}
-            />
-          </div>
-          <button
-            onClick={handleSearch}
-            className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
+          <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex flex-wrap items-end gap-4 w-full">
+            <div className="w-full md:w-96">
+              <Input
+                label={"Search"}
+                name={"search"}
+                id={"search"}
+                value={search}
+                onChange={(v) => setSearch(v)}
+                error={null}
+              />
+            </div>
+            <div className="w-full md:w-96">
+              <Input
+                label={"Search By Product"}
+                name={"search_by_product"}
+                id={"search_by_product"}
+                value={searchByProduct}
+                onChange={(v) => setSearchByProduct(v)}
+                error={null}
+              />
+            </div>
+            <button
+              type="submit"
+              className={`inline-flex items-center justify-center rounded-md bg-black px-10 py-3 
               text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10`}
-          >
-            Search
-          </button>
+            >
+              Search
+            </button>
+          </form>
         </div>
       </div>
       <div className="mb-4 w-full rounded-t bg-white p-4 dark:bg-boxdark">
@@ -586,31 +590,6 @@ export default function Orders() {
                     Set Paid
                   </div>
                 </div>
-                {i.status !== "canceled" ?
-                  <div className="group relative">
-                    <button
-                      onClick={() => {
-                        setAlert("you wanna cancel this order?")
-                        setDeleteFunction(() => () => cancelOrder(i.id));
-                        setDeleteModal(true);
-                      }}
-                      className={
-                        i.status === EStatusOrder.COMPLETED ||
-                          role.name !== ERoles.PROVIDER &&
-                          !(department === EDepartmentEmployee.HQ ||
-                            department === EDepartmentEmployee.AUDITOR ||
-                            department === EDepartmentEmployee.HO)
-                          ? `hidden`
-                          : `w-auto whitespace-nowrap h-10 rounded bg-red-700 px-2 py-1 text-white text-xs font bold`
-                      }
-                    >
-                      <MdCancel size={22} />
-                    </button>
-                    <div className="whitespace-nowrap absolute bottom-[70%] mb-2 hidden -translate-x-1/2 transform rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-80 group-hover:block">
-                      Cancel Order
-                    </div>
-                  </div>
-                  : null}
               </td>
             </tr>
           ))}
@@ -722,21 +701,30 @@ export default function Orders() {
                   <p className="uppercase">{detail?.status}</p>
                 </div>
 
-                {detail.status !== EStatusOrder.COMPLETED &&
-                  detail.status !== EStatusOrder.CANCELED &&
-                  detail.items.some((item) =>
-                    item.stages.some((stage) => stage.status !== "finished"),
-                  ) && (
-                    <button
-                      onClick={() => {
-                        setAlert("you wanna bypass this order to completed?");
-                        setDeleteFunction(() => () => bypassCompleted(detail.id));
-                        setDeleteModal(true);
-                      }}
-                      className="mt-2 w-full rounded bg-primary py-2 text-white hover:bg-opacity-90 font-medium"
-                    >
-                      Bypass Completed
-                    </button>
+                {detail.status === EStatusOrder.PROCESS && (
+                  <button
+                    onClick={() => {
+                      setAlert("Bypass this order to completed?");
+                      setDeleteFunction(() => () => bypassCompleted(detail.id));
+                      setDeleteModal(true);
+                    }}
+                    className="mt-2 w-full rounded bg-green-600 py-2 text-white hover:bg-opacity-90 font-medium"
+                  >
+                    Bypass to Complete
+                  </button>
+                )}
+
+                {(detail.status === EStatusOrder.COMPLETED || detail.status === EStatusOrder.PROCESS) &&
+                  (<button
+                    onClick={() => {
+                      setAlert("you wanna cancel this order?");
+                      setDeleteFunction(() => () => cancelOrder(detail.id));
+                      setDeleteModal(true);
+                    }}
+                    className="mt-2 w-full rounded bg-red-700 py-2 text-white hover:bg-opacity-90 font-medium"
+                  >
+                    Cancel Order
+                  </button>
                   )}
               </div>
             </div>

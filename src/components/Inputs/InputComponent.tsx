@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, useState } from "react";
 import { BiErrorCircle, BiInfoCircle } from "react-icons/bi";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export interface iDropdown {
   label: string;
@@ -75,14 +76,21 @@ export const InputDropdown: FC<iInput> = (props) => {
 
 export const Input: FC<iInput> = (props) => {
   const [isFocus, setIsFocus] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const isPassword = props.type === "password";
+  const inputType = isPassword ? (showPassword ? "text" : "password") : (props.type ? props.type : "text");
+
   return (
     <div className={`${props.className} relative flex-1`}>
       <input
         id={props.id}
-        type={props.type ? props.type : "text"}
+        type={inputType}
         name={props.name}
         autoComplete="off"
-        className="focus:border-apps-primary w-full rounded-md border-[1.5px] bg-white p-3 text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark"
+        className={`focus:border-apps-primary w-full rounded-md border-[1.5px] bg-white p-3 ${
+          isPassword ? "pr-10" : ""
+        } text-gray-500 focus:outline-none dark:border-form-strokedark dark:dark:bg-boxdark`}
         onChange={(e) => props.onChange(e.target.value)}
         value={props.value}
         required={props.required ? true : false}
@@ -96,6 +104,22 @@ export const Input: FC<iInput> = (props) => {
         }}
       />
 
+      {isPassword && (
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-white focus:outline-none z-10"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? (
+            <FaEyeSlash className="h-5 w-5" />
+          ) : (
+            <FaEye className="h-5 w-5" />
+          )}
+        </button>
+      )}
+
       <label
         htmlFor={props.id}
         className={`text-md absolute bg-white transition-all duration-500 dark:bg-gray-800  ${isFocus ||
@@ -103,7 +127,7 @@ export const Input: FC<iInput> = (props) => {
           (typeof props.value === "string" && props.value.length >= 1)
           ? `-top-3`
           : `top-3`
-          }  left-4 text-gray-500 dark:text-gray-300`}
+          }  left-4 text-gray-500 dark:text-gray-300 pointer-events-none`}
       >
         {props.label}
       </label>

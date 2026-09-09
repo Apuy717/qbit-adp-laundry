@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import SelectGroupOne from "@/components/SelectGroup/SelectGroupOne";
 import Link from "next/link";
+import { PasswordInput } from "@/components/Inputs/PasswordInput";
 
 export const metadata: Metadata = {
   title: "Next.js Form Layout | TailAdmin - Next.js Dashboard Template",
@@ -119,8 +120,7 @@ const FormLayout = () => {
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Password
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="Enter password"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
@@ -207,8 +207,7 @@ const FormLayout = () => {
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Password
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="Enter password"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
@@ -218,8 +217,7 @@ const FormLayout = () => {
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Re-type Password
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="Re-enter password"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
