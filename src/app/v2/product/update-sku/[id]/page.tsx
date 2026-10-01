@@ -77,6 +77,7 @@ export default function UpdateSkuPage() {
             price: "",
             capital_price: 0,
             type: "",
+            machine_capacity: "",
             outlet_stocks: [] as any[],
             machine_washer: false,
             washer_duration: 0,
@@ -121,6 +122,20 @@ export default function UpdateSkuPage() {
             type: Yup.string()
                 .oneOf(["services", "goods"])
                 .required("Type is required"),
+
+            machine_capacity: Yup.mixed().when("type", {
+                is: "services",
+                then: () =>
+                    Yup.number()
+                        .transform((value, originalValue) =>
+                            originalValue === "" || originalValue === null ? null : value
+                        )
+                        .nullable()
+                        .typeError("Machine capacity must be a number")
+                        .integer("Machine capacity must be a whole number")
+                        .positive("Machine capacity must be greater than 0"),
+                otherwise: () => Yup.mixed().notRequired(),
+            }),
 
             outlet_stocks: Yup.array().when("type", {
                 is: "goods",
@@ -241,6 +256,9 @@ export default function UpdateSkuPage() {
                     price: parseInt(values.price as string),
                     capital_price: values.capital_price,
                     type: values.type,
+                    machine_capacity: values.type === "services" && values.machine_capacity !== ""
+                        ? Number(values.machine_capacity)
+                        : null,
                     outlet_stocks: values.outlet_stocks,
                     machine_washer: values.machine_washer,
                     washer_duration: values.washer_duration,
@@ -386,6 +404,7 @@ export default function UpdateSkuPage() {
                         formik.setFieldValue("capital_price", i.capital_price || 0);
                         formik.setFieldValue("price", i.price);
                         formik.setFieldValue("type", i.type);
+                        formik.setFieldValue("machine_capacity", i.machine_capacity != null ? String(i.machine_capacity) : "");
 
                         const mapOutletStocks = (i.OutletStocks || i.outlet_stocks || []).map((os: any) => ({
                             outlet_id: os.outlet_id || "",
@@ -637,6 +656,24 @@ export default function UpdateSkuPage() {
                                 : null
                         }
                     />
+                    {formik.values.type === "services" && (
+                        <div>
+                            <Input
+                                label={"Kapasitas Mesin per Batch (opsional)"}
+                                name={"machine_capacity"}
+                                id={"machine_capacity"}
+                                type="number"
+                                value={formik.values.machine_capacity}
+                                onChange={(v) => formik.setFieldValue(`machine_capacity`, v)}
+                                error={
+                                    (formik.touched.machine_capacity || formik.submitCount > 0) && formik.errors.machine_capacity
+                                        ? formik.errors.machine_capacity
+                                        : null
+                                }
+                            />
+                            <p className="mt-2 text-sm text-gray-500 italic">Kosongkan jika produk ini tidak menggunakan sistem batch.</p>
+                        </div>
+                    )}
                     {formik.values.type === "goods" && (
                         <div className="col-span-1 md:col-span-2 space-y-4 rounded-md border p-4 border-gray-200">
                             <div className="flex justify-between items-center mb-2">

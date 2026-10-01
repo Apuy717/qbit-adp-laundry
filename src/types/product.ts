@@ -48,6 +48,7 @@ export interface iSku {
   washer_duration: number | null,
   dryer_duration: number | null,
   iron_duration: number | null,
+  machine_capacity: number | null,
   is_deleted: boolean,
   created_at: string,
   updated_at: string,
