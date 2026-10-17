@@ -13,6 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { HiDownload } from "react-icons/hi";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 
 export default function LogMachine() {
@@ -44,7 +45,8 @@ export default function LogMachine() {
     FilterByOutletContext,
   );
   const [loadingDownload, setLodaingDownload] = useState<boolean>(false);
-
+  const [loadingFinishId, setLoadingFinishId] = useState<string | null>(null);
+  const isProvider = role.name === ERoles.PROVIDER;
 
   const router = useRouter();
 
@@ -113,6 +115,28 @@ export default function LogMachine() {
     setTimeout(() => setLodaingDownload(false), 1000);
   }
 
+  async function SetFinish(stageId: string) {
+    if (loadingFinishId) return;
+    if (!confirm("Set stage ini menjadi finished?")) return;
+    setLoadingFinishId(stageId);
+
+    const res = await PostWithToken<iResponse<any>>({
+      router: router,
+      url: "/api/machine/machine-stage/set-finished",
+      token: `${auth.access_token}`,
+      data: { stage_id: stageId },
+    });
+
+    if (res?.statusCode === 200) {
+      toast.success("Berhasil set finish");
+      setRefresh((r) => !r);
+    } else {
+      toast.error("Gagal set finish");
+    }
+
+    setLoadingFinishId(null);
+  }
+
 
   return (
     <div className="min-h-screen">
@@ -158,6 +182,7 @@ export default function LogMachine() {
           "end at",
           "target",
           "real",
+          ...(isProvider ? ["action"] : []),
         ]
         }
         currentPage={0}
@@ -201,6 +226,22 @@ export default function LogMachine() {
             }) : "-"}</td>
             <td className="whitespace-nowrap px-6 py-4">{i.duration} (minutes)</td>
             <td className="whitespace-nowrap px-6 py-4">{i.order_item_stage?.status === "finished" ? `${i.time_used} (minutes)` : "-"}</td>
+            {isProvider && (
+              <td className="whitespace-nowrap px-6 py-4">
+                {i.order_item_stage?.status === "processing" ? (
+                  <button
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-opacity-90 disabled:opacity-60"
+                    disabled={loadingFinishId !== null}
+                    onClick={() => SetFinish(i.order_item_stage.id)}
+                  >
+                    {loadingFinishId === i.order_item_stage.id && (
+                      <AiOutlineLoading3Quarters size={16} className="animate-spin" />
+                    )}
+                    Finish
+                  </button>
+                ) : "-"}
+              </td>
+            )}
           </tr>
         ))}
       </Table>
