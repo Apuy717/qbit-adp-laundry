@@ -130,7 +130,8 @@ export default function EmptyWash() {
         prevItems.map((item) =>
           item.id === id ? {
             ...item, approved: res.data.approved,
-            review_status: res.data.review_status
+            review_status: res.data.review_status,
+            updated_at: res.data.updated_at
           } : item
         )
       );
@@ -224,15 +225,26 @@ export default function EmptyWash() {
             </td>
 
             <td className="whitespace-nowrap px-6 py-4">
-              {
-                i.approved === null && "-"
-              }
+              {i.review_status === EEmptyWash.PENDING || i.approved === null ? "-" : (
               <div className="flex flex-col">
                 {i.approved?.fullname}
                 <span className="font-light">
                   {i.approved?.dial_code} {i.approved?.phone_number}
                 </span>
+                {i.updated_at && (
+                  <span className="font-light text-xs">
+                    {new Date(i.updated_at).toLocaleDateString("id", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                  </span>
+                )}
               </div>
+              )}
             </td>
 
 
